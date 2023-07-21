@@ -42,7 +42,10 @@ fun ZzanZ_AndroidTheme(
         }
     }
 
-    CompositionLocalProvider(ZzanZColorPalette provides ColorPalette()) {
+    CompositionLocalProvider(
+        ZzanZColorPalette provides ColorPalette(),
+        ZzanZTypo provides CustomTypography()
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,

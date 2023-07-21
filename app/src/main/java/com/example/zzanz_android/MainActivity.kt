@@ -15,10 +15,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.common.NavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZ_AndroidTheme
+import dagger.hilt.android.AndroidEntryPoint
 import com.example.zzanz_android.presentation.view.Home
 import com.example.zzanz_android.presentation.view.Setting
 import com.example.zzanz_android.presentation.view.Splash
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.common.NavRoutes
+import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 
 @Composable
 fun Splash(navController: NavHostController) {
@@ -35,7 +36,7 @@ fun Splash(navController: NavHostController) {
             modifier = Modifier.fillMaxSize()
         ) {
             Text(
-                text = "Splash Screen", textAlign = TextAlign.Center, fontSize = 20.sp
+                text = "Splash Screen", style = ZzanZTypo.current.Caption
             )
             Spacer(modifier = Modifier.height(20.dp))
             Row(

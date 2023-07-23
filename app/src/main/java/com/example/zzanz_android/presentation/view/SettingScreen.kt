@@ -1,52 +1,140 @@
 package com.example.zzanz_android.presentation.view
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.zzanz_android.R
 import com.example.zzanz_android.common.NavRoutes
+import com.example.zzanz_android.common.SettingNavRoutes
+import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
+import com.example.zzanz_android.presentation.view.component.GreenRoundButton
+import com.example.zzanz_android.presentation.view.setting.AlarmSetting
+import com.example.zzanz_android.presentation.view.setting.BudgetByCategory
+import com.example.zzanz_android.presentation.view.setting.BudgetCategory
+import com.example.zzanz_android.presentation.view.setting.SetBudget
 
 @Composable
-fun Setting(navController: NavHostController) {
-    // NavHostController TestCode
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(
-                text = "Setting Screen", textAlign = TextAlign.Center, fontSize = 20.sp
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            Row(
-                modifier = Modifier.wrapContentWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TestNavButton(route = NavRoutes.Splash.route, navController = navController)
-                TestNavButton(route = NavRoutes.Home.route, navController = navController)
-            }
+fun Setting(navController: NavHostController, route: String = SettingNavRoutes.Budget.route) {
+    var nextRoute: String = ""
+    var backRoute: String = ""
+    var buttonText: String = ""
+    when (route) {
+        SettingNavRoutes.BudgetByCategory.route -> {
+            nextRoute = SettingNavRoutes.AlarmSetting.route
+            backRoute = SettingNavRoutes.BudgetCategory.route
+            buttonText = stringResource(id = R.string.complete)
+        }
+
+        SettingNavRoutes.AlarmSetting.route -> {
+            nextRoute = NavRoutes.Home.route
+            backRoute = SettingNavRoutes.BudgetByCategory.route
+            buttonText = stringResource(id = R.string.set_alarm_time_btn_title)
+        }
+
+        SettingNavRoutes.Budget.route -> {
+            nextRoute = SettingNavRoutes.BudgetCategory.route
+            backRoute = NavRoutes.Splash.route
+            buttonText = stringResource(id = R.string.next)
+        }
+
+        SettingNavRoutes.BudgetCategory.route -> {
+            nextRoute = SettingNavRoutes.BudgetByCategory.route
+            backRoute = SettingNavRoutes.Budget.route
+            buttonText = stringResource(id = R.string.next)
         }
     }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = ZzanZColorPalette.current.White)
+    ) {
+        TopBar(navController = navController, route = route, backRoute = backRoute)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(horizontal = 20.dp)
+        ) {
+            when (route) {
+                SettingNavRoutes.BudgetByCategory.route -> {
+                    BudgetByCategory()
+                }
 
+                SettingNavRoutes.AlarmSetting.route -> {
+                    AlarmSetting()
+                }
+
+                SettingNavRoutes.Budget.route -> {
+                    SetBudget()
+                }
+
+                SettingNavRoutes.BudgetCategory.route -> {
+                    BudgetCategory()
+                }
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            GreenRoundButton(modifier = Modifier.height(56.dp),
+                text = buttonText,
+                onClick = {
+                    navController.navigate(nextRoute) {
+                        popUpTo(NavRoutes.Setting.route) {
+                            inclusive = true
+                        }
+                    }
+                })
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+fun TopBar(navController: NavHostController, route: String, backRoute: String) {
+    Row(
+        modifier = Modifier
+            .padding()
+            .height(56.dp)
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        if (route != SettingNavRoutes.AlarmSetting.route || route != SettingNavRoutes.Budget.route) {
+            Image(
+                painter = painterResource(id = R.drawable.icon_left),
+                contentDescription = "back to before frame",
+                contentScale = ContentScale.None,
+                modifier = Modifier
+                    .size(28.dp)
+                    .clickable {
+                        if (!backRoute.isNullOrEmpty()) {
+                            navController.navigate(backRoute) {
+                                popUpTo(NavRoutes.Setting.route) {
+                                    inclusive = true
+                                }
+                            }
+                        } else {
+                            navController.popBackStack()
+                        }
+                    }
+            )
+        }
+    }
 }
 
 @Preview

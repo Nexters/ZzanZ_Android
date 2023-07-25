@@ -24,9 +24,11 @@ fun BudgetTextField(
     modifier: Modifier,
     strExplain: String = "",
     onTextChange: (String) -> Unit,
-    keyboardType: KeyboardType
+    keyboardType: KeyboardType,
+    won: String
 ) {
     var text by remember { mutableStateOf("") }
+    // TODO - value 값에 '원' 붙이기
     TextField(
         value = text,
         onValueChange = {
@@ -62,6 +64,7 @@ fun EditPreview() {
         modifier = Modifier,
         strExplain = "Test",
         { text: String -> Log.d("budgetTextField", text) },
-        keyboardType = KeyboardType.Number
+        keyboardType = KeyboardType.Number,
+        "원"
     )
 }

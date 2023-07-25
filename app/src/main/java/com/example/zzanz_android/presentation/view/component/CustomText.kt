@@ -11,7 +11,7 @@ import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 @Composable
 fun TitleText(modifier: Modifier, text: String = "") {
     Text(
-        modifier = Modifier,
+        modifier = modifier,
         text = text,
         style = ZzanZTypo.current.H1.copy(fontWeight = FontWeight.Bold),
         color = ZzanZColorPalette.current.Gray09

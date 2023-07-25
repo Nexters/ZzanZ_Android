@@ -46,7 +46,6 @@ fun SetBudget(onButtonChange: (String) -> Unit) {
         )
         Spacer(modifier = Modifier.height(24.dp))
         // TODO - TextFiled 손보기
-        // TODO - 진입 시, textfield에 포커스 되도록
         BudgetTextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -56,7 +55,8 @@ fun SetBudget(onButtonChange: (String) -> Unit) {
                 Log.d("Budget", text)
                 onButtonChange(text)
             },
-            keyboardType = KeyboardType.Number
+            keyboardType = KeyboardType.Number,
+            won = stringResource(id = R.string.krw)
         )
 
         LaunchedEffect(windowInfo) {

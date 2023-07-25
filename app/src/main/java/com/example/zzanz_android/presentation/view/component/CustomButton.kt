@@ -64,19 +64,24 @@ fun GreenRectButton(modifier: Modifier, text: String, onClick: () -> Unit, enabl
 
 @Composable
 fun CustomCategoryButton(modifier: Modifier, text: String, onClick: () -> Unit) {
-    Button(modifier = modifier
-        .fillMaxWidth()
-        .height(56.dp)
-        .border(
-            width = 1.dp,
-            color = ZzanZColorPalette.current.Green04,
-            shape = RoundedCornerShape(8.dp)
-        ), colors = ButtonDefaults.buttonColors(
-        disabledContainerColor = ZzanZColorPalette.current.White,
-        disabledContentColor = ZzanZColorPalette.current.Gray08,
-        containerColor = ZzanZColorPalette.current.Green01,
-        contentColor = ZzanZColorPalette.current.Gray08,
-    ), onClick = { onClick() }) {
+    Button(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .border(
+                width = 1.dp,
+                color = ZzanZColorPalette.current.Green04,
+                shape = RoundedCornerShape(8.dp)
+            ),
+        colors = ButtonDefaults.buttonColors(
+            disabledContainerColor = ZzanZColorPalette.current.White,
+            disabledContentColor = ZzanZColorPalette.current.Gray08,
+            containerColor = ZzanZColorPalette.current.Green01,
+            contentColor = ZzanZColorPalette.current.Gray08
+        ),
+        onClick = { onClick() },
+        shape = RoundedCornerShape(8.dp)
+    ) {
         Text(
             text = text, style = ZzanZTypo.current.Body02
         )

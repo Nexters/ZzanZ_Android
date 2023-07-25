@@ -13,16 +13,14 @@
     <string name="add_category_explain_title">어떤 카테고리를 추가할까요?</string>
     <!--common-->
     <string name="add_category">카테고리 추가</string>
-    <string-array name="budget_category">
-        <item>식비</item>
-        <item>외식비</item>
-        <item>커피·간식비</item>
-        <item>교통·유류비</item>
-        <item>생활용품</item>
-        <item>의류·미용비</item>
-        <item>문화비</item>
-        <item>비상금</item>
-    </string-array>
+    <string name="category_food">식비</string>
+    <string name="category_eatout">외식비</string>
+    <string name="category_coffee">커피·간식비</string>
+    <string name="category_transportation">교통·유류비</string>
+    <string name="category_living">생활용품</string>
+    <string name="category_beauty">의류·미용비</string>
+    <string name="category_culture">문화비</string>
+    <string name="category_nestegg">비상금</string>
     <string name="money_krw">%d원</string>
     <string name="krw">원</string>
     <string name="budget_example">10,000원</string>

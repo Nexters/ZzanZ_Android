@@ -43,8 +43,7 @@ fun BudgetByCategory() {
             .background(ZzanZColorPalette.current.White)
     ) {
         TitleText(
-            modifier = Modifier,
-            text = stringResource(id = R.string.budget_by_category_title)
+            modifier = Modifier, text = stringResource(id = R.string.budget_by_category_title)
         )
         Spacer(modifier = Modifier.height(28.dp))
         explainTotalBudget(totalBudget = 10000)
@@ -64,8 +63,7 @@ fun explainTotalBudget(totalBudget: Int) {
             .fillMaxWidth()
             .padding(0.dp)
             .background(
-                color = ZzanZColorPalette.current.Gray01,
-                shape = RectangleShape
+                color = ZzanZColorPalette.current.Gray01, shape = RectangleShape
             )
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -73,8 +71,7 @@ fun explainTotalBudget(totalBudget: Int) {
         Icon(
             painter = painterResource(
                 id = R.drawable.alert_information_circle
-            ),
-            contentDescription = ""
+            ), contentDescription = ""
         )
         Spacer(modifier = Modifier.width(7.dp))
         Text(
@@ -98,10 +95,7 @@ fun explainTotalBudget(totalBudget: Int) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BudgetByCategoryItem(
-    category: String,
-    @DrawableRes
-    categoryImage: Int,
-    budget: Int
+    category: String, @DrawableRes categoryImage: Int, budget: Int
 ) {
     Row(
         modifier = Modifier
@@ -127,14 +121,13 @@ fun BudgetByCategoryItem(
                         .height(24.dp),
                     strExplain = "10,000",
                     onTextChange = { text: String -> Log.d("BudgetByCategory", text) },
-                    keyboardType = KeyboardType.Number
+                    keyboardType = KeyboardType.Number,
+                    won = ""
                 )
                 Text(
-                    text = stringResource(id = R.string.krw),
-                    style = ZzanZTypo.current.Body02.copy(
+                    text = stringResource(id = R.string.krw), style = ZzanZTypo.current.Body02.copy(
                         fontWeight = FontWeight.SemiBold
-                    ),
-                    color = ZzanZColorPalette.current.Gray05
+                    ), color = ZzanZColorPalette.current.Gray05
                 )
             }
         }
@@ -190,15 +183,13 @@ fun PlusIcon() {
             .width(32.dp)
             .height(32.dp)
             .background(
-                color = ZzanZColorPalette.current.Gray02,
-                shape = CircleShape
+                color = ZzanZColorPalette.current.Gray02, shape = CircleShape
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            modifier = Modifier
-                .size(20.dp),
+            modifier = Modifier.size(20.dp),
             painter = painterResource(id = R.drawable.icon_plus),
             contentDescription = ""
         )

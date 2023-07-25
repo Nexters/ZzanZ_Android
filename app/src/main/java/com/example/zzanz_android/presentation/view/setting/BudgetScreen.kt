@@ -7,7 +7,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,8 +25,13 @@ import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.presentation.view.component.BudgetTextField
 import com.example.zzanz_android.presentation.view.component.TitleText
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SetBudget() {
+fun SetBudget(onButtonChange: (String) -> Unit) {
+    val windowInfo = LocalWindowInfo.current
+    val focusRequester = remember {
+        FocusRequester()
+    }
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -35,18 +47,30 @@ fun SetBudget() {
         Spacer(modifier = Modifier.height(24.dp))
         // TODO - TextFiled 손보기
         // TODO - 진입 시, textfield에 포커스 되도록
-        // TODO - 1글자 이상 입력시 버튼 활성화
         BudgetTextField(
-            modifier = Modifier.fillMaxWidth(1f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
             strExplain = stringResource(id = R.string.budget_example),
-            onTextChange = { text: String -> Log.d("Budget", text) },
+            onTextChange = { text: String ->
+                Log.d("Budget", text)
+                onButtonChange(text)
+            },
             keyboardType = KeyboardType.Number
         )
+
+        LaunchedEffect(windowInfo) {
+            snapshotFlow { windowInfo.isWindowFocused }.collect { isWindowFocused ->
+                if (isWindowFocused) {
+                    focusRequester.requestFocus()
+                }
+            }
+        }
     }
 }
 
 @Preview
 @Composable
 fun SetBudgetPreview() {
-    SetBudget()
+    SetBudget({})
 }

@@ -20,14 +20,13 @@ import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 
 @Composable
 fun GreenRoundButton(
-    modifier: Modifier,
-    text: String,
-    onClick: () -> Unit
+    modifier: Modifier, text: String, onClick: () -> Unit, enabled: Boolean
 ) {
     Button(modifier = modifier
         .fillMaxWidth()
         .height(56.dp),
         shape = RoundedCornerShape(size = 12.dp),
+        enabled = enabled,
         colors = ButtonDefaults.run {
             buttonColors(
                 disabledContainerColor = ZzanZColorPalette.current.Gray03,
@@ -44,11 +43,12 @@ fun GreenRoundButton(
 }
 
 @Composable
-fun GreenRectButton(modifier: Modifier, text: String, onClick: () -> Unit) {
+fun GreenRectButton(modifier: Modifier, text: String, onClick: () -> Unit, enabled: Boolean) {
     Button(modifier = modifier
         .fillMaxWidth()
         .height(56.dp),
         shape = RectangleShape,
+        enabled = enabled,
         colors = ButtonDefaults.buttonColors(
             disabledContainerColor = ZzanZColorPalette.current.Gray03,
             disabledContentColor = ZzanZColorPalette.current.White,
@@ -71,14 +71,12 @@ fun CustomCategoryButton(modifier: Modifier, text: String, onClick: () -> Unit) 
             width = 1.dp,
             color = ZzanZColorPalette.current.Green04,
             shape = RoundedCornerShape(8.dp)
-        ),
-        colors = ButtonDefaults.buttonColors(
-            disabledContainerColor = ZzanZColorPalette.current.White,
-            disabledContentColor = ZzanZColorPalette.current.Gray08,
-            containerColor = ZzanZColorPalette.current.Green01,
-            contentColor = ZzanZColorPalette.current.Gray08,
-        ),
-        onClick = { onClick() }) {
+        ), colors = ButtonDefaults.buttonColors(
+        disabledContainerColor = ZzanZColorPalette.current.White,
+        disabledContentColor = ZzanZColorPalette.current.Gray08,
+        containerColor = ZzanZColorPalette.current.Green01,
+        contentColor = ZzanZColorPalette.current.Gray08,
+    ), onClick = { onClick() }) {
         Text(
             text = text, style = ZzanZTypo.current.Body02
         )
@@ -89,9 +87,9 @@ fun CustomCategoryButton(modifier: Modifier, text: String, onClick: () -> Unit) 
 @Composable
 fun CustomButtonPreview() {
     Column(modifier = Modifier.padding(10.dp)) {
-        GreenRoundButton(modifier = Modifier, text = "Button", onClick = {})
+        GreenRoundButton(modifier = Modifier, text = "Button", onClick = {}, enabled = true)
         Spacer(modifier = Modifier.height(8.dp))
-        GreenRectButton(modifier = Modifier, text = "RectButton", onClick = {})
+        GreenRectButton(modifier = Modifier, text = "RectButton", onClick = {}, enabled = false)
         Spacer(modifier = Modifier.height(8.dp))
         CustomCategoryButton(modifier = Modifier, text = "CategoryButton", onClick = {})
     }

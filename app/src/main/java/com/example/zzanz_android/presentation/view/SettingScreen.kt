@@ -13,6 +13,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -25,7 +30,9 @@ import com.example.zzanz_android.R
 import com.example.zzanz_android.common.NavRoutes
 import com.example.zzanz_android.common.SettingNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
+import com.example.zzanz_android.presentation.view.component.GreenRectButton
 import com.example.zzanz_android.presentation.view.component.GreenRoundButton
+import com.example.zzanz_android.presentation.view.component.keyboardAsState
 import com.example.zzanz_android.presentation.view.setting.AlarmSetting
 import com.example.zzanz_android.presentation.view.setting.BudgetByCategory
 import com.example.zzanz_android.presentation.view.setting.BudgetCategory
@@ -36,6 +43,9 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
     var nextRoute: String = ""
     var backRoute: String = ""
     var buttonText: String = ""
+    var isButtonEnabled by remember { mutableStateOf(false) }
+    // TODO - keyboardAsState 동작 안함
+    var isKeyboardOpen by keyboardAsState()
     when (route) {
         SettingNavRoutes.BudgetByCategory.route -> {
             nextRoute = SettingNavRoutes.AlarmSetting.route
@@ -61,6 +71,7 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
             buttonText = stringResource(id = R.string.next)
         }
     }
+    LaunchedEffect(key1 = isButtonEnabled, key2 = isKeyboardOpen, block = {})
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -83,7 +94,9 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
                 }
 
                 SettingNavRoutes.Budget.route -> {
-                    SetBudget()
+                    SetBudget { budget ->
+                        isButtonEnabled = budget.isNotEmpty()
+                    }
                 }
 
                 SettingNavRoutes.BudgetCategory.route -> {
@@ -91,18 +104,54 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
-            GreenRoundButton(modifier = Modifier.height(56.dp),
-                text = buttonText,
-                onClick = {
+            SetBottomButton(
+                buttonText = buttonText,
+                navController = navController,
+                nextRoute = nextRoute,
+                isButtonEnabled = isButtonEnabled,
+                isKeyboardOpen = isKeyboardOpen,
+            )
+
+        }
+    }
+}
+
+
+@Composable
+fun SetBottomButton(
+    buttonText: String,
+    navController: NavHostController,
+    nextRoute: String,
+    isButtonEnabled: Boolean,
+    isKeyboardOpen: Boolean
+) {
+    if (isKeyboardOpen) {
+        GreenRectButton(
+            modifier = Modifier.height(56.dp), text = buttonText, onClick = {
+                if (isButtonEnabled) {
                     navController.navigate(nextRoute) {
                         popUpTo(NavRoutes.Setting.route) {
                             inclusive = true
                         }
                     }
-                })
-            Spacer(modifier = Modifier.height(24.dp))
-        }
+                }
+            }, enabled = isButtonEnabled
+        )
+    } else {
+        GreenRoundButton(
+            modifier = Modifier.height(56.dp), text = buttonText, onClick = {
+                if (isButtonEnabled) {
+                    navController.navigate(nextRoute) {
+                        popUpTo(NavRoutes.Setting.route) {
+                            inclusive = true
+                        }
+                    }
+                }
+            }, enabled = isButtonEnabled
+        )
+        Spacer(modifier = Modifier.height(24.dp))
     }
+
 }
 
 @Composable
@@ -115,8 +164,7 @@ fun TopBar(navController: NavHostController, route: String, backRoute: String) {
             .padding(16.dp)
     ) {
         if (route != SettingNavRoutes.AlarmSetting.route || route != SettingNavRoutes.Budget.route) {
-            Image(
-                painter = painterResource(id = R.drawable.icon_left),
+            Image(painter = painterResource(id = R.drawable.icon_left),
                 contentDescription = "back to before frame",
                 contentScale = ContentScale.None,
                 modifier = Modifier
@@ -131,8 +179,7 @@ fun TopBar(navController: NavHostController, route: String, backRoute: String) {
                         } else {
                             navController.popBackStack()
                         }
-                    }
-            )
+                    })
         }
     }
 }

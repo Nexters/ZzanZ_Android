@@ -29,7 +29,10 @@ fun BudgetTextField(
     var text by remember { mutableStateOf("") }
     TextField(
         value = text,
-        onValueChange = { onTextChange(it) },
+        onValueChange = {
+            text = it
+            onTextChange(it)
+        },
         maxLines = 1,
         placeholder = {
             Text(

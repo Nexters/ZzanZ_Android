@@ -10,7 +10,8 @@ data class BudgetCategoryModel(
     val categoryName: String,
     var isChecked: Boolean = false,
     var budget: Int = 0
-)
+) {
+}
 
 object BudgetCategoryData {
     val category = listOf(

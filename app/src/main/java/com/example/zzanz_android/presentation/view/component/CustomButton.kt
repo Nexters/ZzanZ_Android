@@ -63,25 +63,28 @@ fun GreenRectButton(modifier: Modifier, text: String, onClick: () -> Unit, enabl
 }
 
 @Composable
-fun CustomCategoryButton(modifier: Modifier, text: String, onClick: () -> Unit) {
-    Button(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .border(
-                width = 1.dp,
-                color = ZzanZColorPalette.current.Green04,
-                shape = RoundedCornerShape(8.dp)
-            ),
-        colors = ButtonDefaults.buttonColors(
+fun CustomCategoryButton(
+    modifier: Modifier, text: String, onClick: () -> Unit, isChecked: Boolean
+) {
+    Button(modifier = modifier
+        .fillMaxWidth()
+        .height(56.dp)
+        .border(
+            width = 1.dp,
+            shape = RoundedCornerShape(size = 8.dp),
+            color = if (isChecked) ZzanZColorPalette.current.Green04
+            else ZzanZColorPalette.current.Gray03
+        ), shape = RoundedCornerShape(size = 8.dp), colors = ButtonDefaults.run {
+        buttonColors(
             disabledContainerColor = ZzanZColorPalette.current.White,
             disabledContentColor = ZzanZColorPalette.current.Gray08,
-            containerColor = ZzanZColorPalette.current.Green01,
-            contentColor = ZzanZColorPalette.current.Gray08
-        ),
-        onClick = { onClick() },
-        shape = RoundedCornerShape(8.dp)
-    ) {
+            containerColor = if (isChecked) ZzanZColorPalette.current.Green01
+            else ZzanZColorPalette.current.White,
+            contentColor = ZzanZColorPalette.current.Gray08,
+        )
+    }, onClick = {
+        onClick()
+    }) {
         Text(
             text = text, style = ZzanZTypo.current.Body02
         )
@@ -96,6 +99,8 @@ fun CustomButtonPreview() {
         Spacer(modifier = Modifier.height(8.dp))
         GreenRectButton(modifier = Modifier, text = "RectButton", onClick = {}, enabled = false)
         Spacer(modifier = Modifier.height(8.dp))
-        CustomCategoryButton(modifier = Modifier, text = "CategoryButton", onClick = {})
+        CustomCategoryButton(
+            modifier = Modifier, text = "CategoryButton", onClick = {}, isChecked = true
+        )
     }
 }

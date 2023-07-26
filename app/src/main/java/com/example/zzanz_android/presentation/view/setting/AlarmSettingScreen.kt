@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -41,7 +42,8 @@ fun AlarmSetting() {
             .wrapContentHeight()
     ) {
         TitleText(
-            modifier = Modifier, text = stringResource(id = R.string.set_alarm_time_title)
+            modifier = Modifier.padding(horizontal = 24.dp),
+            text = stringResource(id = R.string.set_alarm_time_title)
         )
         Spacer(modifier = Modifier.height(28.dp))
         Row(

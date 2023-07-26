@@ -7,13 +7,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.zzanz_android.common.SuffixTransformation
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 
@@ -21,24 +22,29 @@ import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BudgetTextField(
+    textState: MutableState<String>,
     modifier: Modifier,
     strExplain: String = "",
     onTextChange: (String) -> Unit,
     keyboardType: KeyboardType,
     won: String
 ) {
-    var text by remember { mutableStateOf("") }
-    // TODO - value 값에 '원' 붙이기
+    // TODO - value 값에 ',' 붙이기
     TextField(
-        value = text,
+        value = textState.value,
         onValueChange = {
-            text = it
+            textState.value = it
             onTextChange(it)
         },
+        visualTransformation = if (textState.value.isEmpty()) VisualTransformation.None
+        else SuffixTransformation(won),
         maxLines = 1,
+        singleLine = true,
         placeholder = {
             Text(
-                text = strExplain, style = ZzanZTypo.current.Headline
+                text = strExplain,
+                style = ZzanZTypo.current.Headline,
+                color = ZzanZColorPalette.current.Gray03
             )
         },
         keyboardOptions = KeyboardOptions(
@@ -46,12 +52,14 @@ fun BudgetTextField(
         ),
         modifier = modifier,
         textStyle = ZzanZTypo.current.Headline,
-        colors = TextFieldDefaults.textFieldColors(
-            textColor = ZzanZColorPalette.current.Gray09,
-            disabledTextColor = ZzanZColorPalette.current.Gray03,
-            containerColor = ZzanZColorPalette.current.White,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = ZzanZColorPalette.current.White,
+            focusedTextColor = ZzanZColorPalette.current.Gray09,
             cursorColor = ZzanZColorPalette.current.Green04,
-            placeholderColor = ZzanZColorPalette.current.Gray03
+            disabledTextColor = ZzanZColorPalette.current.Gray03,
+            unfocusedContainerColor = ZzanZColorPalette.current.White,
+            unfocusedIndicatorColor = ZzanZColorPalette.current.Gray03,
+            focusedIndicatorColor = ZzanZColorPalette.current.Green04,
         )
     )
 }
@@ -60,7 +68,11 @@ fun BudgetTextField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditPreview() {
+    val textState = remember {
+        mutableStateOf("")
+    }
     BudgetTextField(
+        textState = textState,
         modifier = Modifier,
         strExplain = "Test",
         { text: String -> Log.d("budgetTextField", text) },

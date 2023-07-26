@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -32,8 +34,13 @@ fun SetBudget(onButtonChange: (String) -> Unit) {
     val focusRequester = remember {
         FocusRequester()
     }
+    val budgetState = remember {
+        mutableStateOf("")
+    }
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
     ) {
         TitleText(
             modifier = Modifier, text = stringResource(id = R.string.next_week_budget_title)
@@ -47,6 +54,7 @@ fun SetBudget(onButtonChange: (String) -> Unit) {
         Spacer(modifier = Modifier.height(24.dp))
         // TODO - TextFiled 손보기
         BudgetTextField(
+            textState = budgetState,
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),

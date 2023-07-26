@@ -12,11 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -30,6 +33,7 @@ import com.example.zzanz_android.R
 import com.example.zzanz_android.common.NavRoutes
 import com.example.zzanz_android.common.SettingNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
+import com.example.zzanz_android.presentation.view.component.CategoryBottomSheet
 import com.example.zzanz_android.presentation.view.component.GreenRectButton
 import com.example.zzanz_android.presentation.view.component.GreenRoundButton
 import com.example.zzanz_android.presentation.view.component.keyboardAsState
@@ -37,13 +41,18 @@ import com.example.zzanz_android.presentation.view.setting.AlarmSetting
 import com.example.zzanz_android.presentation.view.setting.BudgetByCategory
 import com.example.zzanz_android.presentation.view.setting.BudgetCategory
 import com.example.zzanz_android.presentation.view.setting.SetBudget
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Setting(navController: NavHostController, route: String = SettingNavRoutes.Budget.route) {
     var nextRoute: String = ""
     var backRoute: String = ""
     var buttonText: String = ""
-    var isButtonEnabled by remember { mutableStateOf(false) }
+    var isButtonEnabled by remember { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+
     // TODO - keyboardAsState 동작 안함
     var isKeyboardOpen by keyboardAsState()
     when (route) {
@@ -82,11 +91,14 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(horizontal = 20.dp)
         ) {
             when (route) {
                 SettingNavRoutes.BudgetByCategory.route -> {
-                    BudgetByCategory()
+                    BudgetByCategory(onAddClicked = {
+                        coroutineScope.launch {
+                            sheetState.show()
+                        }
+                    })
                 }
 
                 SettingNavRoutes.AlarmSetting.route -> {
@@ -100,7 +112,12 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
                 }
 
                 SettingNavRoutes.BudgetCategory.route -> {
-                    BudgetCategory()
+                    BudgetCategory(textModifier = Modifier.padding(horizontal = 24.dp),
+                        categoryModifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
+                        titleText = R.string.budget_by_category_title,
+                        onAddClicked = {
+
+                        })
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
@@ -111,7 +128,9 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
                 isButtonEnabled = isButtonEnabled,
                 isKeyboardOpen = isKeyboardOpen,
             )
-
+            if (sheetState.isVisible) {
+                CategoryBottomSheet(coroutineScope = coroutineScope, sheetState = sheetState)
+            }
         }
     }
 }
@@ -127,7 +146,11 @@ fun SetBottomButton(
 ) {
     if (isKeyboardOpen) {
         GreenRectButton(
-            modifier = Modifier.height(56.dp), text = buttonText, onClick = {
+            modifier = Modifier
+                .height(56.dp)
+                .padding(horizontal = 24.dp),
+            text = buttonText,
+            onClick = {
                 if (isButtonEnabled) {
                     navController.navigate(nextRoute) {
                         popUpTo(NavRoutes.Setting.route) {
@@ -135,11 +158,16 @@ fun SetBottomButton(
                         }
                     }
                 }
-            }, enabled = isButtonEnabled
+            },
+            enabled = isButtonEnabled
         )
     } else {
         GreenRoundButton(
-            modifier = Modifier.height(56.dp), text = buttonText, onClick = {
+            modifier = Modifier
+                .height(56.dp)
+                .padding(horizontal = 24.dp),
+            text = buttonText,
+            onClick = {
                 if (isButtonEnabled) {
                     navController.navigate(nextRoute) {
                         popUpTo(NavRoutes.Setting.route) {
@@ -147,7 +175,8 @@ fun SetBottomButton(
                         }
                     }
                 }
-            }, enabled = isButtonEnabled
+            },
+            enabled = isButtonEnabled
         )
         Spacer(modifier = Modifier.height(24.dp))
     }

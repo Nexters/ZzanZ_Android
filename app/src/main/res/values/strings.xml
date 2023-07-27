@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">ZzanZ_Android</string>
+    <!--setting view-->
+    <string name="next_week_budget_title">다음 주 예산을 얼마로 정할까요?</string>
+    <string name="next_week_budget_explain">월간 지출이 아닌 한 주 기준으로 생각해보세요</string>
+    <string name="next_week_budget_category">다음 주 소비할 카테고리를\n모두 선택해주세요</string>
+    <string name="budget_by_category_title">카테고리별 예산을 입력해주세요</string>
+    <string name="total_budget_title_1">다음 주 총 예산은</string>
+    <string name="total_budget_title_2">이에요</string>
+    <string name="budget_save_money_title">남은 %d원은 비상금에 쏙! 넣어드릴게요."</string>
+    <string name="set_alarm_time_title">소비 기록을 잊지 않도록\n매일 알림을 보내드릴게요</string>
+    <string name="set_alarm_time_btn_title">%s에 알림받기</string>
+    <string name="add_category_explain_title">어떤 카테고리를 추가할까요?</string>
+    <!--common-->
+    <string name="add_category">카테고리 추가</string>
+    <string name="category_food">식비</string>
+    <string name="category_eatout">외식비</string>
+    <string name="category_coffee">커피·간식비</string>
+    <string name="category_transportation">교통·유류비</string>
+    <string name="category_living">생활용품</string>
+    <string name="category_beauty">의류·미용비</string>
+    <string name="category_culture">문화비</string>
+    <string name="category_nestegg">비상금</string>
+    <string name="money_krw">%d원</string>
+    <string name="krw">원</string>
+    <string name="budget_example">10,000원</string>
+    <string name="next">다음</string>
+    <string name="complete">완료</string>
+    <string name="delete">삭제</string>
 </resources>

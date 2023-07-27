@@ -9,6 +9,9 @@ android {
     namespace 'com.example.zzanz_android'
     compileSdk 33
 
+    def secretStorePropertiesFile = rootProject.file("secretstore.properties")
+    def secretStoreProperties = new Properties()
+    secretStoreProperties.load(new FileInputStream(secretStorePropertiesFile))
     defaultConfig {
         applicationId "com.example.zzanz_android"
         minSdk 29
@@ -20,6 +23,8 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        buildConfigField "String", "BASE_URL", secretStoreProperties["BASE_URL"]
     }
 
     buildTypes {
@@ -37,6 +42,7 @@ android {
     }
     buildFeatures {
         compose true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.3.2'
@@ -68,6 +74,9 @@ dependencies {
     // lifecycle
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    // paging
+    implementation 'androidx.paging:paging-runtime:3.1.1'
+    implementation "androidx.paging:paging-compose:3.2.0-rc01"
     // kotlin serialization
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1'
     // timber

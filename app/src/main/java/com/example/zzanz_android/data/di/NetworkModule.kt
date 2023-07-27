@@ -1,8 +1,12 @@
-package com.example.zzanz_android.common.di
+package com.example.zzanz_android.data.di
 
+import android.content.Context
+import com.example.zzanz_android.BuildConfig
+import com.example.zzanz_android.data.util.AuthorizationManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -20,18 +24,14 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+    private const val apiVersion = "/v1"
     @Singleton
     @Provides
-    fun provideKtorClient(): HttpClient {
+    fun provideKtorClient(@ApplicationContext applicationContext: Context): HttpClient {
         return HttpClient(CIO){
             defaultRequest {
-                // TODO : init default header, base url ..
-                url("")
-                header("", "")
-            }
-            engine {
-                // TODO : set the time out
-
+                url(BuildConfig.BASE_URL + apiVersion)
+                header("Authorization", AuthorizationManager.getDeviceId(applicationContext))
             }
             install(ContentNegotiation) {
                 json(Json {

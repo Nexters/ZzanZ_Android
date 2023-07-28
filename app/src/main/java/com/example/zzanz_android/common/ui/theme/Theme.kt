@@ -44,7 +44,8 @@ fun ZzanZ_AndroidTheme(
 
     CompositionLocalProvider(
         ZzanZColorPalette provides ColorPalette(),
-        ZzanZTypo provides CustomTypography()
+        ZzanZTypo provides CustomTypography(),
+        ZzanZDimen provides Dimen()
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

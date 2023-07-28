@@ -7,10 +7,10 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import javax.inject.Inject
 
-class ChallengeApi @Inject constructor(
+class ChallengeServiceImpl @Inject constructor(
     private val client: HttpClient
-) {
-    suspend fun getChallengeParticipate(cursor: Int?, page: Int): List<ChallengeDto>{
+): ChallengeService {
+    override suspend fun getChallengeParticipate(cursor: Int?, page: Int): List<ChallengeDto>{
         return client.get("/challenge/participate"){
             cursor?.let { parameter("cursor", it) }
             parameter("page", page)

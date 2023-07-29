@@ -15,6 +15,11 @@ fun BackIcon() {
 }
 
 @Composable
+fun MoreIcon(){
+    Icon(painterResource(id = R.drawable.icon_right), contentDescription = null)
+}
+
+@Composable
 fun AddIcon() {
     ImageViewWithXml(modifier = Modifier.size(36.dp), resId = R.drawable.icon_add)
 }

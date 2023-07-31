@@ -16,6 +16,14 @@
     <string name="category_remain_amount_title_suffix"> 남았어요</string>
     <string name="category_goal_amount_subtitle">%1$s 예산은 %2$s원이에요</string>
     <string name="category_add_spending_btn_title">소비 기록 추가</string>
+    <!-- spending -->
+    <string name="spending_title">얼마를 소비했나요?</string>
+    <string name="spending_amount_hint">10,000</string>
+    <string name="spending_title_hint">소비 제목</string>
+    <string name="spending_memo_hint">메모</string>
+    <string name="spending_amount_remain_message">%1$s 예산이 %2$s원 남았어요</string>
+    <string name="spending_amount_over_message">%1$s 예산을 %2$s원 넘겼어요</string>
+    <string name="spending_done_btn_title">기록 완료</string>
     <!--common-->
     <string name="add_category">카테고리 추가</string>
     <string name="category_food">식비</string>
@@ -26,7 +34,7 @@
     <string name="category_beauty">의류·미용비</string>
     <string name="category_culture">문화비</string>
     <string name="category_nestegg">비상금</string>
-    <string name="money_krw">%d원</string>
+    <string name="money_krw">%s원</string>
     <string name="krw">원</string>
     <string name="budget_example">10,000원</string>
     <string name="next">다음</string>

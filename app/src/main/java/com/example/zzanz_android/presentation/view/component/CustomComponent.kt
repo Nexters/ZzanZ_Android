@@ -87,7 +87,7 @@ fun MoneyInputTextField(
                                 append(hint)
                             }
                             withStyle(SpanStyle(color = ZzanZColorPalette.current.Gray09)) {
-                                append(" 원")
+                                append(" " + stringResource(id = R.string.money_unit))
                             }
                         },
                         style = ZzanZTypo.current.SubHeading,

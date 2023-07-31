@@ -1,11 +1,15 @@
 package com.example.zzanz_android.presentation.view.spending
 
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
@@ -27,7 +33,7 @@ import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
 import com.example.zzanz_android.presentation.view.component.PlainInputTextField
 
 @Composable
-fun AddSpendingScreen() {
+fun AddSpendingScreen(navController: NavController) {
     val title = remember { mutableStateOf(TextFieldValue("")) }
     val amount = remember { mutableStateOf(TextFieldValue("")) }
     val diffAmount = "10,000"
@@ -43,6 +49,7 @@ fun AddSpendingScreen() {
             modifier = Modifier
                 .padding(it)
                 .fillMaxSize()
+            
         ) {
             AddSpendingContent(
                 modifier = Modifier.weight(1f),
@@ -155,5 +162,5 @@ fun TitleText(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun AddSpendingPreview() {
-    AddSpendingScreen()
+    AddSpendingScreen(rememberNavController())
 }

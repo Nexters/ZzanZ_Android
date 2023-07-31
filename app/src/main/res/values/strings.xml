@@ -35,7 +35,7 @@
     <string name="category_culture">문화비</string>
     <string name="category_nestegg">비상금</string>
     <string name="money_krw">%s원</string>
-    <string name="krw">원</string>
+    <string name="money_unit">원</string>
     <string name="budget_example">10,000원</string>
     <string name="next">다음</string>
     <string name="complete">완료</string>

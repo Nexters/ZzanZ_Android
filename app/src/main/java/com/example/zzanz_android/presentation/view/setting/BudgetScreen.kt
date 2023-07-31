@@ -64,7 +64,7 @@ fun SetBudget(onButtonChange: (String) -> Unit) {
                 onButtonChange(text)
             },
             keyboardType = KeyboardType.Number,
-            won = stringResource(id = R.string.krw)
+            won = stringResource(id = R.string.money_unit)
         )
 
         LaunchedEffect(windowInfo) {

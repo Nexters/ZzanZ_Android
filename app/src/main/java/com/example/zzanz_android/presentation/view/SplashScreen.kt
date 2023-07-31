@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.common.NavRoutes
@@ -45,7 +44,7 @@ fun Splash(navController: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TestNavButton(route = NavRoutes.Setting.route, navController = navController)
-                TestNavButton(route = NavRoutes.Home.route, navController = navController)
+                TestNavButton(route = NavRoutes.Spending.route, navController = navController)
             }
         }
     }

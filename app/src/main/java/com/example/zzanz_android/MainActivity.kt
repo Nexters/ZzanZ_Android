@@ -17,10 +17,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.example.zzanz_android.common.NavRoutes
 import com.example.zzanz_android.common.SettingNavRoutes
+import com.example.zzanz_android.common.SpendingNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZ_AndroidTheme
 import com.example.zzanz_android.presentation.view.Home
 import com.example.zzanz_android.presentation.view.Setting
 import com.example.zzanz_android.presentation.view.Splash
+import com.example.zzanz_android.presentation.view.spending.AddSpendingScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -60,6 +62,18 @@ fun NavGraphBuilder.settingGraph(navController: NavHostController) {
     }
 }
 
+// TODO : gowoon - Navigation Graph 파일 생성
+fun NavGraphBuilder.spendingGraph(navController: NavHostController){
+    navigation(
+        startDestination = SpendingNavRoutes.AddSpending.route,
+        route = NavRoutes.Spending.route
+    ){
+        composable(SpendingNavRoutes.AddSpending.route){
+            AddSpendingScreen(navController)
+        }
+    }
+}
+
 @Composable
 fun NavHost(
     modifier: Modifier = Modifier,
@@ -72,7 +86,7 @@ fun NavHost(
         startDestination = startDestination
     ) {
         settingGraph(navController = navController)
-
+        spendingGraph(navController = navController)
         composable(NavRoutes.Home.route) {
             Home(navController)
         }

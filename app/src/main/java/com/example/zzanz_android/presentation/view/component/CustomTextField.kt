@@ -43,7 +43,7 @@ fun BudgetTextField(
         placeholder = {
             Text(
                 text = strExplain,
-                style = ZzanZTypo.current.Headline,
+                style = ZzanZTypo.current.Heading,
                 color = ZzanZColorPalette.current.Gray03
             )
         },
@@ -51,7 +51,7 @@ fun BudgetTextField(
             keyboardType = keyboardType
         ),
         modifier = modifier,
-        textStyle = ZzanZTypo.current.Headline,
+        textStyle = ZzanZTypo.current.Heading,
         colors = TextFieldDefaults.colors(
             focusedContainerColor = ZzanZColorPalette.current.White,
             focusedTextColor = ZzanZColorPalette.current.Gray09,

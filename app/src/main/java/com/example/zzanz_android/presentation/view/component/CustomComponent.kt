@@ -12,12 +12,27 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+
+@Composable
+fun InformationComponent(
+    iconColor: Color,
+    textColor: Color,
+    message: String
+){
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        InfoICon(color = iconColor)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = message, style = ZzanZTypo.current.Body02, color = textColor)
+    }
+}
 
 @Composable
 fun AddSpendingComponent(){

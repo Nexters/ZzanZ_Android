@@ -1,6 +1,7 @@
 package com.example.zzanz_android.presentation.view.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,7 +51,8 @@ fun ProgressIndicator(
 @Composable
 fun PagerFocusedItem(
     title: String,
-    challengeStatus: ChallengeStatus
+    challengeStatus: ChallengeStatus,
+    onClick: () -> Unit
 ) {
     val backgroundColor = when (challengeStatus) {
         ChallengeStatus.PRE_OPENED -> ZzanZColorPalette.current.Gray06
@@ -63,6 +65,7 @@ fun PagerFocusedItem(
             .background(backgroundColor)
             .padding(vertical = 8.dp, horizontal = 15.dp)
             .wrapContentSize()
+            .clickable { onClick() }
     ) {
         Text(
             text = title,
@@ -76,14 +79,15 @@ fun PagerFocusedItem(
 @Composable
 fun PagerUnFocusedItem(
     title: String,
-    challengeStatus: ChallengeStatus
+    challengeStatus: ChallengeStatus,
+    onClick: () -> Unit
 ) {
     val textColor = when (challengeStatus) {
         ChallengeStatus.CLOSED -> ZzanZColorPalette.current.Gray03
         else -> ZzanZColorPalette.current.Gray06
     }
     BadgedBox(
-        modifier = Modifier.padding(vertical = 8.dp, horizontal = 15.dp),
+        modifier = Modifier.padding(vertical = 8.dp, horizontal = 15.dp).clickable { onClick() },
         badge = {
             if (challengeStatus == ChallengeStatus.PRE_OPENED) Badge(
                 modifier = Modifier.size(

@@ -40,7 +40,7 @@ class ChallengeRepositoryImpl @Inject constructor(
 
     override suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Flow<Resource<Boolean>> {
         return flow {
-            val result = goalAmountByCategorySource.load(goalAmountListDto = goalAmountDtoList)
+            val result = goalAmountByCategorySource.load(goalAmountDtoList = goalAmountDtoList)
             emit(Resource.Success<Boolean>(data = result))
         }
 

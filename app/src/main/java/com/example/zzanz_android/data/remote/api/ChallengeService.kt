@@ -9,7 +9,7 @@ interface ChallengeService {
     
     suspend fun postGoalAmount(goalAmountDto: GoalAmountDto): Boolean
 
-    suspend fun postCategoryGoalAmount(goalAmountListDto: List<GoalAmountByCategoryDto>): Boolean
+    suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Boolean
 
     suspend fun putGoalAmount(goalAmountDto: GoalAmountDto): Boolean
 }

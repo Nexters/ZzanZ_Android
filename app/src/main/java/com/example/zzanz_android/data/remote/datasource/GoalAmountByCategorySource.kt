@@ -7,9 +7,9 @@ import javax.inject.Inject
 class GoalAmountByCategorySource @Inject constructor(
     private val challengeApi: ChallengeServiceImpl
 ) {
-    suspend fun load(goalAmountListDto: List<GoalAmountByCategoryDto>): Boolean {
+    suspend fun load(goalAmountDtoList: List<GoalAmountByCategoryDto>): Boolean {
         return try {
-            challengeApi.postCategoryGoalAmount(goalAmountListDto = goalAmountListDto)
+            challengeApi.postCategoryGoalAmount(goalAmountDtoList = goalAmountDtoList)
         } catch (e: Exception) {
             Error(e)
             return false

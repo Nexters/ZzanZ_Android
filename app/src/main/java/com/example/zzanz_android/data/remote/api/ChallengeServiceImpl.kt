@@ -54,11 +54,11 @@ class ChallengeServiceImpl @Inject constructor(
         }
     }
 
-    override suspend fun postCategoryGoalAmount(goalAmountListDto: List<GoalAmountByCategoryDto>): Boolean {
+    override suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Boolean {
         return try {
             client.post("/challenge/plan/category") {
                 contentType(ContentType.Application.Json)
-                setBody(goalAmountListDto)
+                setBody(goalAmountDtoList)
             }.let {
                 it.status == HttpStatusCode.OK
             }

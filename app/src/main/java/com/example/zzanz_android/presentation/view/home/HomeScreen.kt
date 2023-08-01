@@ -19,7 +19,11 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,6 +44,7 @@ import com.example.zzanz_android.presentation.view.component.CategoryCardItem
 import com.example.zzanz_android.presentation.view.component.GreenRoundButton
 import com.example.zzanz_android.presentation.view.component.PagerFocusedItem
 import com.example.zzanz_android.presentation.view.component.PagerUnFocusedItem
+import com.example.zzanz_android.presentation.view.component.PopupSheetDialog
 import com.example.zzanz_android.presentation.view.component.ProgressIndicator
 import kotlinx.coroutines.launch
 
@@ -54,9 +59,13 @@ fun HomeScreen() {
     val startDate = "8.8"
     val endDate = "8.16"
 
+    var showDialog by remember{ mutableStateOf(false) }
+
     Scaffold(
         modifier = Modifier,
-        topBar = { AppBarWithMoreAction(ZzanZColorPalette.current.Gray01) { } },
+        topBar = { AppBarWithMoreAction(ZzanZColorPalette.current.Gray01) {
+            showDialog = !showDialog
+        } },
         containerColor = ZzanZColorPalette.current.Gray01
     ) {
         Box(modifier = Modifier.padding(it)) {
@@ -107,6 +116,9 @@ fun HomeScreen() {
                         }
                     }
                 }
+            }
+            if(showDialog){
+                PopupSheetDialog { showDialog = false }
             }
         }
     }

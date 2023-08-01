@@ -5,6 +5,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.util.ImageViewWithXml
@@ -22,4 +23,18 @@ fun MoreIcon(){
 @Composable
 fun AddIcon() {
     ImageViewWithXml(modifier = Modifier.size(36.dp), resId = R.drawable.icon_add)
+}
+
+@Composable
+fun AlarmIcon(){
+    ImageViewWithXml(modifier = Modifier.size(32.dp), resId = R.drawable.ic_alarm)
+}
+
+@Composable
+fun FeedbackIcon(){
+    ImageViewWithXml(modifier = Modifier.size(32.dp), resId = R.drawable.ic_feedback)
+}
+@Composable
+fun CommunityIcon(){
+    ImageViewWithXml(modifier = Modifier.size(32.dp), resId = R.drawable.ic_community)
 }

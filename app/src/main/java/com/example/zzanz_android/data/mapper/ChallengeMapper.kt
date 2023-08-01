@@ -6,7 +6,7 @@ import com.example.zzanz_android.domain.model.Category
 import com.example.zzanz_android.domain.model.ChallengeStatus
 import com.example.zzanz_android.domain.model.PlanModel
 
-object ChallengeMapper: Mapper<ChallengeDto, ChallengeModel> {
+object ChallengeMapper: MapperToModel<ChallengeDto, ChallengeModel> {
     override fun ChallengeDto.toModel() = ChallengeModel(
         id = challengeId,
         startAt = startAt,
@@ -25,5 +25,4 @@ object ChallengeMapper: Mapper<ChallengeDto, ChallengeModel> {
             )
         }
     )
-
 }

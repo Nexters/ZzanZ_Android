@@ -1,11 +1,11 @@
 package com.example.zzanz_android.presentation.view.component
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,22 +22,14 @@ fun AppBarWithBackNavigation() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBarWithMoreAction(onClickAction: () -> Unit){
+fun AppBarWithMoreAction(appbarColor: Color, onClickAction: () -> Unit){
     TopAppBar(
         title = {},
         actions = {
             IconButton(onClick = onClickAction) {
                 MoreIcon()
             }
-        }
+        },
+        colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = appbarColor)
     )
-}
-
-@Preview
-@Composable
-fun Preview(){
-    Column {
-        AppBarWithBackNavigation()
-        AppBarWithMoreAction({})
-    }
 }

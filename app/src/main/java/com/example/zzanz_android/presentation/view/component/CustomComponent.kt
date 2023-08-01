@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -17,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +32,20 @@ import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.domain.model.ChallengeStatus
+
+@Composable
+fun ProgressIndicator(
+    modifier: Modifier = Modifier,
+    color: Color,
+    ratio: Float
+) {
+    LinearProgressIndicator(
+        modifier = modifier,
+        trackColor = ZzanZColorPalette.current.Gray03,
+        color = color,
+        progress = ratio
+    )
+}
 
 @Composable
 fun PagerFocusedItem(
@@ -94,9 +108,11 @@ fun PagerUnFocusedItem(
 @Composable
 fun CategoryCardItem(
     title: String,
-    remainAmount: String
+    remainAmount: String,
+    ratio: Float,
+    indicatorColor: Color
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .width(154.dp)
             .height(96.dp)
@@ -104,10 +120,17 @@ fun CategoryCardItem(
             .background(ZzanZColorPalette.current.White)
             .padding(16.dp)
     ) {
-        CategoryTitleText(modifier = Modifier.align(Alignment.TopStart), title = title)
-        RemainAmountText(
-            modifier = Modifier.align(Alignment.BottomEnd),
-            remainAmount = remainAmount
+        Box(modifier = Modifier.fillMaxWidth().weight(1f)){
+            CategoryTitleText(modifier = Modifier.align(Alignment.TopStart), title = title)
+            RemainAmountText(
+                modifier = Modifier.align(Alignment.BottomEnd),
+                remainAmount = remainAmount
+            )
+        }
+        ProgressIndicator(
+            modifier = Modifier.padding(top = 8.dp),
+            color = indicatorColor,
+            ratio = ratio
         )
     }
 }
@@ -191,4 +214,15 @@ fun MemoText(memo: String) {
 @Composable
 fun AmountText(amount: String) {
     Text(text = amount, style = ZzanZTypo.current.Body01, color = ZzanZColorPalette.current.Gray08)
+}
+
+@Preview
+@Composable
+fun ComponentPreview() {
+    CategoryCardItem(
+        title = "식비",
+        remainAmount = "50,000원",
+        0.7f,
+        ZzanZColorPalette.current.Green04
+    )
 }

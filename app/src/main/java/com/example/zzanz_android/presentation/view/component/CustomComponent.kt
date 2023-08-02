@@ -1,17 +1,16 @@
 package com.example.zzanz_android.presentation.view.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -21,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -29,7 +29,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
@@ -39,18 +38,26 @@ import com.example.zzanz_android.presentation.view.component.util.MoneyCommaVisu
 
 @Composable
 fun PlainInputTextField(
+    modifier: Modifier = Modifier,
     text: TextFieldValue,
     hint: String,
+    onClickAction: () -> Unit,
     onTextChanged: (TextFieldValue) -> Unit
-){
+) {
+    val colorSet = ZzanZColorPalette.current
+    var color = remember { mutableStateOf(colorSet.Gray03) }
     BasicTextField(
+        modifier = modifier.onFocusChanged {
+            color.value = if (it.isFocused) colorSet.Green04 else colorSet.Gray03
+        },
         value = text,
         onValueChange = onTextChanged,
         textStyle = ZzanZTypo.current.SubHeading,
         singleLine = true,
+        keyboardActions = KeyboardActions(onDone = { onClickAction() }),
         decorationBox = { innerTextField ->
             InputTextFieldBox(
-                color = ZzanZColorPalette.current.Green04,
+                color = color.value,
                 borderSize = 1.dp.dpToPx()
             ) {
                 if (text.text.isEmpty()) {
@@ -65,22 +72,31 @@ fun PlainInputTextField(
         }
     )
 }
+
 @Composable
 fun MoneyInputTextField(
+    modifier: Modifier = Modifier,
     text: TextFieldValue,
     hint: String,
+    onClickAction: () -> Unit,
     onTextChanged: (TextFieldValue) -> Unit
 ) {
+    val colorSet = ZzanZColorPalette.current
+    var color = remember { mutableStateOf(colorSet.Gray03) }
     BasicTextField(
+        modifier = modifier.onFocusChanged {
+            color.value = if (it.isFocused) colorSet.Green04 else colorSet.Gray03
+        },
         value = text,
         onValueChange = onTextChanged,
         textStyle = ZzanZTypo.current.SubHeading,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardActions = KeyboardActions(onDone = { onClickAction() }),
         visualTransformation = MoneyCommaVisualTransformation(stringResource(id = R.string.money_unit)),
         decorationBox = { innerTextField ->
             InputTextFieldBox(
-                color = ZzanZColorPalette.current.Green04,
+                color = color.value,
                 borderSize = 1.dp.dpToPx()
             ) {
                 if (text.text.isEmpty()) {
@@ -194,28 +210,4 @@ fun MemoText(memo: String) {
 @Composable
 fun AmountText(amount: String) {
     Text(text = amount, style = ZzanZTypo.current.Body01, color = ZzanZColorPalette.current.Gray08)
-}
-
-@Preview
-@Composable
-fun ComponentPreview() {
-    val moneyState = remember {
-        mutableStateOf(TextFieldValue(""))
-    }
-    val textState = remember {
-        mutableStateOf(TextFieldValue(""))
-    }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 24.dp)
-    ) {
-        MoneyInputTextField(text = moneyState.value, hint = "10,000", onTextChanged = {
-            moneyState.value = it
-        })
-        PlainInputTextField(text = textState.value, hint = "hint", onTextChanged = {
-            textState.value = it
-        })
-    }
 }

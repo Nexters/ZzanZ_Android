@@ -3,10 +3,8 @@ package com.example.zzanz_android.presentation.view.spending
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
@@ -17,13 +15,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,7 +30,6 @@ import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavigation
-import com.example.zzanz_android.presentation.view.component.GreenRectButton
 import com.example.zzanz_android.presentation.view.component.GreenRoundButton
 import com.example.zzanz_android.presentation.view.component.InformationComponent
 import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
@@ -45,11 +39,9 @@ enum class STEP {
     AMOUNT, TITLE, MEMO, DONE
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddSpendingScreen(navController: NavController) {
     val focusManager = LocalFocusManager.current
-    val showKeyboard = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     val titleFocusRequester = remember { FocusRequester() }
     val amountFocusRequester = remember { FocusRequester() }
     val memoFocusRequester = remember { FocusRequester() }
@@ -69,7 +61,7 @@ fun AddSpendingScreen(navController: NavController) {
     val isOver = true
     val category = "식비"
     val memo = remember { mutableStateOf(TextFieldValue("")) }
-    val btnEnabled = true
+    val btnEnabled = amount.value.text.isNotEmpty() && title.value.text.isNotEmpty()
 
     Scaffold(topBar = {
         AppBarWithBackNavigation()
@@ -98,10 +90,18 @@ fun AddSpendingScreen(navController: NavController) {
                 onClickAction = {
                     when(currentStep){
                         STEP.AMOUNT -> {
-                            currentStep = STEP.TITLE
+                            if(amount.value.text.isEmpty()){
+                                focusManager.clearFocus()
+                            }else{
+                                currentStep = STEP.TITLE
+                            }
                         }
                         STEP.TITLE -> {
-                            currentStep = STEP.MEMO
+                            if(title.value.text.isEmpty()){
+                                focusManager.clearFocus()
+                            }else{
+                                currentStep = STEP.MEMO
+                            }
                         }
                         else -> {
                             focusManager.clearFocus()
@@ -109,21 +109,12 @@ fun AddSpendingScreen(navController: NavController) {
                     }
                 }
             )
-            if(showKeyboard){
-                GreenRectButton(
-                    modifier = Modifier,
-                    text = stringResource(id = R.string.next),
-                    onClick = { /*TODO*/ },
-                    enabled = btnEnabled
-                )
-            }else{
-                GreenRoundButton(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 25.dp),
-                    text = stringResource(id = R.string.spending_done_btn_title),
-                    onClick = { /*TODO*/ },
-                    enabled = btnEnabled
-                )
-            }
+            GreenRoundButton(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 25.dp),
+                text = stringResource(id = R.string.spending_done_btn_title),
+                onClick = { /*TODO*/ },
+                enabled = btnEnabled
+            )
         }
     }
 }

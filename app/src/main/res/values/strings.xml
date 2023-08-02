@@ -16,6 +16,19 @@
     <string name="category_remain_amount_title_suffix"> 남았어요</string>
     <string name="category_goal_amount_subtitle">%1$s 예산은 %2$s원이에요</string>
     <string name="category_add_spending_btn_title">소비 기록 추가</string>
+    <!-- home view -->
+    <string name="home_edit_plan_btn_title">예산 및 카테고리 수정하기</string>
+    <string name="home_challenge_result_title_opened_remain_prefix">총 예산이</string>
+    <string name="home_challenge_result_title_opened_remain_suffix">남았어요</string>
+    <string name="home_challenge_result_title_opened_over_prefix">총 예산을</string>
+    <string name="home_challenge_result_title_opened_over_suffix">넘았어요</string>
+    <string name="home_challenge_result_title_closed_success">예산에 맞게 잘 소비했어요</string>
+    <string name="home_challenge_result_title_closed_fail">예산 초과 메세지</string>
+    <!-- home more dialog -->
+    <string name="more_dialog_title">더 보기</string>
+    <string name="change_noti_time">알림 시간 바꾸기</string>
+    <string name="send_feedback">피드백 남기기</string>
+    <string name="join_community">짠지 거지방 참여하기</string>
     <!--common-->
     <string name="add_category">카테고리 추가</string>
     <string name="category_food">식비</string>

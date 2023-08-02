@@ -2,7 +2,11 @@ package com.example.zzanz_android.data.di
 
 import android.content.Context
 import com.example.zzanz_android.BuildConfig
+import com.example.zzanz_android.data.remote.api.ChallengeService
+import com.example.zzanz_android.data.remote.api.ChallengeServiceImpl
+import com.example.zzanz_android.data.repository.ChallengeRepositoryImpl
 import com.example.zzanz_android.data.util.AuthorizationManager
+import com.example.zzanz_android.domain.repository.ChallengeRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,4 +1,4 @@
-package com.example.zzanz_android.presentation.view.component
+package com.example.zzanz_android.common.ui.util
 
 import android.util.Log
 import androidx.compose.runtime.Composable

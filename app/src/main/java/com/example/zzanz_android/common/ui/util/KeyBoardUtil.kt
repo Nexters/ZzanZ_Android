@@ -1,8 +1,9 @@
 package com.example.zzanz_android.common.ui.util
 
 import android.util.Log
+import android.view.ViewTreeObserver
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,23 +15,22 @@ import androidx.core.view.WindowInsetsCompat
 fun keyboardAsState(): MutableState<Boolean> {
     val keyboardState = remember { mutableStateOf(false) }
     val view = LocalView.current
-    LaunchedEffect(view) {
-        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
-            val imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
-            val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-            val navigationBarHeight =
-                insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-            val keyboardHeight = imeHeight - navigationBarHeight
-            if (imeVisible && keyboardHeight > 0) {
-                keyboardState.value = (keyboardHeight != 0)
-            } else {
-                keyboardState.value = false
-            }
+    DisposableEffect(view) {
+        val listener = ViewTreeObserver.OnGlobalLayoutListener {
+            val imeVisible =
+                ViewCompat.getRootWindowInsets(view)?.isVisible(WindowInsetsCompat.Type.ime())
+                    ?: true
+            keyboardState.value = imeVisible
+            val imeHeight =
+                ViewCompat.getRootWindowInsets(view)?.getInsets(WindowInsetsCompat.Type.ime())
             Log.d(
                 "### keyboardAsState()",
-                "keyboardHeight : $keyboardHeight keyboardVisibility: $imeVisible"
+                "keyboardHeight : $imeHeight keyboardVisibility: $imeVisible"
             )
-            insets
+        }
+        view.viewTreeObserver.addOnGlobalLayoutListener(listener)
+        onDispose {
+            view.viewTreeObserver.removeOnGlobalLayoutListener(listener)
         }
     }
     return keyboardState

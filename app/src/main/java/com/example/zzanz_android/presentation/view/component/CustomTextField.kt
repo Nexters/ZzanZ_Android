@@ -14,9 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.zzanz_android.common.SuffixTransformation
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+import com.example.zzanz_android.presentation.view.component.util.MoneyCommaVisualTransformation
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,7 +29,6 @@ fun BudgetTextField(
     keyboardType: KeyboardType,
     won: String
 ) {
-    // TODO - value 값에 ',' 붙이기
     TextField(
         value = textState.value,
         onValueChange = {
@@ -37,7 +36,7 @@ fun BudgetTextField(
             onTextChange(it)
         },
         visualTransformation = if (textState.value.isEmpty()) VisualTransformation.None
-        else SuffixTransformation(won),
+        else MoneyCommaVisualTransformation(won),
         maxLines = 1,
         singleLine = true,
         placeholder = {

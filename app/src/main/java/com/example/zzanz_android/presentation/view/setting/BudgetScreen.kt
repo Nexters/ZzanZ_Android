@@ -52,7 +52,6 @@ fun SetBudget(onButtonChange: (String) -> Unit) {
             color = ZzanZColorPalette.current.Gray06
         )
         Spacer(modifier = Modifier.height(24.dp))
-        // TODO - TextFiled 손보기
         BudgetTextField(
             textState = budgetState,
             modifier = Modifier

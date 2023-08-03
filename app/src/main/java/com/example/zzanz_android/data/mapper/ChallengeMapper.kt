@@ -5,8 +5,13 @@ import com.example.zzanz_android.data.remote.dto.ChallengeDto
 import com.example.zzanz_android.domain.model.Category
 import com.example.zzanz_android.domain.model.ChallengeStatus
 import com.example.zzanz_android.domain.model.PlanModel
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 
-object ChallengeMapper: Mapper<ChallengeDto, ChallengeModel> {
+object ChallengeMapper: MapperToModel<ChallengeDto, ChallengeModel> {
+
     override fun ChallengeDto.toModel() = ChallengeModel(
         id = challengeId,
         startAt = startAt,
@@ -25,5 +30,4 @@ object ChallengeMapper: Mapper<ChallengeDto, ChallengeModel> {
             )
         }
     )
-
 }

@@ -36,7 +36,7 @@ import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.presentation.view.component.CategoryBottomSheet
 import com.example.zzanz_android.presentation.view.component.GreenRectButton
 import com.example.zzanz_android.presentation.view.component.GreenRoundButton
-import com.example.zzanz_android.presentation.view.component.keyboardAsState
+import com.example.zzanz_android.common.ui.util.keyboardAsState
 import com.example.zzanz_android.presentation.view.setting.AlarmSetting
 import com.example.zzanz_android.presentation.view.setting.BudgetByCategory
 import com.example.zzanz_android.presentation.view.setting.BudgetCategory

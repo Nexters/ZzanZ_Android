@@ -1,8 +1,9 @@
 package com.example.zzanz_android.presentation.view.setting
 
-import android.util.Log
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -42,26 +43,29 @@ fun BudgetCategory(
         Spacer(modifier = Modifier.height(18.dp))
         // TODO - 카테고리 버튼 다시 클릭시 선택 해제 처리
         // TODO - 1개 이상 선택 시, 버튼 활성화 되도록
+        LaunchedEffect(key1 = budgetCategoryData, block = {})
         LazyVerticalGrid(
             modifier = categoryModifier, columns = GridCells.Fixed(2)
         ) {
             items(budgetCategoryData.value.size) { idx ->
                 val item = budgetCategoryData.value[idx]
                 if (item.name != R.string.category_nestegg) {
-                    CustomCategoryButton(
-                        modifier = Modifier
-                            .height(56.dp)
-                            .padding(horizontal = 6.dp, vertical = 10.dp),
-                        text = stringResource(id = item.name),
-                        onClick = {
-                            Log.d(
-                                "### BudgetCategory", "clicked ! item ${item.categoryName}"
-                            )
-                            // TODO isChecked 값 으로 budgetCateogryData 버튼 색상 수정되도록 변경
+                    val categoryPaddingValues = PaddingValues(horizontal = 6.dp, vertical = 10.dp)
+                    Box(modifier = Modifier.padding(categoryPaddingValues)) {
+                        CustomCategoryButton(
+                            modifier = Modifier,
+                            text = stringResource(id = item.name),
+                            onClick = {
+                                budgetCategoryData.value = budgetCategoryData.value.map {
+                                    if (it.name == item.name) {
+                                        it.copy(isChecked = !item.isChecked)
+                                    } else it
+                                }
 
-                        },
-                        isChecked = item.isChecked
-                    )
+                            },
+                            isChecked = item.isChecked
+                        )
+                    }
                 }
             }
         }

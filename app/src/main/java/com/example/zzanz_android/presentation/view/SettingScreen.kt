@@ -46,6 +46,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Setting(navController: NavHostController, route: String = SettingNavRoutes.Budget.route) {
+    // TODO - nextRoute / backRoute / ButtonText / TitleText / isButtonEnabled 관리하는 DataClass 만들기
     var nextRoute: String = ""
     var backRoute: String = ""
     var buttonText: String = ""
@@ -95,7 +96,10 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
         ) {
             when (route) {
                 SettingNavRoutes.BudgetByCategory.route -> {
-                    BudgetByCategory(onAddClicked = {
+                    // TODO -  BudgetCategory 와 budgetCategoryData 공유하도록 ViewModel 연결하기
+                    BudgetByCategory(
+                        budgetCategoryData = budgetCategoryData,
+                        onAddClicked = {
                         coroutineScope.launch {
                             sheetState.show()
                         }
@@ -143,6 +147,7 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
             )
 
             if (sheetState.isVisible) {
+                // TODO - CategoryBottomSheet ViewModel 연결하기
                 CategoryBottomSheet(
                     coroutineScope = coroutineScope,
                     sheetState = sheetState,

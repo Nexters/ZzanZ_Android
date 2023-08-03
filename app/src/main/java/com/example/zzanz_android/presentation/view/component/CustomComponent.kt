@@ -178,7 +178,7 @@ fun InformationComponent(
     message: String
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        InfoICon(color = iconColor)
+        InfoIcon(color = iconColor)
         Spacer(modifier = Modifier.width(8.dp))
         Text(text = message, style = ZzanZTypo.current.Body02, color = textColor)
     }

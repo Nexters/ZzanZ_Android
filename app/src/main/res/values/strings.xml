@@ -5,8 +5,8 @@
     <string name="next_week_budget_explain">월간 지출이 아닌 한 주 기준으로 생각해보세요</string>
     <string name="next_week_budget_category">다음 주 소비할 카테고리를\n모두 선택해주세요</string>
     <string name="budget_by_category_title">카테고리별 예산을 입력해주세요</string>
-    <string name="total_budget_title_1">다음 주 총 예산은</string>
-    <string name="total_budget_title_2">이에요</string>
+    <string name="total_budget_title_1">분배할 수 있는 예산이 </string>
+    <string name="total_budget_title_2">남았어요</string>
     <string name="budget_save_money_title">남은 %d원은 비상금에 쏙! 넣어드릴게요."</string>
     <string name="set_alarm_time_title">소비 기록을 잊지 않도록\n매일 알림을 보내드릴게요</string>
     <string name="set_alarm_time_btn_title">%s에 알림받기</string>

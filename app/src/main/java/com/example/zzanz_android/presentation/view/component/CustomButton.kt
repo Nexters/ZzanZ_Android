@@ -124,17 +124,20 @@ fun CustomCategoryButton(
             shape = RoundedCornerShape(size = 8.dp),
             color = if (isChecked) ZzanZColorPalette.current.Green04
             else ZzanZColorPalette.current.Gray03
-        ), shape = RoundedCornerShape(size = 8.dp), colors = ButtonDefaults.run {
-        buttonColors(
-            disabledContainerColor = ZzanZColorPalette.current.White,
-            disabledContentColor = ZzanZColorPalette.current.Gray08,
-            containerColor = if (isChecked) ZzanZColorPalette.current.Green01
-            else ZzanZColorPalette.current.White,
-            contentColor = ZzanZColorPalette.current.Gray08,
-        )
-    }, onClick = {
-        onClick()
-    }) {
+        ),
+        shape = RoundedCornerShape(size = 8.dp),
+        colors = ButtonDefaults.run {
+            buttonColors(
+                disabledContainerColor = ZzanZColorPalette.current.White,
+                disabledContentColor = ZzanZColorPalette.current.Gray08,
+                containerColor = if (isChecked) ZzanZColorPalette.current.Green01
+                else ZzanZColorPalette.current.White,
+                contentColor = ZzanZColorPalette.current.Gray08,
+            )
+        },
+        onClick = {
+            onClick()
+        }) {
         Text(
             text = text, style = ZzanZTypo.current.Body02
         )

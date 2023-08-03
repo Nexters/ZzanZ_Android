@@ -21,10 +21,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
@@ -251,10 +249,4 @@ fun TitleText(modifier: Modifier = Modifier) {
         style = ZzanZTypo.current.H1,
         color = ZzanZColorPalette.current.Gray09
     )
-}
-
-@Preview
-@Composable
-fun AddSpendingPreview() {
-    AddSpendingScreen(rememberNavController())
 }

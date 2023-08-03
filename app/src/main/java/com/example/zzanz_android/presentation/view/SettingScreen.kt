@@ -34,6 +34,7 @@ import com.example.zzanz_android.common.NavRoutes
 import com.example.zzanz_android.common.SettingNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.util.keyboardAsState
+import com.example.zzanz_android.domain.model.BudgetCategoryData
 import com.example.zzanz_android.presentation.view.component.BottomGreenButton
 import com.example.zzanz_android.presentation.view.component.CategoryBottomSheet
 import com.example.zzanz_android.presentation.view.setting.AlarmSetting
@@ -52,7 +53,9 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
     val isKeyboardOpen by keyboardAsState()
-
+    val budgetCategoryData = remember {
+        mutableStateOf(BudgetCategoryData.category)
+    }
     when (route) {
         SettingNavRoutes.BudgetByCategory.route -> {
             nextRoute = SettingNavRoutes.AlarmSetting.route
@@ -111,12 +114,15 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
                 }
 
                 SettingNavRoutes.BudgetCategory.route -> {
-                    BudgetCategory(textModifier = Modifier.padding(horizontal = 24.dp),
+                    isButtonEnabled = budgetCategoryData.value.any {
+                        it.isChecked
+                    }
+                    BudgetCategory(
+                        textModifier = Modifier.padding(horizontal = 24.dp),
                         categoryModifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
-                        titleText = R.string.budget_by_category_title,
-                        onAddClicked = {
-
-                        })
+                        titleText = R.string.next_week_budget_category,
+                        budgetCategoryData = budgetCategoryData
+                    )
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
@@ -137,7 +143,11 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
             )
 
             if (sheetState.isVisible) {
-                CategoryBottomSheet(coroutineScope = coroutineScope, sheetState = sheetState)
+                CategoryBottomSheet(
+                    coroutineScope = coroutineScope,
+                    sheetState = sheetState,
+                    budgetCategoryData = budgetCategoryData
+                )
             }
         }
     }

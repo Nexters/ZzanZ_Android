@@ -37,7 +37,7 @@ fun GreenRoundButton(
         },
         onClick = { onClick() }) {
         Text(
-            text = text, style = ZzanZTypo.current.Headline
+            text = text, style = ZzanZTypo.current.Heading
         )
     }
 }
@@ -57,7 +57,7 @@ fun GreenRectButton(modifier: Modifier, text: String, onClick: () -> Unit, enabl
         ),
         onClick = { onClick() }) {
         Text(
-            text = text, style = ZzanZTypo.current.Headline
+            text = text, style = ZzanZTypo.current.Heading
         )
     }
 }

@@ -176,7 +176,7 @@ fun BudgetByCategoryItem(
                     won = ""
                 )
                 Text(
-                    text = stringResource(id = R.string.krw), style = ZzanZTypo.current.Body02.copy(
+                    text = stringResource(id = R.string.money_unit), style = ZzanZTypo.current.Body02.copy(
                         fontWeight = FontWeight.SemiBold
                     ), color = ZzanZColorPalette.current.Gray05
                 )

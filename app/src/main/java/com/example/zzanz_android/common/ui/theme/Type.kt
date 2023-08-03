@@ -33,12 +33,19 @@ data class CustomTypography(
         lineHeight = 28.sp,
         letterSpacing = (-0.08).sp
     ),
-    val Headline: TextStyle = TextStyle(
+    val Heading: TextStyle = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.SemiBold,
         fontSize = 18.sp,
         lineHeight = 26.sp,
         letterSpacing = (-0.06).sp
+    ),
+    val SubHeading: TextStyle = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Normal,
+        fontSize = 18.sp,
+        lineHeight = 26.sp,
+        letterSpacing = (-0.2).sp
     ),
     val Body01: TextStyle = TextStyle(
         fontFamily = FontFamily.Default,

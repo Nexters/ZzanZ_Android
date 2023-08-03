@@ -57,7 +57,7 @@ fun AlarmSetting() {
             Text(
                 text = ":",
                 color = ZzanZColorPalette.current.Gray09,
-                style = ZzanZTypo.current.Headline
+                style = ZzanZTypo.current.Heading
             )
             CircularClock(hourSize = 60, initialHour = 10)
         }
@@ -113,7 +113,7 @@ fun CircularClock(
                 ) {
                     Text(
                         text = String.format("%02d", num),
-                        style = ZzanZTypo.current.Headline,
+                        style = ZzanZTypo.current.Heading,
                         color = ZzanZColorPalette.current.Gray09
                     )
                 }

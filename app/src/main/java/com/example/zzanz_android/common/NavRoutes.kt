@@ -4,11 +4,16 @@ sealed class NavRoutes(val route: String) {
     object Splash : NavRoutes("splash")
     object Home : NavRoutes("home")
     object Setting : NavRoutes("setting")
+    object Spending : NavRoutes("spending")
 }
 
-sealed class SettingNavRoutes(val route: String) {
+sealed class SettingNavRoutes {
     object  Budget : NavRoutes("BudgetSetting")
     object BudgetCategory: NavRoutes("BudgetCategorySetting")
     object BudgetByCategory : NavRoutes("BudgetByCategory")
     object AlarmSetting : NavRoutes("AlarmSetting")
+}
+
+sealed class SpendingNavRoutes{
+    object AddSpending : NavRoutes("AddSpending")
 }

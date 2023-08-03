@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
@@ -21,17 +24,29 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+import com.example.zzanz_android.common.ui.util.dpToPx
+import com.example.zzanz_android.presentation.view.component.util.MoneyCommaVisualTransformation
 import com.example.zzanz_android.domain.model.ChallengeStatus
 
 @Composable
@@ -46,6 +61,127 @@ fun ProgressIndicator(
         color = color,
         progress = ratio
     )
+}
+
+@Composable
+fun PlainInputTextField(
+    modifier: Modifier = Modifier,
+    text: TextFieldValue,
+    hint: String,
+    onClickAction: () -> Unit,
+    onTextChanged: (TextFieldValue) -> Unit
+) {
+    val colorSet = ZzanZColorPalette.current
+    var color = remember { mutableStateOf(colorSet.Gray03) }
+    BasicTextField(
+        modifier = modifier.onFocusChanged {
+            color.value = if (it.isFocused) colorSet.Green04 else colorSet.Gray03
+        },
+        value = text,
+        onValueChange = onTextChanged,
+        textStyle = ZzanZTypo.current.SubHeading,
+        singleLine = true,
+        keyboardActions = KeyboardActions(onDone = { onClickAction() }),
+        decorationBox = { innerTextField ->
+            InputTextFieldBox(
+                color = color.value,
+                borderSize = 1.dp.dpToPx()
+            ) {
+                if (text.text.isEmpty()) {
+                    Text(
+                        text = hint,
+                        color = ZzanZColorPalette.current.Gray03,
+                        style = ZzanZTypo.current.SubHeading,
+                    )
+                }
+                innerTextField()
+            }
+        }
+    )
+}
+
+@Composable
+fun MoneyInputTextField(
+    modifier: Modifier = Modifier,
+    text: TextFieldValue,
+    hint: String,
+    onClickAction: () -> Unit,
+    onTextChanged: (TextFieldValue) -> Unit
+) {
+    val colorSet = ZzanZColorPalette.current
+    var color = remember { mutableStateOf(colorSet.Gray03) }
+    BasicTextField(
+        modifier = modifier.onFocusChanged {
+            color.value = if (it.isFocused) colorSet.Green04 else colorSet.Gray03
+        },
+        value = text,
+        onValueChange = onTextChanged,
+        textStyle = ZzanZTypo.current.SubHeading,
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardActions = KeyboardActions(onDone = { onClickAction() }),
+        visualTransformation = MoneyCommaVisualTransformation(stringResource(id = R.string.money_unit)),
+        decorationBox = { innerTextField ->
+            InputTextFieldBox(
+                color = color.value,
+                borderSize = 1.dp.dpToPx()
+            ) {
+                if (text.text.isEmpty()) {
+                    Text(
+                        buildAnnotatedString {
+                            withStyle(SpanStyle(color = ZzanZColorPalette.current.Gray03)) {
+                                append(hint)
+                            }
+                            withStyle(SpanStyle(color = ZzanZColorPalette.current.Gray09)) {
+                                append(" " + stringResource(id = R.string.money_unit))
+                            }
+                        },
+                        style = ZzanZTypo.current.SubHeading,
+                    )
+                }
+                innerTextField()
+            }
+        }
+    )
+}
+
+@Composable
+fun InputTextFieldBox(
+    color: Color,
+    borderSize: Float,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .drawBehind {
+                drawLine(
+                    color = color,
+                    start = Offset(0f, size.height),
+                    end = Offset(size.width, size.height),
+                    strokeWidth = borderSize
+                )
+            }
+            .padding(horizontal = 8.dp)
+    ) {
+        Box(modifier = Modifier.align(Alignment.CenterStart)) {
+            content()
+        }
+    }
+}
+
+@Composable
+fun InformationComponent(
+    iconColor: Color,
+    textColor: Color,
+    message: String
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        InfoICon(color = iconColor)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = message, style = ZzanZTypo.current.Body02, color = textColor)
+    }
 }
 
 @Composable

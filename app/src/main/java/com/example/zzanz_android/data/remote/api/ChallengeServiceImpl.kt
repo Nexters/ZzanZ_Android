@@ -1,10 +1,12 @@
 package com.example.zzanz_android.data.remote.api
 
 import android.util.Log
+import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.data.remote.dto.BaseResponseDto
 import com.example.zzanz_android.data.remote.dto.ChallengeDto
 import com.example.zzanz_android.data.remote.dto.GoalAmountByCategoryDto
 import com.example.zzanz_android.data.remote.dto.GoalAmountDto
+import com.example.zzanz_android.data.remote.dto.SpendingListDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
@@ -24,7 +26,7 @@ class ChallengeServiceImpl @Inject constructor(
     private val TAG = this.javaClass.simpleName
     override suspend fun getChallengeParticipate(cursor: Int?, page: Int): List<ChallengeDto> {
         return client.get("/challenge/participate") {
-            cursor?.let { parameter("cursor", it) }
+            parameter("cursor", cursor)
             parameter("page", page)
         }.body()
     }
@@ -99,6 +101,29 @@ class ChallengeServiceImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e(TAG, "Error : ${e.message}")
             return false
+        }
+    }
+
+    override suspend fun getSpending(planId: Int, cursorId: Int?, size: Int): Resource<SpendingListDto> {
+        try {
+            val response = client.get("/challenge/plan/${planId}/spending"){
+                parameter("cursorId", cursorId)
+                parameter("size", size)
+            }
+            when(response.status){
+                HttpStatusCode.OK -> {
+                    return Resource.Success(response.body())
+                }
+                HttpStatusCode.BadRequest -> {
+                    // 400 : 카테고리 정보가 존재하지 않습니다.
+                    throw Exception(response.status.description)
+                }
+                else -> {
+                    throw Exception("Unknown Error")
+                }
+            }
+        } catch (e: Exception){
+            return Resource.Error(e)
         }
     }
 }

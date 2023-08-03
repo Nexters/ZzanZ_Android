@@ -11,12 +11,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,7 +29,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,12 +38,17 @@ import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+import com.example.zzanz_android.domain.model.BudgetCategoryData
+import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.presentation.view.component.BudgetTextField
+import com.example.zzanz_android.presentation.view.component.CategoryIcon
+import com.example.zzanz_android.presentation.view.component.InfoIcon
+import com.example.zzanz_android.presentation.view.component.PlusIcon
 import com.example.zzanz_android.presentation.view.component.TitleText
 
 @Composable
 fun BudgetByCategory(
-    onAddClicked: () -> Unit
+    budgetCategoryData: MutableState<List<BudgetCategoryModel>>, onAddClicked: () -> Unit
 ) {
     val windowInfo = LocalWindowInfo.current
     val focusRequester = remember {
@@ -56,7 +58,7 @@ fun BudgetByCategory(
     val textState = remember {
         mutableStateOf("")
     }
-    LaunchedEffect(key1 = textState, block = {})
+    LaunchedEffect(key1 = budgetCategoryData, block = {})
 
     Column(
         modifier = Modifier
@@ -70,33 +72,33 @@ fun BudgetByCategory(
         Spacer(modifier = Modifier.height(28.dp))
         ExplainTotalBudget(totalBudget = 10000)
         Spacer(modifier = Modifier.height(12.dp))
-        // TODO - 카테고리별 리스트로 만들기
+
         // TODO - TextField 안써지는 이슈 해결하기
-        BudgetByCategoryItem(
-            textState = textState,
-            modifier = Modifier.focusRequester(focusRequester),
-            category = "카테고리1",
-            categoryImage = R.drawable.icon_plus,
-            budget = 1000
-        )
-        BudgetByCategoryItem(
-            textState = textState,
-            modifier = Modifier.focusRequester(focusRequester),
-            category = "카테고리2",
-            categoryImage = R.drawable.icon_plus,
-            budget = 1000
-        )
+        LazyColumn {
+            items(budgetCategoryData.value.size) { idx ->
+                val item = budgetCategoryData.value[idx]
+                if (item.isChecked) {
+                    BudgetByCategoryItem(
+                        budgetCategoryData = budgetCategoryData,
+                        budgetCategoryItem = item,
+                        textState = textState,
+                        modifier = Modifier.focusRequester(focusRequester)
+                    )
+                }
+            }
+
+        }
         AddBudgetByCategoryItemBtn(onAddClicked = onAddClicked)
         Spacer(modifier = Modifier.height(12.dp))
     }
 
-    LaunchedEffect(windowInfo) {
-        snapshotFlow { windowInfo.isWindowFocused }.collect { isWindowFocused ->
-            if (isWindowFocused) {
-                focusRequester.requestFocus()
-            }
-        }
-    }
+//    LaunchedEffect(windowInfo) {
+//        snapshotFlow { windowInfo.isWindowFocused }.collect { isWindowFocused ->
+//            if (isWindowFocused) {
+//                focusRequester.requestFocus()
+//            }
+//        }
+//    }
 }
 
 @Composable
@@ -111,11 +113,7 @@ fun ExplainTotalBudget(totalBudget: Int) {
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            painter = painterResource(
-                id = R.drawable.alert_information_circle
-            ), contentDescription = ""
-        )
+        InfoIcon(color = ZzanZColorPalette.current.Gray08)
         Spacer(modifier = Modifier.width(7.dp))
         Text(
             text = stringResource(id = R.string.total_budget_title_1) + " ",
@@ -138,11 +136,10 @@ fun ExplainTotalBudget(totalBudget: Int) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BudgetByCategoryItem(
+    budgetCategoryData: MutableState<List<BudgetCategoryModel>>,
+    budgetCategoryItem: BudgetCategoryModel,
     textState: MutableState<String>,
     modifier: Modifier,
-    category: String,
-    @DrawableRes categoryImage: Int,
-    budget: Int
 ) {
     Row(
         modifier = modifier
@@ -153,11 +150,11 @@ fun BudgetByCategoryItem(
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        PlusIcon()
+        CategoryIcon(budgetCategoryItem.categoryImage)
         Spacer(modifier = Modifier.width(16.dp))
         Column {
             Text(
-                text = category,
+                text = stringResource(id = budgetCategoryItem.name),
                 color = ZzanZColorPalette.current.Gray05,
                 style = ZzanZTypo.current.Body03.copy(fontWeight = FontWeight.Medium)
             )
@@ -170,28 +167,41 @@ fun BudgetByCategoryItem(
                     strExplain = "10,000",
                     onTextChange = { text: String ->
                         Log.d("BudgetByCategory", text)
-                        textState.value = text
+                        budgetCategoryData.value = budgetCategoryData.value.map{
+                            if (it.name == budgetCategoryItem.name) {
+                                it.copy(budget = text.toInt())
+                            } else it
+                        }
                     },
                     keyboardType = KeyboardType.Number,
                     won = ""
                 )
                 Text(
-                    text = stringResource(id = R.string.money_unit), style = ZzanZTypo.current.Body02.copy(
+                    text = stringResource(id = R.string.money_unit),
+                    style = ZzanZTypo.current.Body02.copy(
                         fontWeight = FontWeight.SemiBold
-                    ), color = ZzanZColorPalette.current.Gray05
+                    ),
+                    color = ZzanZColorPalette.current.Gray05
                 )
             }
         }
         Spacer(modifier = Modifier.weight(1f))
-        // TODO - 삭제 버튼 영역 넓히기 (패딩 안먹혀져있음 수정필요)
-        DeleteCategory()
+        DeleteCategory {
+            budgetCategoryData.value = budgetCategoryData.value.map{
+                if (it.name == budgetCategoryItem.name) {
+                    it.copy(isChecked = false)
+                } else it
+            }
+        }
     }
 }
 
 @Composable
-fun DeleteCategory() {
+fun DeleteCategory(
+    onClick: () -> Unit
+) {
     Column(
-        modifier = Modifier.height(56.dp),
+        modifier = Modifier.height(56.dp).clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -232,29 +242,10 @@ fun AddBudgetByCategoryItemBtn(onAddClicked: () -> Unit) {
     }
 }
 
-@Composable
-fun PlusIcon() {
-    Column(
-        modifier = Modifier
-            .width(32.dp)
-            .height(32.dp)
-            .background(
-                color = ZzanZColorPalette.current.Gray02, shape = CircleShape
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            modifier = Modifier.size(20.dp),
-            painter = painterResource(id = R.drawable.icon_plus),
-            contentDescription = ""
-        )
-    }
-}
-
-
 @Preview
 @Composable
 fun BudgetByCategoryPreview() {
-    BudgetByCategory({})
+    BudgetByCategory(budgetCategoryData = remember {
+        mutableStateOf(BudgetCategoryData.category)
+    }, onAddClicked = {})
 }

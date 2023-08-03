@@ -15,10 +15,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +36,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
@@ -46,19 +50,21 @@ import com.example.zzanz_android.presentation.view.component.PagerFocusedItem
 import com.example.zzanz_android.presentation.view.component.PagerUnFocusedItem
 import com.example.zzanz_android.presentation.view.component.PopupSheetDialog
 import com.example.zzanz_android.presentation.view.component.ProgressIndicator
+import com.example.zzanz_android.presentation.viewmodel.ChallengeListState
+import com.example.zzanz_android.presentation.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
+
 
 object HomeScreenValue {
     const val GRID_COUNT = 2
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomeScreen() {
-    val challengeStatus = ChallengeStatus.CLOSED
-    val challengeTitle = "챌린지 시작 전"
-    val startDate = "8.8"
-    val endDate = "8.16"
-
+fun HomeScreen(
+    viewModel: HomeViewModel = viewModel()
+) {
+    val challengeListState by viewModel.uiState.collectAsState()
     var showDialog by remember{ mutableStateOf(false) }
 
     Scaffold(
@@ -72,48 +78,73 @@ fun HomeScreen() {
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                HomeContent(
-                    modifier = Modifier.weight(1f),
-                    challengeTitle = challengeTitle,
-                    startDate = startDate,
-                    endDate = endDate
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(ZzanZDimen.current.defaultHorizontal)
-                ) {
-                    when (challengeStatus) {
-                        ChallengeStatus.PRE_OPENED -> {
-                            GreenRoundButton(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp),
-                                text = stringResource(id = R.string.home_edit_plan_btn_title),
-                                onClick = { /*TODO*/ },
-                                enabled = true
-                            )
+                when(challengeListState.challengeList){
+                    is ChallengeListState.Loading -> {
+                        // TODO : gowoon - loading screen
+                    }
+                    is ChallengeListState.Success -> {
+                        val pagerState = rememberPagerState()
+                        val challengeList = (challengeListState.challengeList as ChallengeListState.Success).data.collectAsLazyPagingItems()
+                        val challengeStatus = challengeList[pagerState.currentPage]?.state
+                        val challengeTitle = when(challengeStatus){
+                            ChallengeStatus.PRE_OPENED -> stringResource(id = R.string.home_challenge_title_pre_opened)
+                            ChallengeStatus.OPENED -> stringResource(id = R.string.home_challenge_title_opened) // TODO : gowoon - dday 작업을 안해버림 추가해야함.
+                            ChallengeStatus.CLOSED -> stringResource(id = R.string.home_challenge_title_closed)
+                            else -> ""
                         }
+//                        val challengeStatus = ChallengeStatus.CLOSED
+//                        val startDate = "8.8"
+//                        val endDate = "8.16"
+                        HomeContent(
+                            modifier = Modifier.weight(1f),
+                            pagerState = pagerState,
+                            challengeTitle = challengeTitle,
+                            startDate = challengeList[pagerState.currentPage]?.startAt ?: "",
+                            endDate = challengeList[pagerState.currentPage]?.endAt ?: "",
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .padding(ZzanZDimen.current.defaultHorizontal)
+                        ) {
+                            when (challengeStatus) {
+                                ChallengeStatus.PRE_OPENED -> {
+                                    GreenRoundButton(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(56.dp),
+                                        text = stringResource(id = R.string.home_edit_plan_btn_title),
+                                        onClick = { /*TODO*/ },
+                                        enabled = true
+                                    )
+                                }
 
-                        ChallengeStatus.OPENED -> {
-                            ChallengeResult(messageContent = {
-                                ChallengeResultTitleWhenOpened(
-                                    prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
-                                    suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
-                                    amountWithUnit = "50,000원",
-                                    amountColor = ZzanZColorPalette.current.Green04
-                                )
-                            }, ratio = 0.7f)
-                        }
+                                ChallengeStatus.OPENED -> {
+                                    ChallengeResult(messageContent = {
+                                        ChallengeResultTitleWhenOpened(
+                                            prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
+                                            suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
+                                            amountWithUnit = "50,000원",
+                                            amountColor = ZzanZColorPalette.current.Green04
+                                        )
+                                    }, ratio = 0.7f)
+                                }
 
-                        ChallengeStatus.CLOSED -> {
-                            ChallengeResult(messageContent = {
-                                ChallengeResultTitleWhenClosed(
-                                    message = stringResource(id = R.string.home_challenge_result_title_closed_success)
-                                )
-                            }, ratio = 0.7f)
+                                ChallengeStatus.CLOSED -> {
+                                    ChallengeResult(messageContent = {
+                                        ChallengeResultTitleWhenClosed(
+                                            message = stringResource(id = R.string.home_challenge_result_title_closed_success)
+                                        )
+                                    }, ratio = 0.7f)
+                                }
+
+                                else -> {}
+                            }
                         }
+                    }
+                    is ChallengeListState.Error -> {
+                        // TODO : gowoon - error screen
                     }
                 }
             }
@@ -124,15 +155,17 @@ fun HomeScreen() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeContent(
     modifier: Modifier = Modifier,
+    pagerState: PagerState,
     challengeTitle: String,
     startDate: String,
     endDate: String
 ) {
     Column(modifier.fillMaxSize()) {
-        WeekPager()
+        WeekPager(pagerState)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -147,9 +180,10 @@ fun HomeContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun WeekPager() {
+fun WeekPager(
+    pagerState: PagerState
+) {
     val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState()
     val paddingValue = (LocalConfiguration.current.screenWidthDp - 80) / 2
     HorizontalPager(
         modifier = Modifier.padding(bottom = 28.dp, top = 8.dp),

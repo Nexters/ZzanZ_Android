@@ -5,9 +5,6 @@ import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.data.remote.dto.GoalAmountByCategoryDto
 import com.example.zzanz_android.data.remote.dto.GoalAmountDto
 import com.example.zzanz_android.domain.model.ChallengeModel
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
 
 

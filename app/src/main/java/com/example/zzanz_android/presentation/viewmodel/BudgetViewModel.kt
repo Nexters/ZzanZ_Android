@@ -27,7 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class GoalAmountViewModel @Inject constructor(
     private val budgetUseCase: BudgetUseCase
-) : BaseViewModel() {
+) : BaseViewModel<UiEvent, UiState, UiEffect>() {
     private val TAG = this.javaClass.simpleName
 
     private val events = Channel<GoalAmountEvent>()
@@ -59,7 +59,7 @@ class GoalAmountViewModel @Inject constructor(
     fun setGoalAmount() {
         viewModelScope.launch {
             events.send(GoalAmountEvent.Loading)
-            val result = budgetUseCase.execute(_budget.value.toInt())
+            val result = budgetUseCase(_budget.value.toInt())
             Log.d(TAG, "postGoalAmount Result ${result}")
             events.send(GoalAmountEvent.OnSuccess(result = result.toString().toBoolean()))
         }

@@ -15,8 +15,58 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.example.zzanz_android.common.NavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+
+
+@Composable
+fun BottomGreenButton(
+    buttonText: String,
+    onClick: () -> Unit,
+    isButtonEnabled: Boolean,
+    isKeyboardOpen: Boolean,
+    horizontalWidth : Int
+) {
+    GreenButton(
+        modifier = Modifier.height(56.dp).padding(horizontal = horizontalWidth.dp),
+        text = buttonText,
+        onClick = {
+            onClick()
+        },
+        enabled = isButtonEnabled,
+        isKeyboardOpen = isKeyboardOpen
+    )
+    if (!isKeyboardOpen) {
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+
+@Composable
+fun GreenButton(
+    modifier: Modifier,text: String, onClick: () -> Unit, enabled: Boolean, isKeyboardOpen: Boolean
+) {
+    Button(modifier = modifier
+        .fillMaxWidth()
+        .height(56.dp),
+        shape = if (!isKeyboardOpen) RoundedCornerShape(size = 12.dp) else RectangleShape,
+        enabled = enabled,
+        colors = ButtonDefaults.run {
+            buttonColors(
+                disabledContainerColor = ZzanZColorPalette.current.Gray03,
+                disabledContentColor = ZzanZColorPalette.current.White,
+                containerColor = ZzanZColorPalette.current.Green04,
+                contentColor = ZzanZColorPalette.current.White,
+            )
+        },
+        onClick = { onClick() }) {
+        Text(
+            text = text, style = ZzanZTypo.current.Headline
+        )
+    }
+}
 
 @Composable
 fun GreenRoundButton(

@@ -15,8 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.example.zzanz_android.common.NavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 
@@ -27,10 +25,12 @@ fun BottomGreenButton(
     onClick: () -> Unit,
     isButtonEnabled: Boolean,
     isKeyboardOpen: Boolean,
-    horizontalWidth : Int
+    horizontalWidth: Int
 ) {
     GreenButton(
-        modifier = Modifier.height(56.dp).padding(horizontal = horizontalWidth.dp),
+        modifier = Modifier
+            .height(56.dp)
+            .padding(horizontal = horizontalWidth.dp),
         text = buttonText,
         onClick = {
             onClick()
@@ -46,7 +46,7 @@ fun BottomGreenButton(
 
 @Composable
 fun GreenButton(
-    modifier: Modifier,text: String, onClick: () -> Unit, enabled: Boolean, isKeyboardOpen: Boolean
+    modifier: Modifier, text: String, onClick: () -> Unit, enabled: Boolean, isKeyboardOpen: Boolean
 ) {
     Button(modifier = modifier
         .fillMaxWidth()
@@ -63,7 +63,7 @@ fun GreenButton(
         },
         onClick = { onClick() }) {
         Text(
-            text = text, style = ZzanZTypo.current.Headline
+            text = text, style = ZzanZTypo.current.Heading
         )
     }
 }

@@ -8,17 +8,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-abstract class BaseViewModel: ViewModel() {
-    private val initialState : UiState by lazy { createInitialState() }
-    abstract fun createInitialState() : UiState
+abstract class BaseViewModel<Event : UiEvent, State : UiState, Effect : UiEffect>: ViewModel() {
+    private val initialState : State by lazy { createInitialState() }
+    abstract fun createInitialState() : State
 
-    private val _state : MutableStateFlow<UiState> = MutableStateFlow(initialState)
+    val currentState: State
+        get() = uiState.value
+
+    private val _state : MutableStateFlow<State> = MutableStateFlow(initialState)
     val uiState = _state.asStateFlow()
 
-    private val _effect : Channel<UiEffect> = Channel()
+    private val _effect : Channel<Effect> = Channel()
     val effect = _effect.receiveAsFlow()
 
-    private val _event : Channel<UiEvent> = Channel()
+    private val _event : Channel<Event> = Channel()
     val event = _event.receiveAsFlow()
 
     init {
@@ -33,19 +36,19 @@ abstract class BaseViewModel: ViewModel() {
         }
     }
 
-    abstract fun handleEvent(event: UiEvent)
+    abstract fun handleEvent(event: Event)
 
-    fun setEvent(event: UiEvent){
+    fun setEvent(event: Event){
         viewModelScope.launch {
             _event.send(event)
         }
     }
 
-    protected fun setState(state: UiState){
+    protected fun setState(state: State){
         _state.value = state
     }
 
-    protected fun setEffect(effect: UiEffect){
+    protected fun setEffect(effect: Effect){
         viewModelScope.launch {
             _effect.send(effect)
         }

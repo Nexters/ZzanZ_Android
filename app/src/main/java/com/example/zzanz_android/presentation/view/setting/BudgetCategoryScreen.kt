@@ -38,7 +38,6 @@ fun BudgetCategory(
         TitleText(
             modifier = textModifier, text = titleText
         )
-        Spacer(modifier = Modifier.height(18.dp))
         LaunchedEffect(key1 = budgetCategoryData, block = {})
         LazyVerticalGrid(
             modifier = categoryModifier, columns = GridCells.Fixed(2)

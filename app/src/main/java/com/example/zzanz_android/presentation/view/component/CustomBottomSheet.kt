@@ -3,6 +3,7 @@ package com.example.zzanz_android.presentation.view.component
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -32,9 +33,8 @@ fun CategoryBottomSheet(
     sheetState: SheetState,
     budgetCategoryData: MutableState<List<BudgetCategoryModel>>
 ) {
-    // TODO - Bottom Sheet 완전히 안열리는 문제 해결
     if (sheetState.isVisible) {
-        ModalBottomSheet(modifier = Modifier.height(452.dp),
+        ModalBottomSheet(modifier = Modifier.wrapContentHeight(),
             sheetState = sheetState,
             containerColor = ZzanZColorPalette.current.White,
             scrimColor = Color(0x66000000),
@@ -44,7 +44,7 @@ fun CategoryBottomSheet(
                 }
             }) {
             BudgetCategory(
-                textModifier = Modifier.padding(horizontal = 24.dp),
+                textModifier = Modifier.padding(horizontal = 24.dp).padding(bottom = 8.dp),
                 categoryModifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
                 titleText = stringResource(R.string.add_category_explain_title),
                 budgetCategoryData = budgetCategoryData

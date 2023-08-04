@@ -4,7 +4,9 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,6 +15,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -22,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -34,13 +40,16 @@ import com.example.zzanz_android.R
 import com.example.zzanz_android.common.NavRoutes
 import com.example.zzanz_android.common.SettingNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
+import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.util.keyboardAsState
 import com.example.zzanz_android.domain.model.BudgetCategoryData
+import com.example.zzanz_android.domain.model.Category
 import com.example.zzanz_android.presentation.view.component.BottomGreenButton
 import com.example.zzanz_android.presentation.view.component.CategoryBottomSheet
 import com.example.zzanz_android.presentation.view.setting.AlarmSetting
 import com.example.zzanz_android.presentation.view.setting.BudgetByCategory
 import com.example.zzanz_android.presentation.view.setting.BudgetCategory
+import com.example.zzanz_android.presentation.view.setting.NestEggExplainText
 import com.example.zzanz_android.presentation.view.setting.SetBudget
 import kotlinx.coroutines.launch
 
@@ -59,7 +68,7 @@ object SettingRoute {
             TitleText = R.string.budget_by_category_title,
             nextRoute = SettingNavRoutes.AlarmSetting.route,
             backRoute = SettingNavRoutes.BudgetCategory.route,
-            buttonText = R.string.complete
+            buttonText = R.string.next
         ), SettingUiData(
             currentRoute = SettingNavRoutes.AlarmSetting.route,
             TitleText = R.string.set_alarm_time_title,
@@ -86,13 +95,13 @@ object SettingRoute {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Setting(navController: NavHostController, route: String = SettingNavRoutes.Budget.route) {
-    val uiData: SettingUiData = SettingRoute.data.filter {
+    val uiData: SettingUiData = SettingRoute.data.single {
         it.currentRoute == route
-    }[0]
+    }
     val title = stringResource(id = uiData.TitleText)
     var isButtonEnabled by remember { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val isKeyboardOpen by keyboardAsState()
     val budgetCategoryData = remember {
         mutableStateOf(BudgetCategoryData.category)
@@ -113,11 +122,13 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
             when (route) {
                 SettingNavRoutes.BudgetByCategory.route -> {
                     // TODO -  BudgetCategory 와 budgetCategoryData 공유하도록 ViewModel 연결하기
-                    BudgetByCategory(titleText = title,
+                    BudgetByCategory(
+                        titleText = title,
                         budgetCategoryData = budgetCategoryData,
                         onAddClicked = {
                             coroutineScope.launch {
                                 sheetState.show()
+
                             }
                         })
                 }
@@ -138,7 +149,9 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
                         it.isChecked
                     }
                     BudgetCategory(
-                        textModifier = Modifier.padding(horizontal = 24.dp),
+                        textModifier = Modifier
+                            .padding(horizontal = 24.dp)
+                            .padding(bottom = 18.dp),
                         categoryModifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
                         titleText = title,
                         budgetCategoryData = budgetCategoryData
@@ -146,6 +159,25 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
+            //TODO - NestEgg가 0원일때만 보일 수 있도록 수정
+            if (route == SettingNavRoutes.BudgetByCategory.route) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = ZzanZDimen.current.defaultHorizontal)
+                        .padding(top = 8.dp, bottom = 12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    NestEggExplainText(
+                        prefix = stringResource(id = R.string.budget_save_money_title_1),
+                        suffix = stringResource(id = R.string.budget_save_money_title_2),
+                        amount = budgetCategoryData.value.single {
+                            it.categoryId == Category.NESTEGG
+                        }.budget.toString(),
+                        amountColor = ZzanZColorPalette.current.Gray04
+                    )
+                }
+            }
             BottomGreenButton(
                 buttonText = stringResource(id = uiData.buttonText),
                 onClick = {

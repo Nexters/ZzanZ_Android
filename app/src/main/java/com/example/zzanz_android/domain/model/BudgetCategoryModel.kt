@@ -61,7 +61,7 @@ object BudgetCategoryData {
             id = 7,
             name = R.string.category_nestegg,
             categoryId = Category.NESTEGG,
-            isChecked = false,
+            isChecked = true,
             budget = 0
         )
     )

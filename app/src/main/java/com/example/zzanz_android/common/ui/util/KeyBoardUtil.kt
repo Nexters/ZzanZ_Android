@@ -35,3 +35,30 @@ fun keyboardAsState(): MutableState<Boolean> {
     }
     return keyboardState
 }
+
+@Composable
+fun keyboardHeightAsState(): MutableState<Int> {
+    val keyboardHeightState = remember { mutableStateOf(0) }
+    val view = LocalView.current
+    DisposableEffect(view) {
+        val listener = ViewTreeObserver.OnGlobalLayoutListener {
+            val imeVisible =
+                ViewCompat.getRootWindowInsets(view)?.isVisible(WindowInsetsCompat.Type.ime())
+                    ?: true
+            val imeHeight =
+                ViewCompat.getRootWindowInsets(view)?.getInsets(WindowInsetsCompat.Type.ime())
+            Log.d(
+                "### keyboardHeightAsState()",
+                "keyboardHeight : ${imeHeight?.bottom}"
+            )
+            imeHeight?.let {
+                keyboardHeightState.value = it.bottom
+            }
+        }
+        view.viewTreeObserver.addOnGlobalLayoutListener(listener)
+        onDispose {
+            view.viewTreeObserver.removeOnGlobalLayoutListener(listener)
+        }
+    }
+    return keyboardHeightState
+}

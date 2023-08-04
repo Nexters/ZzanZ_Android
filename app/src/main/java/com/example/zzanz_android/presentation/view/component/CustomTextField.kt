@@ -1,6 +1,7 @@
 package com.example.zzanz_android.presentation.view.component
 
 import android.util.Log
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -11,12 +12,16 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.presentation.view.component.util.MoneyCommaVisualTransformation
+import timber.log.Timber
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,15 +29,23 @@ import com.example.zzanz_android.presentation.view.component.util.MoneyCommaVisu
 fun BudgetTextField(
     textState: MutableState<String>,
     modifier: Modifier,
-    strExplain: String = "",
+    fontSize: Int,
+    textHolder: String = "",
     onTextChange: (String) -> Unit,
     keyboardType: KeyboardType,
     won: String
 ) {
+
+    val focusManager = LocalFocusManager.current
+    val keyboardAction = KeyboardActions {
+        focusManager.moveFocus(FocusDirection.Next)
+    }
+
     TextField(
         value = textState.value,
         onValueChange = {
             textState.value = it
+            Log.d("### BudgetTextField", it)
             onTextChange(it)
         },
         visualTransformation = if (textState.value.isEmpty()) VisualTransformation.None
@@ -41,8 +54,8 @@ fun BudgetTextField(
         singleLine = true,
         placeholder = {
             Text(
-                text = strExplain,
-                style = ZzanZTypo.current.Heading,
+                text = textHolder,
+                style = ZzanZTypo.current.Heading.copy(fontSize = fontSize.sp),
                 color = ZzanZColorPalette.current.Gray03
             )
         },
@@ -50,7 +63,7 @@ fun BudgetTextField(
             keyboardType = keyboardType
         ),
         modifier = modifier,
-        textStyle = ZzanZTypo.current.Heading,
+        textStyle = ZzanZTypo.current.Heading.copy(fontSize = fontSize.sp),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = ZzanZColorPalette.current.White,
             focusedTextColor = ZzanZColorPalette.current.Gray09,
@@ -59,7 +72,8 @@ fun BudgetTextField(
             unfocusedContainerColor = ZzanZColorPalette.current.White,
             unfocusedIndicatorColor = ZzanZColorPalette.current.Gray03,
             focusedIndicatorColor = ZzanZColorPalette.current.Green04,
-        )
+        ),
+        keyboardActions = keyboardAction
     )
 }
 
@@ -73,7 +87,8 @@ fun EditPreview() {
     BudgetTextField(
         textState = textState,
         modifier = Modifier,
-        strExplain = "Test",
+        fontSize = 100,
+        textHolder = "Test",
         { text: String -> Log.d("budgetTextField", text) },
         keyboardType = KeyboardType.Number,
         "원"

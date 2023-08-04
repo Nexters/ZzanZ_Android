@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -15,19 +15,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -41,6 +48,8 @@ import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+import com.example.zzanz_android.common.ui.util.keyboardAsState
+import com.example.zzanz_android.common.ui.util.keyboardHeightAsState
 import com.example.zzanz_android.domain.model.BudgetCategoryData
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.domain.model.Category
@@ -53,30 +62,32 @@ import com.example.zzanz_android.presentation.view.component.TitleText
 @Composable
 fun BudgetByCategory(
     titleText: String,
-    budgetCategoryData: MutableState<List<BudgetCategoryModel>>, onAddClicked: () -> Unit
+    budgetCategoryData: MutableState<List<BudgetCategoryModel>>,
+    onAddCategoryClicked: () -> Unit
 ) {
     val windowInfo = LocalWindowInfo.current
     val focusRequester = remember {
         FocusRequester()
     }
-
-    val textState = remember {
-        mutableStateOf("")
-    }
+    val isKeyboardOpen by keyboardAsState()
+    val keyboardHeight by keyboardHeightAsState()
+    val maxHeight =
+        if (isKeyboardOpen) (LocalView.current.height - keyboardHeight - 56 - 56 - 220).dp else 560.dp
+//    Log.d("###BudgetByCategory", "TotalHeight - " +  LocalView.current.height.toString())
+//    Log.d("###BudgetByCategory", "KeyboardHeight - " + keyboardHeight.toString())
+//    Log.d("###BudgetByCategory", "MaxHeight - " + maxHeight.toString())
     LaunchedEffect(key1 = budgetCategoryData, block = {})
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(max = 560.dp)
+            .heightIn(max = maxHeight)
             .background(ZzanZColorPalette.current.White)
     ) {
-        // TODO - TextField 안써지는 이슈 해결하기
         LazyColumn {
             item {
                 TitleText(
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                    text = titleText
+                    modifier = Modifier.padding(horizontal = 24.dp), text = titleText
                 )
                 Spacer(modifier = Modifier.height(28.dp))
                 ExplainTotalBudget(totalBudget = 10000)
@@ -87,7 +98,7 @@ fun BudgetByCategory(
                     BudgetByCategoryItem(
                         budgetCategoryData = budgetCategoryData,
                         budgetCategoryItem = item,
-                        textState = textState,
+                        textState = item.budget,
                         modifier = Modifier.focusRequester(focusRequester)
                     )
                 }
@@ -95,14 +106,17 @@ fun BudgetByCategory(
                     BudgetByCategoryItem(
                         budgetCategoryData = budgetCategoryData,
                         budgetCategoryItem = item,
-                        textState = textState,
+                        textState = item.budget,
                         modifier = Modifier.focusRequester(focusRequester)
                     )
                 }
+
+            }
+            item {
+                AddBudgetByCategoryItemBtn(onAddClicked = onAddCategoryClicked)
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
-        AddBudgetByCategoryItemBtn(onAddClicked = onAddClicked)
-        Spacer(modifier = Modifier.height(12.dp))
     }
 
 //    LaunchedEffect(windowInfo) {
@@ -154,6 +168,8 @@ fun BudgetByCategoryItem(
     textState: MutableState<String>,
     modifier: Modifier,
 ) {
+    LaunchedEffect(key1 = budgetCategoryData, block = {})
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -174,25 +190,34 @@ fun BudgetByCategoryItem(
             Row {
                 if (budgetCategoryItem.categoryId == Category.NESTEGG) {
                     Text(
-                        text = budgetCategoryItem.budget.toString(),
+                        text = budgetCategoryItem.budget.value,
                         style = ZzanZTypo.current.Body01.copy(
                             fontWeight = FontWeight.SemiBold
                         ),
                         color = ZzanZColorPalette.current.Gray03
                     )
                 } else {
+                    val focusManager = LocalFocusManager.current
+                    val keyboardAction = KeyboardActions {
+                        focusManager.moveFocus(FocusDirection.Next)
+                    }
+                    // TODO - TextField Height 수정해야함
                     BudgetTextField(
-                        textState = textState,
+                        textState = budgetCategoryItem.budget,
                         modifier = Modifier
                             .width(54.dp)
-                            .height(28.dp),
-                        strExplain = "10,000",
+                            .height(50.dp),
+                        fontSize = 16,
+                        textHolder = "10000",
                         onTextChange = { text: String ->
-                            Log.d("BudgetByCategory", text)
+                            Log.d("### BudgetByCategory", text)
                             budgetCategoryData.value = budgetCategoryData.value.map {
                                 if (it.name == budgetCategoryItem.name) {
-                                    it.copy(budget = text.toInt())
+                                    it.copy(budget = mutableStateOf(text))
                                 } else it
+                            }
+                            budgetCategoryData.value.map {
+                                Log.d("### BudgetByCategoryItem", "$it")
                             }
                         },
                         keyboardType = KeyboardType.Number,
@@ -204,7 +229,7 @@ fun BudgetByCategoryItem(
                     style = ZzanZTypo.current.Body02.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
-                    color = ZzanZColorPalette.current.Gray05
+                    color = ZzanZColorPalette.current.Gray08
                 )
             }
         }
@@ -269,10 +294,7 @@ fun AddBudgetByCategoryItemBtn(onAddClicked: () -> Unit) {
 
 @Composable
 fun NestEggExplainText(
-    prefix: String,
-    suffix: String,
-    amount: String,
-    amountColor: Color
+    prefix: String, suffix: String, amount: String, amountColor: Color
 ) {
     Text(
         buildAnnotatedString {
@@ -285,17 +307,14 @@ fun NestEggExplainText(
             withStyle(SpanStyle(color = ZzanZColorPalette.current.Gray06)) {
                 append(suffix)
             }
-        },
-        style = ZzanZTypo.current.Body02
+        }, style = ZzanZTypo.current.Body02
     )
 }
 
 @Preview
 @Composable
 fun BudgetByCategoryPreview() {
-    BudgetByCategory(
-        titleText = "Text",
-        budgetCategoryData = remember {
-            mutableStateOf(BudgetCategoryData.category)
-        }, onAddClicked = {})
+    BudgetByCategory(titleText = "Text", budgetCategoryData = remember {
+        mutableStateOf(BudgetCategoryData.category)
+    }, onAddCategoryClicked = {})
 }

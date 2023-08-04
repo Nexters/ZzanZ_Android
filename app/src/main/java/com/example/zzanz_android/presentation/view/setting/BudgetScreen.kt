@@ -57,7 +57,8 @@ fun SetBudget(titleText: String, onButtonChange: (String) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
-            strExplain = stringResource(id = R.string.budget_example),
+            fontSize = 18,
+            textHolder = stringResource(id = R.string.budget_example),
             onTextChange = { text: String ->
                 Log.d("Budget", text)
                 onButtonChange(text)

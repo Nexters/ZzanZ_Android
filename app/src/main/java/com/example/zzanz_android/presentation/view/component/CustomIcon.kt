@@ -73,19 +73,9 @@ fun PlusIcon() {
 }
 
 @Composable
-fun CategoryIcon(resId: Int?) {
-    Column(
-        modifier = Modifier
-            .size(32.dp)
-            .background(color = ZzanZColorPalette.current.Gray02, shape = CircleShape),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        resId?.let {
-            ImageViewWithXml(
-                modifier = Modifier.size(20.dp),
-                resId = it
-            )
-        }
-    }
+fun CategoryIcon(resId: Int) {
+    ImageViewWithXml(
+        modifier = Modifier.size(32.dp),
+        resId = resId
+    )
 }

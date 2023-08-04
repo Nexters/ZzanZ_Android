@@ -4,9 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,9 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -56,7 +51,7 @@ import kotlinx.coroutines.launch
 data class SettingUiData(
     val currentRoute: String,
     @StringRes val TitleText: Int,
-    @StringRes val buttonText: Int,
+    @StringRes var buttonText: Int,
     val nextRoute: String,
     val backRoute: String,
 )
@@ -108,6 +103,9 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
     }
 
     LaunchedEffect(key1 = isButtonEnabled, key2 = isKeyboardOpen, block = {})
+    if (route == SettingNavRoutes.BudgetByCategory.route && isKeyboardOpen) {
+        uiData.buttonText = R.string.budget_by_category_write_btn_title
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -122,13 +120,11 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
             when (route) {
                 SettingNavRoutes.BudgetByCategory.route -> {
                     // TODO -  BudgetCategory 와 budgetCategoryData 공유하도록 ViewModel 연결하기
-                    BudgetByCategory(
-                        titleText = title,
+                    BudgetByCategory(titleText = title,
                         budgetCategoryData = budgetCategoryData,
-                        onAddClicked = {
+                        onAddCategoryClicked = {
                             coroutineScope.launch {
                                 sheetState.show()
-
                             }
                         })
                 }
@@ -159,8 +155,10 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
-            //TODO - NestEgg가 0원일때만 보일 수 있도록 수정
-            if (route == SettingNavRoutes.BudgetByCategory.route) {
+            if (route == SettingNavRoutes.BudgetByCategory.route &&
+                budgetCategoryData.value.any {
+                    it.categoryId == Category.NESTEGG && it.budget.value != "0"
+                }) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -173,7 +171,7 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
                         suffix = stringResource(id = R.string.budget_save_money_title_2),
                         amount = budgetCategoryData.value.single {
                             it.categoryId == Category.NESTEGG
-                        }.budget.toString(),
+                        }.budget.value,
                         amountColor = ZzanZColorPalette.current.Gray04
                     )
                 }

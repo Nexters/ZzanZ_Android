@@ -1,6 +1,5 @@
 package com.example.zzanz_android.presentation.view.setting
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,7 +28,7 @@ import com.example.zzanz_android.presentation.view.component.TitleText
 fun BudgetCategory(
     textModifier: Modifier = Modifier,
     categoryModifier: Modifier = Modifier,
-    @StringRes titleText: Int,
+    titleText: String,
     budgetCategoryData: MutableState<List<BudgetCategoryModel>>
 ) {
     LaunchedEffect(key1 = budgetCategoryData, block = {})
@@ -37,7 +36,7 @@ fun BudgetCategory(
         modifier = Modifier.fillMaxWidth()
     ) {
         TitleText(
-            modifier = textModifier, text = stringResource(id = titleText)
+            modifier = textModifier, text = titleText
         )
         Spacer(modifier = Modifier.height(18.dp))
         LaunchedEffect(key1 = budgetCategoryData, block = {})
@@ -77,7 +76,7 @@ fun BudgetCategoryPreview() {
     BudgetCategory(
         textModifier = Modifier,
         categoryModifier = Modifier,
-        titleText = R.string.next_week_budget_category,
+        titleText = stringResource(id = R.string.next_week_budget_category),
         budgetCategoryData = remember {
             mutableStateOf(BudgetCategoryData.category)
         }

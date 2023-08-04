@@ -46,7 +46,7 @@ fun CategoryBottomSheet(
             BudgetCategory(
                 textModifier = Modifier.padding(horizontal = 24.dp),
                 categoryModifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
-                titleText = R.string.add_category_explain_title,
+                titleText = stringResource(R.string.add_category_explain_title),
                 budgetCategoryData = budgetCategoryData
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -72,8 +72,7 @@ fun CategoryBottomSheet(
 fun BottomSheetPreview() {
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
-    CategoryBottomSheet(
-        coroutineScope = coroutineScope,
+    CategoryBottomSheet(coroutineScope = coroutineScope,
         sheetState = sheetState,
         budgetCategoryData = remember {
             mutableStateOf(BudgetCategoryData.category)

@@ -1,5 +1,6 @@
 package com.example.zzanz_android.presentation.view
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,13 +44,52 @@ import com.example.zzanz_android.presentation.view.setting.BudgetCategory
 import com.example.zzanz_android.presentation.view.setting.SetBudget
 import kotlinx.coroutines.launch
 
+data class SettingUiData(
+    val currentRoute: String,
+    @StringRes val TitleText: Int,
+    @StringRes val buttonText: Int,
+    val nextRoute: String,
+    val backRoute: String,
+)
+
+object SettingRoute {
+    val data = listOf(
+        SettingUiData(
+            currentRoute = SettingNavRoutes.BudgetByCategory.route,
+            TitleText = R.string.budget_by_category_title,
+            nextRoute = SettingNavRoutes.AlarmSetting.route,
+            backRoute = SettingNavRoutes.BudgetCategory.route,
+            buttonText = R.string.complete
+        ), SettingUiData(
+            currentRoute = SettingNavRoutes.AlarmSetting.route,
+            TitleText = R.string.set_alarm_time_title,
+            nextRoute = NavRoutes.Home.route,
+            backRoute = SettingNavRoutes.BudgetByCategory.route,
+            buttonText = R.string.set_alarm_time_btn_title
+        ), SettingUiData(
+            currentRoute = SettingNavRoutes.Budget.route,
+            TitleText = R.string.next_week_budget_title,
+            nextRoute = SettingNavRoutes.BudgetCategory.route,
+            backRoute = NavRoutes.Splash.route,
+            buttonText = R.string.next
+        ), SettingUiData(
+            currentRoute = SettingNavRoutes.BudgetCategory.route,
+            TitleText = R.string.next_week_budget_category,
+            nextRoute = SettingNavRoutes.BudgetByCategory.route,
+            backRoute = SettingNavRoutes.Budget.route,
+            buttonText = R.string.next
+
+        )
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Setting(navController: NavHostController, route: String = SettingNavRoutes.Budget.route) {
-    // TODO - nextRoute / backRoute / ButtonText / TitleText / isButtonEnabled 관리하는 DataClass 만들기
-    var nextRoute: String = ""
-    var backRoute: String = ""
-    var buttonText: String = ""
+    val uiData: SettingUiData = SettingRoute.data.filter {
+        it.currentRoute == route
+    }[0]
+    val title = stringResource(id = uiData.TitleText)
     var isButtonEnabled by remember { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
@@ -57,38 +97,14 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
     val budgetCategoryData = remember {
         mutableStateOf(BudgetCategoryData.category)
     }
-    when (route) {
-        SettingNavRoutes.BudgetByCategory.route -> {
-            nextRoute = SettingNavRoutes.AlarmSetting.route
-            backRoute = SettingNavRoutes.BudgetCategory.route
-            buttonText = stringResource(id = R.string.complete)
-        }
 
-        SettingNavRoutes.AlarmSetting.route -> {
-            nextRoute = NavRoutes.Home.route
-            backRoute = SettingNavRoutes.BudgetByCategory.route
-            buttonText = stringResource(id = R.string.set_alarm_time_btn_title)
-        }
-
-        SettingNavRoutes.Budget.route -> {
-            nextRoute = SettingNavRoutes.BudgetCategory.route
-            backRoute = NavRoutes.Splash.route
-            buttonText = stringResource(id = R.string.next)
-        }
-
-        SettingNavRoutes.BudgetCategory.route -> {
-            nextRoute = SettingNavRoutes.BudgetByCategory.route
-            backRoute = SettingNavRoutes.Budget.route
-            buttonText = stringResource(id = R.string.next)
-        }
-    }
     LaunchedEffect(key1 = isButtonEnabled, key2 = isKeyboardOpen, block = {})
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = ZzanZColorPalette.current.White)
     ) {
-        TopBar(navController = navController, route = route, backRoute = backRoute)
+        TopBar(navController = navController, route = route, backRoute = uiData.backRoute)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -97,21 +113,21 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
             when (route) {
                 SettingNavRoutes.BudgetByCategory.route -> {
                     // TODO -  BudgetCategory 와 budgetCategoryData 공유하도록 ViewModel 연결하기
-                    BudgetByCategory(
+                    BudgetByCategory(titleText = title,
                         budgetCategoryData = budgetCategoryData,
                         onAddClicked = {
-                        coroutineScope.launch {
-                            sheetState.show()
-                        }
-                    })
+                            coroutineScope.launch {
+                                sheetState.show()
+                            }
+                        })
                 }
 
                 SettingNavRoutes.AlarmSetting.route -> {
-                    AlarmSetting()
+                    AlarmSetting(title)
                 }
 
                 SettingNavRoutes.Budget.route -> {
-                    SetBudget { budget ->
+                    SetBudget(titleText = title) { budget ->
                         isButtonEnabled = if (budget.isNullOrEmpty()) false
                         else budget.all { Character.isDigit(it) }
                     }
@@ -124,17 +140,17 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
                     BudgetCategory(
                         textModifier = Modifier.padding(horizontal = 24.dp),
                         categoryModifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
-                        titleText = R.string.next_week_budget_category,
+                        titleText = title,
                         budgetCategoryData = budgetCategoryData
                     )
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
             BottomGreenButton(
-                buttonText = buttonText,
+                buttonText = stringResource(id = uiData.buttonText),
                 onClick = {
                     if (isButtonEnabled) {
-                        navController.navigate(nextRoute) {
+                        navController.navigate(uiData.nextRoute) {
                             popUpTo(NavRoutes.Setting.route) {
                                 inclusive = true
                             }

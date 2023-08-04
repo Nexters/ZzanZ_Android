@@ -1,7 +1,6 @@
 package com.example.zzanz_android.presentation.view.setting
 
 import android.util.Log
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +20,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -48,6 +46,7 @@ import com.example.zzanz_android.presentation.view.component.TitleText
 
 @Composable
 fun BudgetByCategory(
+    titleText: String,
     budgetCategoryData: MutableState<List<BudgetCategoryModel>>, onAddClicked: () -> Unit
 ) {
     val windowInfo = LocalWindowInfo.current
@@ -67,7 +66,7 @@ fun BudgetByCategory(
     ) {
         TitleText(
             modifier = Modifier.padding(horizontal = 24.dp),
-            text = stringResource(id = R.string.budget_by_category_title)
+            text = titleText
         )
         Spacer(modifier = Modifier.height(28.dp))
         ExplainTotalBudget(totalBudget = 10000)
@@ -167,7 +166,7 @@ fun BudgetByCategoryItem(
                     strExplain = "10,000",
                     onTextChange = { text: String ->
                         Log.d("BudgetByCategory", text)
-                        budgetCategoryData.value = budgetCategoryData.value.map{
+                        budgetCategoryData.value = budgetCategoryData.value.map {
                             if (it.name == budgetCategoryItem.name) {
                                 it.copy(budget = text.toInt())
                             } else it
@@ -187,7 +186,7 @@ fun BudgetByCategoryItem(
         }
         Spacer(modifier = Modifier.weight(1f))
         DeleteCategory {
-            budgetCategoryData.value = budgetCategoryData.value.map{
+            budgetCategoryData.value = budgetCategoryData.value.map {
                 if (it.name == budgetCategoryItem.name) {
                     it.copy(isChecked = false)
                 } else it
@@ -201,7 +200,9 @@ fun DeleteCategory(
     onClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier.height(56.dp).clickable { onClick() },
+        modifier = Modifier
+            .height(56.dp)
+            .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -245,7 +246,9 @@ fun AddBudgetByCategoryItemBtn(onAddClicked: () -> Unit) {
 @Preview
 @Composable
 fun BudgetByCategoryPreview() {
-    BudgetByCategory(budgetCategoryData = remember {
-        mutableStateOf(BudgetCategoryData.category)
-    }, onAddClicked = {})
+    BudgetByCategory(
+        titleText = "Text",
+        budgetCategoryData = remember {
+            mutableStateOf(BudgetCategoryData.category)
+        }, onAddClicked = {})
 }

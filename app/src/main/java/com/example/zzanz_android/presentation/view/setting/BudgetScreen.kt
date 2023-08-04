@@ -29,7 +29,7 @@ import com.example.zzanz_android.presentation.view.component.TitleText
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SetBudget(onButtonChange: (String) -> Unit) {
+fun SetBudget(titleText: String, onButtonChange: (String) -> Unit) {
     val windowInfo = LocalWindowInfo.current
     val focusRequester = remember {
         FocusRequester()
@@ -43,7 +43,7 @@ fun SetBudget(onButtonChange: (String) -> Unit) {
             .padding(horizontal = 24.dp)
     ) {
         TitleText(
-            modifier = Modifier, text = stringResource(id = R.string.next_week_budget_title)
+            modifier = Modifier, text = titleText
         )
         Text(
             modifier = Modifier,
@@ -79,5 +79,5 @@ fun SetBudget(onButtonChange: (String) -> Unit) {
 @Preview
 @Composable
 fun SetBudgetPreview() {
-    SetBudget({})
+    SetBudget(titleText = "Text") {}
 }

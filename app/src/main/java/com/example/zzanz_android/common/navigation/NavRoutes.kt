@@ -1,4 +1,4 @@
-package com.example.zzanz_android.common
+package com.example.zzanz_android.common.navigation
 
 sealed class NavRoutes(val route: String) {
     object Splash : NavRoutes("splash")
@@ -12,8 +12,4 @@ sealed class SettingNavRoutes {
     object BudgetCategory: NavRoutes("BudgetCategorySetting")
     object BudgetByCategory : NavRoutes("BudgetByCategory")
     object AlarmSetting : NavRoutes("AlarmSetting")
-}
-
-sealed class SpendingNavRoutes{
-    object AddSpending : NavRoutes("AddSpending")
 }

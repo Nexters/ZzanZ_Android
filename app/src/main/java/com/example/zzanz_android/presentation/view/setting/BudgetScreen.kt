@@ -1,6 +1,6 @@
 package com.example.zzanz_android.presentation.view.setting
 
-import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -18,32 +19,39 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
-import com.example.zzanz_android.presentation.view.component.BudgetTextField
+import com.example.zzanz_android.presentation.contract.BudgetContract
+import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
 import com.example.zzanz_android.presentation.view.component.TitleText
+import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
 
-@OptIn(ExperimentalComposeUiApi::class)
+
 @Composable
-fun SetBudget(onButtonChange: (String) -> Unit) {
+fun SetBudget(
+    budgetViewModel: BudgetViewModel = hiltViewModel(),
+    titleText: String,
+) {
     val windowInfo = LocalWindowInfo.current
     val focusRequester = remember {
         FocusRequester()
     }
-    val budgetState = remember {
-        mutableStateOf("")
-    }
+    val budgetState = budgetViewModel.uiState.collectAsState()
+    val budget = budgetState.value.budget
+
     Column(
         modifier = Modifier
+            .background(ZzanZColorPalette.current.White)
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
     ) {
         TitleText(
-            modifier = Modifier, text = stringResource(id = R.string.next_week_budget_title)
+            modifier = Modifier, text = titleText
         )
         Text(
             modifier = Modifier,
@@ -52,19 +60,20 @@ fun SetBudget(onButtonChange: (String) -> Unit) {
             color = ZzanZColorPalette.current.Gray06
         )
         Spacer(modifier = Modifier.height(24.dp))
-        // TODO - TextFiled 손보기
-        BudgetTextField(
-            textState = budgetState,
+
+        MoneyInputTextField(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(56.dp)
                 .focusRequester(focusRequester),
-            strExplain = stringResource(id = R.string.budget_example),
-            onTextChange = { text: String ->
-                Log.d("Budget", text)
-                onButtonChange(text)
+            text = budget.value,
+            onClickAction = {},
+            onTextChanged = { text: TextFieldValue ->
+                budgetViewModel.setEvent(
+                    BudgetContract.Event.OnFetchBudget(text)
+                )
             },
-            keyboardType = KeyboardType.Number,
-            won = stringResource(id = R.string.money_unit)
+            textSize = 18
         )
 
         LaunchedEffect(windowInfo) {
@@ -80,5 +89,5 @@ fun SetBudget(onButtonChange: (String) -> Unit) {
 @Preview
 @Composable
 fun SetBudgetPreview() {
-    SetBudget({})
+    SetBudget(titleText = "Text")
 }

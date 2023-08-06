@@ -1,14 +1,22 @@
 package com.example.zzanz_android.domain.model
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import com.example.zzanz_android.R
 
 data class BudgetCategoryModel(
     val id: Int,
     @StringRes val name: Int,
-    val categoryName: Category,
+    val categoryId: Category,
     var isChecked: Boolean = false,
-    var budget: Int = 0
+    var budget: MutableState<TextFieldValue> = mutableStateOf(TextFieldValue("", selection = TextRange(0))),
+    @DrawableRes val categoryImage: Int
 )
 
 object BudgetCategoryData {
@@ -16,51 +24,52 @@ object BudgetCategoryData {
         BudgetCategoryModel(
             id = 0,
             name = R.string.category_food,
-            categoryName = Category.FOOD,
-            isChecked = false,
-            budget = 0
+            categoryId = Category.FOOD,
+            isChecked = true,
+            categoryImage = R.drawable.icon_food
         ), BudgetCategoryModel(
             id = 1,
             name = R.string.category_eatout,
-            categoryName = Category.EATOUT,
+            categoryId = Category.EATOUT,
             isChecked = false,
-            budget = 0
+            categoryImage = R.drawable.icon_eatout
         ), BudgetCategoryModel(
             id = 2,
             name = R.string.category_coffee,
-            categoryName = Category.COFFEE,
+            categoryId = Category.COFFEE,
             isChecked = false,
-            budget = 0
+            categoryImage = R.drawable.icon_coffee
         ), BudgetCategoryModel(
             id = 3,
             name = R.string.category_transportation,
-            categoryName = Category.TRANSPORTATION,
+            categoryId = Category.TRANSPORTATION,
             isChecked = false,
-            budget = 0
+            categoryImage = R.drawable.icon_transporamtion
         ), BudgetCategoryModel(
             id = 4,
             name = R.string.category_living,
-            categoryName = Category.LIVING,
+            categoryId = Category.LIVING,
             isChecked = false,
-            budget = 0
+            categoryImage = R.drawable.icon_living
         ), BudgetCategoryModel(
             id = 5,
             name = R.string.category_beauty,
-            categoryName = Category.BEAUTY,
+            categoryId = Category.BEAUTY,
             isChecked = false,
-            budget = 0
+            categoryImage = R.drawable.icon_beauty
         ), BudgetCategoryModel(
             id = 6,
             name = R.string.category_culture,
-            categoryName = Category.CULTURE,
+            categoryId = Category.CULTURE,
             isChecked = false,
-            budget = 0
+            categoryImage = R.drawable.icon_culture
         ), BudgetCategoryModel(
             id = 7,
             name = R.string.category_nestegg,
-            categoryName = Category.NESTEGG,
-            isChecked = false,
-            budget = 0
+            budget = mutableStateOf(TextFieldValue("0")),
+            categoryId = Category.NESTEGG,
+            isChecked = true,
+            categoryImage = R.drawable.icon_nestegg
         )
     )
 }

@@ -18,6 +18,7 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import timber.log.Timber
 import javax.inject.Inject
 
 class ChallengeServiceImpl @Inject constructor(
@@ -31,76 +32,77 @@ class ChallengeServiceImpl @Inject constructor(
         }.body()
     }
 
-    override suspend fun postGoalAmount(goalAmountDto: GoalAmountDto): Boolean {
+    override suspend fun postGoalAmount(goalAmountDto: GoalAmountDto): Resource<Boolean> {
         return try {
             client.post("/challenge/participate") {
                 contentType(ContentType.Application.Json)
                 setBody(goalAmountDto)
             }.let {
-                it.status == HttpStatusCode.OK
+                Log.e(TAG, it.status.toString())
+                Log.e(TAG, it.toString())
+                return Resource.Success(it.status == HttpStatusCode.OK)
             }
         } catch (e: ClientRequestException) {
             // 4XX response
             // TODO - 에러시 오류 로직 처리
-            Log.e(TAG, "Error : ${e.response.body<BaseResponseDto>().message}")
-            return false
+            Log.e(TAG, e.response.toString())
+            return Resource.Error(e)
         } catch (e: ServerResponseException) {
             // 5XX response
             // TODO - 에러시 오류 로직 처리
             Log.e(TAG, "Error : ${e.response.status.description}")
-            return false
+            return Resource.Error(e)
         } catch (e: Exception) {
             Log.e(TAG, "Error : ${e.message}")
-            return false
-
+            return Resource.Error(e)
         }
     }
 
-    override suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Boolean {
+    override suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Resource<Boolean> {
         return try {
             client.post("/challenge/plan/category") {
                 contentType(ContentType.Application.Json)
                 setBody(goalAmountDtoList)
             }.let {
-                it.status == HttpStatusCode.OK
+                Resource.Success(it.status == HttpStatusCode.OK)
             }
         } catch (e: ClientRequestException) {
             // 4XX response
             // TODO - 에러시 오류 로직 처리
             Log.e(TAG, "Error : ${e.response.body<BaseResponseDto>().message}")
-            return false
+            return Resource.Error(e)
         } catch (e: ServerResponseException) {
             // 5XX response
             // TODO - 에러시 오류 로직 처리
             Log.e(TAG, "Error : ${e.response.status.description}")
-            return false
+            return Resource.Error(e)
         } catch (e: Exception) {
             Log.e(TAG, "Error : ${e.message}")
-            return false
+            return Resource.Error(e)
         }
     }
 
-    override suspend fun putGoalAmount(goalAmountDto: GoalAmountDto): Boolean {
+    override suspend fun putGoalAmount(goalAmountDto: GoalAmountDto): Resource<Boolean> {
         return try {
             client.post("/challenge/participate/goalAmount") {
                 contentType(ContentType.Application.Json)
                 setBody(goalAmountDto)
             }.let {
-                it.status == HttpStatusCode.OK
+                Resource.Success(it.status == HttpStatusCode.OK)
             }
         } catch (e: ClientRequestException) {
             // 4XX response
             // TODO - 에러시 오류 로직 처리
             Log.e(TAG, "Error : ${e.response.body<BaseResponseDto>().message}")
-            return false
+            return Resource.Error(e)
         } catch (e: ServerResponseException) {
             // 5XX response
             // TODO - 에러시 오류 로직 처리
             Log.e(TAG, "Error : ${e.response.status.description}")
-            return false
+            return Resource.Error(e)
         } catch (e: Exception) {
             Log.e(TAG, "Error : ${e.message}")
-            return false
+            return Resource.Error(e)
         }
     }
 

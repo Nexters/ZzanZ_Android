@@ -16,6 +16,7 @@ data class ColorPalette(
     val Green03: Color = Color(0xFF73BF82),
     val Green02: Color = Color(0xFFA4D3A8),
     val Green01: Color = Color(0xFFD0F0D5),
+    val GreenCategory : Color = Color(0xFFE9FFF3),
 
     val Gray09: Color = Color(0xFF141415),
     val Gray08: Color = Color(0xFF222529),

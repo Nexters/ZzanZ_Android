@@ -18,7 +18,6 @@ class GetChallengeListUseCase @Inject constructor(
 ): BaseUseCase<PagingData<ChallengeModel>, Nothing>() {
     override suspend fun buildRequest(params: Nothing?): Flow<Resource<PagingData<ChallengeModel>>> {
         return challengeRepository.getChallengeList().map {
-
             Resource.Success(it)
         }.flowOn(dispatcher)
     }

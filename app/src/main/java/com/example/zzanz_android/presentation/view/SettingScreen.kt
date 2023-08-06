@@ -1,5 +1,7 @@
 package com.example.zzanz_android.presentation.view
 
+import android.util.Log
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,77 +18,113 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.NavRoutes
 import com.example.zzanz_android.common.SettingNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
-import com.example.zzanz_android.presentation.view.component.CategoryBottomSheet
-import com.example.zzanz_android.presentation.view.component.GreenRectButton
-import com.example.zzanz_android.presentation.view.component.GreenRoundButton
+import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.util.keyboardAsState
+import com.example.zzanz_android.domain.model.BudgetCategoryData
+import com.example.zzanz_android.domain.model.Category
+import com.example.zzanz_android.presentation.contract.BudgetContract
+import com.example.zzanz_android.presentation.view.component.BottomGreenButton
+import com.example.zzanz_android.presentation.view.component.CategoryBottomSheet
 import com.example.zzanz_android.presentation.view.setting.AlarmSetting
 import com.example.zzanz_android.presentation.view.setting.BudgetByCategory
 import com.example.zzanz_android.presentation.view.setting.BudgetCategory
+import com.example.zzanz_android.presentation.view.setting.NestEggExplainText
 import com.example.zzanz_android.presentation.view.setting.SetBudget
+import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
 import kotlinx.coroutines.launch
+
+data class SettingUiData(
+    val currentRoute: String,
+    @StringRes val titleText: Int,
+    @StringRes var buttonText: Int,
+    val nextRoute: String,
+    val backRoute: String,
+)
+
+object SettingRoute {
+    val data = listOf(
+        SettingUiData(
+            currentRoute = SettingNavRoutes.BudgetByCategory.route,
+            titleText = R.string.budget_by_category_title,
+            nextRoute = SettingNavRoutes.AlarmSetting.route,
+            backRoute = SettingNavRoutes.BudgetCategory.route,
+            buttonText = R.string.next
+        ), SettingUiData(
+            currentRoute = SettingNavRoutes.AlarmSetting.route,
+            titleText = R.string.set_alarm_time_title,
+            nextRoute = NavRoutes.Home.route,
+            backRoute = SettingNavRoutes.BudgetByCategory.route,
+            buttonText = R.string.set_alarm_time_btn_title
+        ), SettingUiData(
+            currentRoute = SettingNavRoutes.Budget.route,
+            titleText = R.string.next_week_budget_title,
+            nextRoute = SettingNavRoutes.BudgetCategory.route,
+            backRoute = NavRoutes.Splash.route,
+            buttonText = R.string.next
+        ), SettingUiData(
+            currentRoute = SettingNavRoutes.BudgetCategory.route,
+            titleText = R.string.next_week_budget_category,
+            nextRoute = SettingNavRoutes.BudgetByCategory.route,
+            backRoute = SettingNavRoutes.Budget.route,
+            buttonText = R.string.next
+
+        )
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Setting(navController: NavHostController, route: String = SettingNavRoutes.Budget.route) {
-    var nextRoute: String = ""
-    var backRoute: String = ""
-    var buttonText: String = ""
-    var isButtonEnabled by remember { mutableStateOf(true) }
-    val coroutineScope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState()
-
-    // TODO - keyboardAsState 동작 안함
-    var isKeyboardOpen by keyboardAsState()
-    when (route) {
-        SettingNavRoutes.BudgetByCategory.route -> {
-            nextRoute = SettingNavRoutes.AlarmSetting.route
-            backRoute = SettingNavRoutes.BudgetCategory.route
-            buttonText = stringResource(id = R.string.complete)
-        }
-
-        SettingNavRoutes.AlarmSetting.route -> {
-            nextRoute = NavRoutes.Home.route
-            backRoute = SettingNavRoutes.BudgetByCategory.route
-            buttonText = stringResource(id = R.string.set_alarm_time_btn_title)
-        }
-
-        SettingNavRoutes.Budget.route -> {
-            nextRoute = SettingNavRoutes.BudgetCategory.route
-            backRoute = NavRoutes.Splash.route
-            buttonText = stringResource(id = R.string.next)
-        }
-
-        SettingNavRoutes.BudgetCategory.route -> {
-            nextRoute = SettingNavRoutes.BudgetByCategory.route
-            backRoute = SettingNavRoutes.Budget.route
-            buttonText = stringResource(id = R.string.next)
-        }
+fun Setting(
+    navController: NavHostController,
+    route: String = SettingNavRoutes.Budget.route,
+    budgetViewModel: BudgetViewModel = hiltViewModel()
+) {
+    val uiData: SettingUiData = SettingRoute.data.single {
+        it.currentRoute == route
     }
-    LaunchedEffect(key1 = isButtonEnabled, key2 = isKeyboardOpen, block = {})
+    val title = stringResource(id = uiData.titleText)
+    val coroutineScope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val isKeyboardOpen by keyboardAsState()
+    val budgetCategoryData = remember {
+        mutableStateOf(BudgetCategoryData.category)
+    }
+    val isButtonActive = budgetViewModel.isButtonActive.collectAsState()
+
+
+    LaunchedEffect(key1 = isButtonActive, key2 = isKeyboardOpen, block = {
+    })
+
+
+    if (route == SettingNavRoutes.BudgetByCategory.route && isKeyboardOpen) {
+        uiData.buttonText = R.string.budget_by_category_write_btn_title
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = ZzanZColorPalette.current.White)
     ) {
-        TopBar(navController = navController, route = route, backRoute = backRoute)
+        TopBar(navController = navController, route = route, backRoute = uiData.backRoute)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -94,93 +132,90 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
         ) {
             when (route) {
                 SettingNavRoutes.BudgetByCategory.route -> {
-                    BudgetByCategory(onAddClicked = {
-                        coroutineScope.launch {
-                            sheetState.show()
-                        }
-                    })
+                    // TODO -  BudgetCategory 와 budgetCategoryData 공유하도록 ViewModel 연결하기
+                    BudgetByCategory(titleText = title,
+                        budgetCategoryData = budgetCategoryData,
+                        onAddCategoryClicked = {
+                            coroutineScope.launch {
+                                sheetState.show()
+                            }
+                        })
                 }
 
                 SettingNavRoutes.AlarmSetting.route -> {
-                    AlarmSetting()
+                    AlarmSetting(title)
                 }
 
                 SettingNavRoutes.Budget.route -> {
-                    SetBudget { budget ->
-                        isButtonEnabled = budget.isNotEmpty()
-                    }
+                    SetBudget(
+                        budgetViewModel = budgetViewModel, titleText = title
+                    )
                 }
 
                 SettingNavRoutes.BudgetCategory.route -> {
-                    BudgetCategory(textModifier = Modifier.padding(horizontal = 24.dp),
+//                    isButtonEnabled = budgetCategoryData.value.any {
+//                        it.isChecked
+//                    }
+                    BudgetCategory(
+                        textModifier = Modifier
+                            .padding(horizontal = 24.dp)
+                            .padding(bottom = 18.dp),
                         categoryModifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
-                        titleText = R.string.budget_by_category_title,
-                        onAddClicked = {
-
-                        })
+                        titleText = title,
+                        budgetCategoryData = budgetCategoryData
+                    )
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
-            SetBottomButton(
-                buttonText = buttonText,
-                navController = navController,
-                nextRoute = nextRoute,
-                isButtonEnabled = isButtonEnabled,
+            if (route == SettingNavRoutes.BudgetByCategory.route && budgetCategoryData.value.any {
+                    it.categoryId == Category.NESTEGG && it.budget.value.toString() != "0"
+                }) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = ZzanZDimen.current.defaultHorizontal)
+                        .padding(top = 8.dp, bottom = 12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    NestEggExplainText(
+                        prefix = stringResource(id = R.string.budget_save_money_title_1),
+                        suffix = stringResource(id = R.string.budget_save_money_title_2),
+                        amount = budgetCategoryData.value.single {
+                            it.categoryId == Category.NESTEGG
+                        }.budget.value.text,
+                        amountColor = ZzanZColorPalette.current.Gray04
+                    )
+                }
+            }
+            BottomGreenButton(
+                buttonText = stringResource(id = uiData.buttonText),
+                onClick = {
+                    if (isButtonActive.value) {
+                        budgetViewModel.setEvent(
+                            BudgetContract.Event.OnNextButtonClicked
+                        )
+//                        navController.navigate(uiData.nextRoute) {
+//                            popUpTo(NavRoutes.Setting.route) {
+//                                inclusive = true
+//                            }
+//                        }
+                    }
+                },
+                isButtonEnabled = isButtonActive.value,
                 isKeyboardOpen = isKeyboardOpen,
+                horizontalWidth = if (isKeyboardOpen) 0 else 24
             )
+
             if (sheetState.isVisible) {
-                CategoryBottomSheet(coroutineScope = coroutineScope, sheetState = sheetState)
+                // TODO - CategoryBottomSheet ViewModel 연결하기
+                CategoryBottomSheet(
+                    coroutineScope = coroutineScope,
+                    sheetState = sheetState,
+                    budgetCategoryData = budgetCategoryData
+                )
             }
         }
     }
-}
-
-
-@Composable
-fun SetBottomButton(
-    buttonText: String,
-    navController: NavHostController,
-    nextRoute: String,
-    isButtonEnabled: Boolean,
-    isKeyboardOpen: Boolean
-) {
-    if (isKeyboardOpen) {
-        GreenRectButton(
-            modifier = Modifier
-                .height(56.dp)
-                .padding(horizontal = 24.dp),
-            text = buttonText,
-            onClick = {
-                if (isButtonEnabled) {
-                    navController.navigate(nextRoute) {
-                        popUpTo(NavRoutes.Setting.route) {
-                            inclusive = true
-                        }
-                    }
-                }
-            },
-            enabled = isButtonEnabled
-        )
-    } else {
-        GreenRoundButton(
-            modifier = Modifier
-                .height(56.dp)
-                .padding(horizontal = 24.dp),
-            text = buttonText,
-            onClick = {
-                if (isButtonEnabled) {
-                    navController.navigate(nextRoute) {
-                        popUpTo(NavRoutes.Setting.route) {
-                            inclusive = true
-                        }
-                    }
-                }
-            },
-            enabled = isButtonEnabled
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-    }
-
 }
 
 @Composable

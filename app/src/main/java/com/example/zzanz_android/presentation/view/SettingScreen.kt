@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -157,7 +158,7 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
             Spacer(modifier = Modifier.weight(1f))
             if (route == SettingNavRoutes.BudgetByCategory.route &&
                 budgetCategoryData.value.any {
-                    it.categoryId == Category.NESTEGG && it.budget.value != "0"
+                    it.categoryId == Category.NESTEGG && it.budget.value.toString() != "0"
                 }) {
                 Column(
                     modifier = Modifier
@@ -171,7 +172,7 @@ fun Setting(navController: NavHostController, route: String = SettingNavRoutes.B
                         suffix = stringResource(id = R.string.budget_save_money_title_2),
                         amount = budgetCategoryData.value.single {
                             it.categoryId == Category.NESTEGG
-                        }.budget.value,
+                        }.budget.value.text,
                         amountColor = ZzanZColorPalette.current.Gray04
                     )
                 }

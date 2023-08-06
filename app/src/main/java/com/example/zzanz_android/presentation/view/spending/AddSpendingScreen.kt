@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -210,9 +211,10 @@ fun SpendingAmount(
         else Pair(R.string.spending_amount_remain_message, ZzanZColorPalette.current.Gray06)
     Column {
         MoneyInputTextField(
-            modifier = Modifier.focusRequester(focusRequester),
+            modifier = Modifier
+                .focusRequester(focusRequester)
+                .fillMaxWidth().height(56.dp),
             text = amount,
-            hint = stringResource(id = R.string.spending_amount_hint),
             onClickAction = onClickAction,
             onTextChanged = onTextChanged,
         )

@@ -1,6 +1,6 @@
 package com.example.zzanz_android.presentation.view.setting
 
-import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,16 +18,16 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
-import com.example.zzanz_android.presentation.view.component.BudgetTextField
+import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
 import com.example.zzanz_android.presentation.view.component.TitleText
 
-@OptIn(ExperimentalComposeUiApi::class)
+
 @Composable
 fun SetBudget(titleText: String, onButtonChange: (String) -> Unit) {
     val windowInfo = LocalWindowInfo.current
@@ -35,10 +35,11 @@ fun SetBudget(titleText: String, onButtonChange: (String) -> Unit) {
         FocusRequester()
     }
     val budgetState = remember {
-        mutableStateOf("")
+        mutableStateOf(TextFieldValue(""))
     }
     Column(
         modifier = Modifier
+            .background(ZzanZColorPalette.current.White)
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
     ) {
@@ -52,19 +53,19 @@ fun SetBudget(titleText: String, onButtonChange: (String) -> Unit) {
             color = ZzanZColorPalette.current.Gray06
         )
         Spacer(modifier = Modifier.height(24.dp))
-        BudgetTextField(
-            textState = budgetState,
+
+        MoneyInputTextField(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(56.dp)
                 .focusRequester(focusRequester),
-            fontSize = 18,
-            textHolder = stringResource(id = R.string.budget_example),
-            onTextChange = { text: String ->
-                Log.d("Budget", text)
-                onButtonChange(text)
+            text = budgetState.value,
+            onClickAction = {},
+            onTextChanged = { text: TextFieldValue ->
+                budgetState.value = text
+                onButtonChange(text.text)
             },
-            keyboardType = KeyboardType.Number,
-            won = stringResource(id = R.string.money_unit)
+            textSize = 18
         )
 
         LaunchedEffect(windowInfo) {

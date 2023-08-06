@@ -5,6 +5,9 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import com.example.zzanz_android.R
 
 data class BudgetCategoryModel(
@@ -12,7 +15,7 @@ data class BudgetCategoryModel(
     @StringRes val name: Int,
     val categoryId: Category,
     var isChecked: Boolean = false,
-    var budget: MutableState<String> = mutableStateOf(""),
+    var budget: MutableState<TextFieldValue> = mutableStateOf(TextFieldValue("", selection = TextRange(0))),
     @DrawableRes val categoryImage: Int
 )
 
@@ -63,7 +66,7 @@ object BudgetCategoryData {
         ), BudgetCategoryModel(
             id = 7,
             name = R.string.category_nestegg,
-            budget = mutableStateOf("0"),
+            budget = mutableStateOf(TextFieldValue("0")),
             categoryId = Category.NESTEGG,
             isChecked = true,
             categoryImage = R.drawable.icon_nestegg

@@ -39,14 +39,14 @@ class ChallengeRepositoryImpl @Inject constructor(
     override suspend fun postGoalAmount(goalAmountDto: GoalAmountDto): Flow<Resource<Boolean>> {
         return flow {
             val result = goalAmountSource.postGoalAmount(goalAmountDto = goalAmountDto)
-            emit(Resource.Success<Boolean>(data = result))
+            emit(result)
         }
     }
 
     override suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Flow<Resource<Boolean>> {
         return flow {
             val result = goalAmountByCategorySource.load(goalAmountDtoList = goalAmountDtoList)
-            emit(Resource.Success<Boolean>(data = result))
+            emit(result)
         }
 
     }
@@ -54,7 +54,7 @@ class ChallengeRepositoryImpl @Inject constructor(
     override suspend fun putGoalAmount(goalAmountDto: GoalAmountDto): Flow<Resource<Boolean>> {
         return flow {
             val result = goalAmountSource.putGoalAmount(goalAmountDto = goalAmountDto)
-            emit(Resource.Success<Boolean>(data = result))
+            emit(result)
         }
     }
 

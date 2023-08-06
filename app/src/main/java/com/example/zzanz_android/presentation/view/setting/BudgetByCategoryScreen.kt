@@ -7,19 +7,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -38,9 +37,10 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,9 +53,9 @@ import com.example.zzanz_android.common.ui.util.keyboardHeightAsState
 import com.example.zzanz_android.domain.model.BudgetCategoryData
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.domain.model.Category
-import com.example.zzanz_android.presentation.view.component.BudgetTextField
 import com.example.zzanz_android.presentation.view.component.CategoryIcon
 import com.example.zzanz_android.presentation.view.component.InfoIcon
+import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
 import com.example.zzanz_android.presentation.view.component.PlusIcon
 import com.example.zzanz_android.presentation.view.component.TitleText
 
@@ -65,17 +65,15 @@ fun BudgetByCategory(
     budgetCategoryData: MutableState<List<BudgetCategoryModel>>,
     onAddCategoryClicked: () -> Unit
 ) {
-    val windowInfo = LocalWindowInfo.current
     val focusRequester = remember {
         FocusRequester()
     }
+    val windowInfo = LocalWindowInfo.current
     val isKeyboardOpen by keyboardAsState()
     val keyboardHeight by keyboardHeightAsState()
+    //TODO maxHeight 다시 계산해야함 (임시로 300 빼도록 함)
     val maxHeight =
-        if (isKeyboardOpen) (LocalView.current.height - keyboardHeight - 56 - 56 - 220).dp else 560.dp
-//    Log.d("###BudgetByCategory", "TotalHeight - " +  LocalView.current.height.toString())
-//    Log.d("###BudgetByCategory", "KeyboardHeight - " + keyboardHeight.toString())
-//    Log.d("###BudgetByCategory", "MaxHeight - " + maxHeight.toString())
+        if (isKeyboardOpen) (LocalView.current.height - keyboardHeight - 56 - 56 - 320).dp else 560.dp
     LaunchedEffect(key1 = budgetCategoryData, block = {})
 
     Column(
@@ -98,7 +96,6 @@ fun BudgetByCategory(
                     BudgetByCategoryItem(
                         budgetCategoryData = budgetCategoryData,
                         budgetCategoryItem = item,
-                        textState = item.budget,
                         modifier = Modifier.focusRequester(focusRequester)
                     )
                 }
@@ -106,7 +103,6 @@ fun BudgetByCategory(
                     BudgetByCategoryItem(
                         budgetCategoryData = budgetCategoryData,
                         budgetCategoryItem = item,
-                        textState = item.budget,
                         modifier = Modifier.focusRequester(focusRequester)
                     )
                 }
@@ -118,14 +114,6 @@ fun BudgetByCategory(
             }
         }
     }
-
-//    LaunchedEffect(windowInfo) {
-//        snapshotFlow { windowInfo.isWindowFocused }.collect { isWindowFocused ->
-//            if (isWindowFocused) {
-//                focusRequester.requestFocus()
-//            }
-//        }
-//    }
 }
 
 @Composable
@@ -165,7 +153,6 @@ fun ExplainTotalBudget(totalBudget: Int) {
 fun BudgetByCategoryItem(
     budgetCategoryData: MutableState<List<BudgetCategoryModel>>,
     budgetCategoryItem: BudgetCategoryModel,
-    textState: MutableState<String>,
     modifier: Modifier,
 ) {
     LaunchedEffect(key1 = budgetCategoryData, block = {})
@@ -190,7 +177,7 @@ fun BudgetByCategoryItem(
             Row {
                 if (budgetCategoryItem.categoryId == Category.NESTEGG) {
                     Text(
-                        text = budgetCategoryItem.budget.value,
+                        text = budgetCategoryItem.budget.value.text,
                         style = ZzanZTypo.current.Body01.copy(
                             fontWeight = FontWeight.SemiBold
                         ),
@@ -198,30 +185,37 @@ fun BudgetByCategoryItem(
                     )
                 } else {
                     val focusManager = LocalFocusManager.current
-                    val keyboardAction = KeyboardActions {
+                    // TODO - 더 작성할 카테고리 budget이 없으면 keyboard 종료, focus clear 하도록 수정
+                    val keyboardAction = KeyboardActions(onDone = {
                         focusManager.moveFocus(FocusDirection.Next)
-                    }
-                    // TODO - TextField Height 수정해야함
-                    BudgetTextField(
-                        textState = budgetCategoryItem.budget,
-                        modifier = Modifier
-                            .width(54.dp)
-                            .height(50.dp),
-                        fontSize = 16,
-                        textHolder = "10000",
-                        onTextChange = { text: String ->
-                            Log.d("### BudgetByCategory", text)
+                    })
+
+                    MoneyInputTextField(
+                        modifier = modifier
+                            .wrapContentWidth()
+                            .height(24.dp),
+                        innerTextModifier = Modifier
+                            .widthIn(max = 60.dp)
+                            .height(24.dp),
+                        text = budgetCategoryItem.budget.value,
+                        onClickAction = {},
+                        onTextChanged = { text: TextFieldValue ->
                             budgetCategoryData.value = budgetCategoryData.value.map {
                                 if (it.name == budgetCategoryItem.name) {
-                                    it.copy(budget = mutableStateOf(text))
+                                    it.copy(
+                                        budget = mutableStateOf(
+                                            TextFieldValue(
+                                                text = text.text,
+                                                selection = TextRange(text.text.length)
+                                            )
+                                        )
+                                    )
                                 } else it
                             }
-                            budgetCategoryData.value.map {
-                                Log.d("### BudgetByCategoryItem", "$it")
-                            }
                         },
-                        keyboardType = KeyboardType.Number,
-                        won = ""
+                        textSize = 16,
+                        isShowUnit = false,
+                        keyboardActions = keyboardAction
                     )
                 }
                 Text(

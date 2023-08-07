@@ -43,20 +43,20 @@ object NetworkModule {
                 header("Authorization", AuthorizationManager.getDeviceId(applicationContext))
                 header("App-Version", AppVersionUtil.getVersionHeader())
             }
+            install(Logging) {
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        Timber.d("Ktor Logger - ", message)
+                    }
+                }
+                level = LogLevel.ALL
+            }
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys = true
                     prettyPrint = true
                     isLenient = true
                 })
-            }
-            install(Logging) {
-                logger = object : Logger {
-                    override fun log(message: String) {
-                        Timber.d("Ktor Logger", message)
-                    }
-                }
-                level = LogLevel.ALL
             }
         }
     }

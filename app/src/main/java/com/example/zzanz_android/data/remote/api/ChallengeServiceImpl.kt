@@ -26,7 +26,7 @@ class ChallengeServiceImpl @Inject constructor(
 ) : ChallengeService {
     private val TAG = this.javaClass.simpleName
     override suspend fun getChallengeParticipate(cursor: Int?, page: Int): List<ChallengeDto> {
-        return client.get("/challenge/participate") {
+        return client.get("challenge/participate") {
             parameter("cursor", cursor)
             parameter("page", page)
         }.body()
@@ -34,12 +34,10 @@ class ChallengeServiceImpl @Inject constructor(
 
     override suspend fun postGoalAmount(goalAmountDto: GoalAmountDto): Resource<Boolean> {
         return try {
-            client.post("/challenge/participate") {
+            client.post("challenge/participate") {
                 contentType(ContentType.Application.Json)
                 setBody(goalAmountDto)
             }.let {
-                Log.e(TAG, it.status.toString())
-                Log.e(TAG, it.toString())
                 return Resource.Success(it.status == HttpStatusCode.OK)
             }
         } catch (e: ClientRequestException) {
@@ -60,7 +58,7 @@ class ChallengeServiceImpl @Inject constructor(
 
     override suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Resource<Boolean> {
         return try {
-            client.post("/challenge/plan/category") {
+            client.post("challenge/plan/category") {
                 contentType(ContentType.Application.Json)
                 setBody(goalAmountDtoList)
             }.let {
@@ -84,7 +82,7 @@ class ChallengeServiceImpl @Inject constructor(
 
     override suspend fun putGoalAmount(goalAmountDto: GoalAmountDto): Resource<Boolean> {
         return try {
-            client.post("/challenge/participate/goalAmount") {
+            client.post("challenge/participate/goalAmount") {
                 contentType(ContentType.Application.Json)
                 setBody(goalAmountDto)
             }.let {
@@ -108,7 +106,7 @@ class ChallengeServiceImpl @Inject constructor(
 
     override suspend fun getSpending(planId: Int, cursorId: Int?, size: Int): Resource<SpendingListDto> {
         try {
-            val response = client.get("/challenge/plan/${planId}/spending"){
+            val response = client.get("challenge/plan/${planId}/spending"){
                 parameter("cursorId", cursorId)
                 parameter("size", size)
             }

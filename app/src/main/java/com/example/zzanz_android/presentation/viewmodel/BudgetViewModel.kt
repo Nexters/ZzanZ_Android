@@ -72,12 +72,11 @@ class BudgetViewModel @Inject constructor(
     private fun postBudget() {
         viewModelScope.launch {
             budgetUseCase.invoke(currentState.budget.value.text.toInt())
-                .onStart { emit(Resource.Loading) }
+                .onStart {
+                    setState(currentState.copy(budgetState = BudgetContract.BudgetState.Loading))
+                }
                 .collect {
                     when(it) {
-                        is Resource.Loading -> {
-                            setState(currentState.copy(budgetState = BudgetContract.BudgetState.Loading))
-                        }
                         is Resource.Success -> {
                             val isSuccess = it.data
                             Log.e(TAG, isSuccess.toString())

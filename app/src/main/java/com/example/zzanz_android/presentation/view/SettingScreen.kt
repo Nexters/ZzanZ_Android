@@ -107,9 +107,29 @@ fun Setting(
     val budgetCategoryData = remember {
         mutableStateOf(BudgetCategoryData.category)
     }
-    val isButtonActive = budgetViewModel.isButtonActive.collectAsState()
+    val buttonState = budgetViewModel.uiState.collectAsState().value.buttonState
 
-    LaunchedEffect(key1 = isButtonActive, key2 = isKeyboardOpen, block = {})
+    val onNavRoutes = {
+        navController.navigate(uiData.nextRoute) {
+            popUpTo(NavRoutes.Setting.route) {
+                inclusive = true
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        budgetViewModel.uiState.collect{
+            when(it.budgetState) {
+                BudgetContract.BudgetState.Success -> {
+                    onNavRoutes.invoke()
+                }
+                else -> {
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = buttonState, key2 = isKeyboardOpen, block = {})
 
     if (route == SettingNavRoutes.BudgetByCategory.route && isKeyboardOpen) {
         uiData.buttonText = R.string.budget_by_category_write_btn_title
@@ -186,18 +206,13 @@ fun Setting(
             BottomGreenButton(
                 buttonText = stringResource(id = uiData.buttonText),
                 onClick = {
-                    if (isButtonActive.value) {
+                    if (buttonState.value) {
                         budgetViewModel.setEvent(
                             BudgetContract.Event.OnNextButtonClicked
                         )
-//                        navController.navigate(uiData.nextRoute) {
-//                            popUpTo(NavRoutes.Setting.route) {
-//                                inclusive = true
-//                            }
-//                        }
                     }
                 },
-                isButtonEnabled = isButtonActive.value,
+                isButtonEnabled = buttonState.value,
                 isKeyboardOpen = isKeyboardOpen,
                 horizontalWidth = if (isKeyboardOpen) 0 else 24
             )

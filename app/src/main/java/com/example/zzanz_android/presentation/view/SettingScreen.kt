@@ -1,6 +1,5 @@
 package com.example.zzanz_android.presentation.view
 
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -34,8 +33,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
-import com.example.zzanz_android.common.NavRoutes
-import com.example.zzanz_android.common.SettingNavRoutes
+import com.example.zzanz_android.common.navigation.NavRoutes
+import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.util.keyboardAsState
@@ -111,8 +110,7 @@ fun Setting(
     val isButtonActive = budgetViewModel.isButtonActive.collectAsState()
 
 
-    LaunchedEffect(key1 = isButtonActive, key2 = isKeyboardOpen, block = {
-    })
+    LaunchedEffect(key1 = isButtonActive, key2 = isKeyboardOpen, block = {})
 
 
     if (route == SettingNavRoutes.BudgetByCategory.route && isKeyboardOpen) {

@@ -37,6 +37,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
@@ -62,6 +65,7 @@ object HomeScreenValue {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
+    navController: NavHostController,
     viewModel: HomeViewModel = viewModel()
 ) {
     val challengeListState by viewModel.uiState.collectAsState()
@@ -304,5 +308,5 @@ fun ChallengeResultTitleWhenClosed(
 @Preview
 @Composable
 fun HomePreview() {
-    HomeScreen()
+    HomeScreen(navController = rememberNavController())
 }

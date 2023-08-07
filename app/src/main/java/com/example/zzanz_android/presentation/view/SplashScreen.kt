@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.zzanz_android.common.NavRoutes
+import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 
 @Composable

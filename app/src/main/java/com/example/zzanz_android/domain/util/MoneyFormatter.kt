@@ -13,4 +13,12 @@ object MoneyFormatter {
             target
         }
     }
+
+    fun format(target: Int): String{
+        return try {
+            NumberFormat.getInstance(Locale.getDefault()).format(target)
+        }catch (e: Exception){
+            target.toString()
+        }
+    }
 }

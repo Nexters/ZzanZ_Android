@@ -49,7 +49,6 @@ object NetworkModule {
                 }
                 header("Authorization", AuthorizationManager.getDeviceId(applicationContext))
                 header("App-Version", AppVersionUtil.getVersionHeader())
-                header("Connection", "close")
             }
             // TODO - Logging message Not Working
 //            install(Logging) {

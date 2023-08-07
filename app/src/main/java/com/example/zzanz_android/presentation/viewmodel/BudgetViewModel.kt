@@ -4,14 +4,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.common.Resource
+import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.domain.model.BudgetCategoryData
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
+import com.example.zzanz_android.domain.model.Category
 import com.example.zzanz_android.domain.usecase.PostBudgetUseCase
 import com.example.zzanz_android.domain.usecase.PutBudgetUseCase
 import com.example.zzanz_android.presentation.contract.BudgetContract
 import com.example.zzanz_android.presentation.contract.GlobalUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -31,11 +34,22 @@ class BudgetViewModel @Inject constructor(
 ) : BaseViewModel<BudgetContract.Event, BudgetContract.State, BudgetContract.Effect>() {
     private val TAG = this.javaClass.simpleName
 
+    private val _screenType = MutableStateFlow("")
+    val screenType = _screenType.asStateFlow()
+
     private val _budgetData = MutableStateFlow(BudgetCategoryData)
-    val budgetData = _budgetData
+    val budgetData = _budgetData.asStateFlow()
 
     override fun handleEvent(event: BudgetContract.Event) {
         when (event) {
+            is BudgetContract.Event.SetSettingScreenType -> {
+                setScreenType(event.route)
+            }
+
+            is BudgetContract.Event.SetScreenState -> {
+                setScreenState(event.route)
+            }
+
             is BudgetContract.Event.OnFetchBudget -> {
                 setBudget(event.budget)
             }
@@ -45,10 +59,10 @@ class BudgetViewModel @Inject constructor(
             }
 
             is BudgetContract.Event.OnNextButtonClicked -> {
-                // TODO 서버 호출 로직 바꿔야함
+                if (_screenType.value == SettingNavRoutes.BudgetByCategory.route) {
+                    callBudgetUseCase()
+                }
                 setState(currentState.copy(budgetState = BudgetContract.BudgetState.Success))
-
-//                callUseCase()
             }
         }
     }
@@ -61,42 +75,60 @@ class BudgetViewModel @Inject constructor(
         )
     }
 
+    private fun setScreenType(route: String) {
+        _screenType.value = route
+    }
+
+    private fun setScreenState(route: String) {
+        if (route == SettingNavRoutes.Budget.route) {
+            setState(
+                currentState.copy(
+                    budget = mutableStateOf(_budgetData.value.totalBudget.value),
+                    buttonState = mutableStateOf(setButtonState(route))
+                )
+            )
+        } else if (route == SettingNavRoutes.BudgetCategory.route) {
+            setState(
+                currentState.copy(
+                    buttonState = mutableStateOf(setButtonState(route))
+                )
+            )
+        }
+    }
+
     private fun setBudgetCategoryItem(item: BudgetCategoryModel) {
         _budgetData.value.category.value = _budgetData.value.category.value.map {
             if (it.categoryId == item.categoryId) {
                 item
             } else it
         }
+        setState(currentState.copy(buttonState = mutableStateOf(setButtonState(_screenType.value))))
+    }
 
-
-        // TODO - buttonState 가 항상 true로 선택되는 오류 수정
-        val buttonState = _budgetData.value.category.value.any {
-            it.isChecked
+    private fun setButtonState(route: String): Boolean {
+        if (route == SettingNavRoutes.Budget.route) {
+            val totalBudget = _budgetData.value.totalBudget.value
+            return if (totalBudget.text.isNullOrEmpty()) false
+            else totalBudget.text.all { Character.isDigit(it) }
+        } else if (route == SettingNavRoutes.BudgetCategory.route) {
+            return _budgetData.value.category.value.any {
+                it.isChecked && it.categoryId != Category.NESTEGG
+            }
         }
-
-        setState(currentState.copy(buttonState = mutableStateOf(buttonState)))
+        return false
     }
 
     private fun setBudget(budget: TextFieldValue) {
-        val buttonState = if (budget.text.isNullOrEmpty()) false
-        else budget.text.all { Character.isDigit(it) }
         setTotalBudget(budget)
         setState(
             currentState.copy(
-                budget = mutableStateOf(budget), buttonState = mutableStateOf(buttonState)
+                budget = mutableStateOf(budget),
+                buttonState = mutableStateOf(setButtonState(_screenType.value))
             )
         )
-
-//        setState(
-//            state = BudgetContract.State(
-//                budgetState = BudgetContract.BudgetState.Idle,
-//                budget = mutableStateOf(budget),
-//                buttonState = mutableStateOf(buttonState)
-//            )
-//        )
     }
 
-    private fun callUseCase() {
+    private fun callBudgetUseCase() {
         if (_budgetData.value.totalBudget.value.text.isNullOrEmpty()) return postBudgetUseCase()
         return putBudgetUseCase()
     }
@@ -109,53 +141,53 @@ class BudgetViewModel @Inject constructor(
     private fun putBudgetUseCase() {
         viewModelScope.launch {
             putBudgetUseCase.invoke(uiState.value.budget.value.text.toInt()).onStart {
-                    setState(currentState.copy(budgetState = BudgetContract.BudgetState.Loading))
-                }.collect {
-                    when (it) {
-                        is Resource.Success -> {
-                            if (it.data) {
-                                setTotalBudget(uiState.value.budget.value)
-                                setState(currentState.copy(budgetState = BudgetContract.BudgetState.Success))
-                            }
+                setState(currentState.copy(budgetState = BudgetContract.BudgetState.Loading))
+            }.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        if (it.data) {
+                            setTotalBudget(uiState.value.budget.value)
+                            setState(currentState.copy(budgetState = BudgetContract.BudgetState.Success))
                         }
+                    }
 
-                        is Resource.Error -> {
-                            setEffect(BudgetContract.Effect.ShowError(it.exception.message.toString()))
-                            it.exception.message?.let { message: String ->
-                                Timber.e(message)
-                                postBudgetUseCase()
-                                GlobalUiEvent.showToast(message)
-                            }
+                    is Resource.Error -> {
+                        setEffect(BudgetContract.Effect.ShowError(it.exception.message.toString()))
+                        it.exception.message?.let { message: String ->
+                            Timber.e(message)
+                            postBudgetUseCase()
+                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
+            }
         }
     }
 
     private fun postBudgetUseCase() {
         viewModelScope.launch {
             postBudgetUseCase.invoke(currentState.budget.value.text.toInt()).onStart {
-                    setState(currentState.copy(budgetState = BudgetContract.BudgetState.Loading))
-                }.collect {
-                    when (it) {
-                        is Resource.Success -> {
-                            if (it.data) {
-                                setTotalBudget(uiState.value.budget.value)
-                                setState(currentState.copy(budgetState = BudgetContract.BudgetState.Success))
-                            }
-
+                setState(currentState.copy(budgetState = BudgetContract.BudgetState.Loading))
+            }.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        if (it.data) {
+                            setTotalBudget(uiState.value.budget.value)
+                            setState(currentState.copy(budgetState = BudgetContract.BudgetState.Success))
                         }
 
-                        is Resource.Error -> {
-                            setEffect(BudgetContract.Effect.ShowError(it.exception.message.toString()))
-                            it.exception.message?.let { message: String ->
-                                Timber.e(message)
-                                putBudgetUseCase()
-                                GlobalUiEvent.showToast(message)
-                            }
+                    }
+
+                    is Resource.Error -> {
+                        setEffect(BudgetContract.Effect.ShowError(it.exception.message.toString()))
+                        it.exception.message?.let { message: String ->
+                            Timber.e(message)
+                            putBudgetUseCase()
+                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
+            }
         }
     }
 

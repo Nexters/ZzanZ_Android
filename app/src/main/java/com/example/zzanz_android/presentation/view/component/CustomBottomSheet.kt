@@ -75,6 +75,6 @@ fun BottomSheetPreview() {
     CategoryBottomSheet(coroutineScope = coroutineScope,
         sheetState = sheetState,
         budgetCategoryData = remember {
-            mutableStateOf(BudgetCategoryData.category)
+            mutableStateOf(BudgetCategoryData.category.value)
         })
 }

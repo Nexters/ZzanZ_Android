@@ -41,8 +41,7 @@ fun SetBudget(
     val focusRequester = remember {
         FocusRequester()
     }
-    val budgetState = budgetViewModel.uiState.collectAsState()
-    val budget = budgetState.value.budget
+    val budget = budgetViewModel.budgetData.collectAsState().value.totalBudget.value
 
     Column(
         modifier = Modifier
@@ -66,7 +65,7 @@ fun SetBudget(
                 .fillMaxWidth()
                 .height(56.dp)
                 .focusRequester(focusRequester),
-            text = budget.value,
+            text = budget,
             onClickAction = {},
             onTextChanged = { text: TextFieldValue ->
                 budgetViewModel.setEvent(

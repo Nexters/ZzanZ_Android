@@ -3,6 +3,7 @@ package com.example.zzanz_android.presentation.contract
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
+import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.presentation.viewmodel.UiEffect
 import com.example.zzanz_android.presentation.viewmodel.UiEvent
 import com.example.zzanz_android.presentation.viewmodel.UiState
@@ -10,6 +11,7 @@ import com.example.zzanz_android.presentation.viewmodel.UiState
 class BudgetContract {
     sealed class Event : UiEvent {
         data class OnFetchBudget(val budget: TextFieldValue) : Event()
+        data class OnFetchBudgetCategoryItem(val budgetCategory: BudgetCategoryModel) : Event()
         object OnNextButtonClicked : Event()
     }
 

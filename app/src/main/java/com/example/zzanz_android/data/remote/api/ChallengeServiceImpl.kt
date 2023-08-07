@@ -17,6 +17,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.cio.Response
 import io.ktor.http.contentType
 import timber.log.Timber
 import javax.inject.Inject
@@ -34,24 +35,24 @@ class ChallengeServiceImpl @Inject constructor(
 
     override suspend fun postGoalAmount(goalAmountDto: GoalAmountDto): Resource<Boolean> {
         return try {
-            client.post("challenge/participate") {
+            val response = client.post("challenge/participate") {
                 contentType(ContentType.Application.Json)
                 setBody(goalAmountDto)
-            }.let {
-                return Resource.Success(it.status == HttpStatusCode.OK)
             }
-        } catch (e: ClientRequestException) {
-            // 4XX response
-            // TODO - 에러시 오류 로직 처리
-            Log.e(TAG, e.response.toString())
-            return Resource.Error(e)
-        } catch (e: ServerResponseException) {
-            // 5XX response
-            // TODO - 에러시 오류 로직 처리
-            Log.e(TAG, "Error : ${e.response.status.description}")
-            return Resource.Error(e)
+            when(response.status){
+                HttpStatusCode.OK -> {
+                    return Resource.Success(true)
+                }
+                HttpStatusCode.BadRequest -> {
+                    // 400 : 이미 다음 챌린지에 참여중입니다.
+                    throw Exception(response.body<BaseResponseDto>().message)
+                }
+                else -> {
+                    throw Exception("Unknown Error")
+                }
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "Error : ${e.message}")
+            Timber.e("$TAG [postGoalAmount] ${e.message}")
             return Resource.Error(e)
         }
     }

@@ -11,6 +11,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -48,6 +49,7 @@ object NetworkModule {
                 }
                 header("Authorization", AuthorizationManager.getDeviceId(applicationContext))
                 header("App-Version", AppVersionUtil.getVersionHeader())
+                header("Connection", "close")
             }
             // TODO - Logging message Not Working
 //            install(Logging) {
@@ -58,6 +60,10 @@ object NetworkModule {
 //                }
 //                level = LogLevel.ALL
 //            }
+            install(HttpTimeout) {
+                // TODO - 타임아웃 지정해야 함
+                requestTimeoutMillis = 3000
+            }
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys = true

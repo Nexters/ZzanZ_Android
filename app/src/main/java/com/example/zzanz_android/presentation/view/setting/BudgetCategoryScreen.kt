@@ -1,8 +1,8 @@
 package com.example.zzanz_android.presentation.view.setting
 
-import android.util.Log
-import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -19,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.R
 import com.example.zzanz_android.domain.model.BudgetCategoryData
+import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.presentation.view.component.CustomCategoryButton
 import com.example.zzanz_android.presentation.view.component.TitleText
 
@@ -26,42 +28,39 @@ import com.example.zzanz_android.presentation.view.component.TitleText
 fun BudgetCategory(
     textModifier: Modifier = Modifier,
     categoryModifier: Modifier = Modifier,
-    @StringRes titleText: Int,
-    onAddClicked: () -> Unit
+    titleText: String,
+    budgetCategoryData: MutableState<List<BudgetCategoryModel>>
 ) {
-    val budgetCategoryData = remember {
-        mutableStateOf(BudgetCategoryData.category)
-    }
     LaunchedEffect(key1 = budgetCategoryData, block = {})
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         TitleText(
-            modifier = textModifier, text = stringResource(id = titleText)
+            modifier = textModifier, text = titleText
         )
-        Spacer(modifier = Modifier.height(18.dp))
-        // TODO - 카테고리 버튼 다시 클릭시 선택 해제 처리
-        // TODO - 1개 이상 선택 시, 버튼 활성화 되도록
+        LaunchedEffect(key1 = budgetCategoryData, block = {})
         LazyVerticalGrid(
             modifier = categoryModifier, columns = GridCells.Fixed(2)
         ) {
             items(budgetCategoryData.value.size) { idx ->
                 val item = budgetCategoryData.value[idx]
                 if (item.name != R.string.category_nestegg) {
-                    CustomCategoryButton(
-                        modifier = Modifier
-                            .height(56.dp)
-                            .padding(horizontal = 6.dp, vertical = 10.dp),
-                        text = stringResource(id = item.name),
-                        onClick = {
-                            Log.d(
-                                "### BudgetCategory", "clicked ! item ${item.categoryName}"
-                            )
-                            // TODO isChecked 값 으로 budgetCateogryData 버튼 색상 수정되도록 변경
+                    val categoryPaddingValues = PaddingValues(horizontal = 6.dp, vertical = 10.dp)
+                    Box(modifier = Modifier.padding(categoryPaddingValues)) {
+                        CustomCategoryButton(
+                            modifier = Modifier,
+                            text = stringResource(id = item.name),
+                            onClick = {
+                                budgetCategoryData.value = budgetCategoryData.value.map {
+                                    if (it.name == item.name) {
+                                        it.copy(isChecked = !item.isChecked)
+                                    } else it
+                                }
 
-                        },
-                        isChecked = item.isChecked
-                    )
+                            },
+                            isChecked = item.isChecked
+                        )
+                    }
                 }
             }
         }
@@ -76,8 +75,9 @@ fun BudgetCategoryPreview() {
     BudgetCategory(
         textModifier = Modifier,
         categoryModifier = Modifier,
-        titleText = R.string.next_week_budget_category
-    ) {
-
-    }
+        titleText = stringResource(id = R.string.next_week_budget_category),
+        budgetCategoryData = remember {
+            mutableStateOf(BudgetCategoryData.category)
+        }
+    )
 }

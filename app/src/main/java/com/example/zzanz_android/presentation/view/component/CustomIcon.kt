@@ -1,15 +1,18 @@
 package com.example.zzanz_android.presentation.view.component
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.R
-import com.example.zzanz_android.ZzanZApp
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.util.ImageViewWithXml
 
@@ -19,7 +22,7 @@ fun BackIcon() {
 }
 
 @Composable
-fun MoreIcon(){
+fun MoreIcon() {
     Icon(painterResource(id = R.drawable.icon_right), contentDescription = null)
 }
 
@@ -29,7 +32,7 @@ fun AddIcon() {
 }
 
 @Composable
-fun InfoICon(color: Color) {
+fun InfoIcon(color: Color) {
     Icon(
         modifier = Modifier.size(16.dp),
         painter = painterResource(id = R.drawable.alert_information_circle),
@@ -39,15 +42,40 @@ fun InfoICon(color: Color) {
 }
 
 @Composable
-fun AlarmIcon(){
+fun AlarmIcon() {
     ImageViewWithXml(modifier = Modifier.size(32.dp), resId = R.drawable.ic_alarm)
 }
 
 @Composable
-fun FeedbackIcon(){
+fun FeedbackIcon() {
     ImageViewWithXml(modifier = Modifier.size(32.dp), resId = R.drawable.ic_feedback)
 }
+
 @Composable
-fun CommunityIcon(){
+fun CommunityIcon() {
     ImageViewWithXml(modifier = Modifier.size(32.dp), resId = R.drawable.ic_community)
+}
+
+@Composable
+fun PlusIcon() {
+    Column(
+        modifier = Modifier
+            .size(32.dp)
+            .background(color = ZzanZColorPalette.current.Gray02, shape = CircleShape),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        ImageViewWithXml(
+            modifier = Modifier.size(20.dp),
+            resId = R.drawable.icon_plus
+        )
+    }
+}
+
+@Composable
+fun CategoryIcon(resId: Int) {
+    ImageViewWithXml(
+        modifier = Modifier.size(32.dp),
+        resId = resId
+    )
 }

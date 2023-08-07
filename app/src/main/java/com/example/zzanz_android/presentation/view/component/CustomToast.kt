@@ -21,6 +21,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
+import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 
 @Composable
@@ -34,7 +35,6 @@ fun Toast(modifier: Modifier = Modifier, message: String, isVisible: Boolean = f
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Transparent)
-                .height(56.dp)
                 .padding(bottom = 100.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
@@ -42,9 +42,8 @@ fun Toast(modifier: Modifier = Modifier, message: String, isVisible: Boolean = f
                 modifier = modifier
                     .zIndex(1f)
                     .fillMaxWidth()
-                    .wrapContentHeight()
                     .background(
-                        color = ZzanZColorPalette.current.Red04, shape = RoundedCornerShape(8.dp)
+                        color = ZzanZColorPalette.current.Red04
                     )
                     .padding(10.dp),
                 text = message,

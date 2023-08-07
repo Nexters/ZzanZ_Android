@@ -36,6 +36,10 @@
     <string name="home_challenge_result_title_opened_over_suffix">넘았어요</string>
     <string name="home_challenge_result_title_closed_success">예산에 맞게 잘 소비했어요</string>
     <string name="home_challenge_result_title_closed_fail">예산 초과 메세지</string>
+    <string name="home_challenge_title_pre_opened">챌린지 시작 전</string>
+    <string name="home_challenge_title_opened">챌린지 진행 중</string>
+    <string name="home_challenge_title_opened_dday">D-</string>
+    <string name="home_challenge_title_closed">챌린지 종료</string>
     <!-- home more dialog -->
     <string name="more_dialog_title">더 보기</string>
     <string name="change_noti_time">알림 시간 바꾸기</string>

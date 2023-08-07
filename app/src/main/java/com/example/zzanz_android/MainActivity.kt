@@ -16,6 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.zzanz_android.common.navigation.NavHost
+import com.example.zzanz_android.common.ui.theme.ZzanZ_AndroidTheme
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavGraphBuilder
@@ -53,60 +55,6 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-        }
-    }
-}
-
-fun NavGraphBuilder.settingGraph(navController: NavHostController) {
-    navigation(
-        startDestination = SettingNavRoutes.Budget.route,
-        route = NavRoutes.Setting.route
-    ) {
-        composable(SettingNavRoutes.Budget.route) {
-            Setting(navController = navController, route = SettingNavRoutes.Budget.route)
-        }
-        composable(SettingNavRoutes.BudgetByCategory.route) {
-            Setting(navController = navController, route = SettingNavRoutes.BudgetByCategory.route)
-        }
-        composable(SettingNavRoutes.BudgetCategory.route) {
-            Setting(navController = navController, route = SettingNavRoutes.BudgetCategory.route)
-        }
-        composable(SettingNavRoutes.AlarmSetting.route) {
-            Setting(navController = navController, route = SettingNavRoutes.AlarmSetting.route)
-        }
-    }
-}
-
-// TODO : gowoon - Navigation Graph 파일 생성
-fun NavGraphBuilder.spendingGraph(navController: NavHostController){
-    navigation(
-        startDestination = SpendingNavRoutes.AddSpending.route,
-        route = NavRoutes.Spending.route
-    ){
-        composable(SpendingNavRoutes.AddSpending.route){
-            AddSpendingScreen(navController)
-        }
-    }
-}
-
-@Composable
-fun NavHost(
-    modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController(),
-    startDestination: String = NavRoutes.Splash.route
-) {
-    NavHost(
-        modifier = modifier.fillMaxSize(),
-        navController = navController,
-        startDestination = startDestination
-    ) {
-        settingGraph(navController = navController)
-        spendingGraph(navController = navController)
-        composable(NavRoutes.Home.route) {
-            Home(navController)
-        }
-        composable(NavRoutes.Splash.route) {
-            Splash(navController)
         }
     }
 }

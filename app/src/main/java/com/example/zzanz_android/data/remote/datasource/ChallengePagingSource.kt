@@ -10,15 +10,15 @@ import kotlin.Exception
 
 class ChallengePagingSource @Inject constructor(
     private val challengeApi: ChallengeServiceImpl
-): PagingSource<Int, Resource<ChallengeDto>>() {
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Resource<ChallengeDto>> {
+): PagingSource<Int, ChallengeDto>() {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ChallengeDto> {
         return try {
             when(val response = challengeApi.getChallengeParticipate(params.key, params.loadSize)){
                 is Resource.Success -> {
                     LoadResult.Page(
-                        data = response.data.map { Resource.Success(it) },
-                        prevKey = null,
-                        nextKey = response.data.last().challengeId
+                        data = response.data,
+                        nextKey = response.data.last().challengeId,
+                        prevKey = null
                     )
                 }
                 is Resource.Error -> {
@@ -30,7 +30,7 @@ class ChallengePagingSource @Inject constructor(
         }
     }
 
-    override fun getRefreshKey(state: PagingState<Int, Resource<ChallengeDto>>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, ChallengeDto>): Int? {
         return state.anchorPosition?.let {
             val anchorPage = state.closestPageToPosition(it)
             anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)

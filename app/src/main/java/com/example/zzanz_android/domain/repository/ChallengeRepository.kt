@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 
 interface ChallengeRepository {
-    suspend fun getChallengeList(): Flow<PagingData<ChallengeModel>>
+    suspend fun getChallengeList(): Flow<Resource<PagingData<ChallengeModel>>>
 
     suspend fun postGoalAmount(goalAmountDto: GoalAmountDto): Flow<Resource<Boolean>>
 

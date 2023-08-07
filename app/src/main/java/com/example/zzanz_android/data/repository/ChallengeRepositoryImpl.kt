@@ -28,11 +28,13 @@ class ChallengeRepositoryImpl @Inject constructor(
     private val goalAmountByCategorySource: GoalAmountByCategorySource,
     private val spendingPagingSource: SpendingPagingSource
 ) : ChallengeRepository {
-    override suspend fun getChallengeList(): Flow<PagingData<ChallengeModel>> {
+    override suspend fun getChallengeList(): Flow<Resource<PagingData<ChallengeModel>>> {
         return Pager(config = PagingConfig(pageSize = CHALLENGE_PAGE_SIZE), pagingSourceFactory = {
             challengePagingSource
-        }).flow.map { pagingDate ->
-            pagingDate.map { challengeDto -> challengeDto.toModel() }
+        }).flow.map { pagingData ->
+            Resource.Success(pagingData.map {
+                it.toModel()
+            })
         }
     }
 
@@ -62,7 +64,7 @@ class ChallengeRepositoryImpl @Inject constructor(
         return Pager(
             config = PagingConfig(SPENDING_PAGE_SIZE),
             pagingSourceFactory = { spendingPagingSource }).flow.map { pagingData ->
-                pagingData.map { dto -> dto.toModel() }
+            pagingData.map { dto -> dto.toModel() }
         }
     }
 

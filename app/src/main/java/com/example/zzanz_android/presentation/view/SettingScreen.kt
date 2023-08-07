@@ -109,9 +109,7 @@ fun Setting(
     }
     val isButtonActive = budgetViewModel.isButtonActive.collectAsState()
 
-
     LaunchedEffect(key1 = isButtonActive, key2 = isKeyboardOpen, block = {})
-
 
     if (route == SettingNavRoutes.BudgetByCategory.route && isKeyboardOpen) {
         uiData.buttonText = R.string.budget_by_category_write_btn_title

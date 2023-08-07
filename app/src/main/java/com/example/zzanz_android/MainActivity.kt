@@ -21,6 +21,8 @@ import com.example.zzanz_android.common.navigation.NavHost
 import com.example.zzanz_android.common.ui.theme.ZzanZ_AndroidTheme
 import com.example.zzanz_android.common.ui.util.keyboardAsState
 import dagger.hilt.android.AndroidEntryPoint
+import io.ktor.client.HttpClient
+import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

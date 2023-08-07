@@ -21,7 +21,7 @@ class GetChallengeListUseCase @Inject constructor(
             challengeRepository.getChallengeList().map {
                 Resource.Success(it)
             }.flowOn(dispatcher)
-        } catch (e: Exception){
+        } catch (e: Exception) {
             flow { emit(Resource.Error(e)) }
         }
     }

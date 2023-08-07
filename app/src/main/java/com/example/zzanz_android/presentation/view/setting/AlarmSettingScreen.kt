@@ -26,16 +26,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.presentation.view.component.TitleText
 
 @Composable
-fun AlarmSetting() {
+fun AlarmSetting(titleText: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -43,7 +41,7 @@ fun AlarmSetting() {
     ) {
         TitleText(
             modifier = Modifier.padding(horizontal = 24.dp),
-            text = stringResource(id = R.string.set_alarm_time_title)
+            text = titleText
         )
         Spacer(modifier = Modifier.height(28.dp))
         Row(
@@ -125,5 +123,5 @@ fun CircularClock(
 @Preview
 @Composable
 fun AlarmSettingPreview() {
-    AlarmSetting()
+    AlarmSetting(titleText = "Text")
 }

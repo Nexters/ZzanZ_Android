@@ -18,6 +18,56 @@ import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 
+
+@Composable
+fun BottomGreenButton(
+    buttonText: String,
+    onClick: () -> Unit,
+    isButtonEnabled: Boolean,
+    isKeyboardOpen: Boolean,
+    horizontalWidth: Int
+) {
+    GreenButton(
+        modifier = Modifier
+            .height(56.dp)
+            .padding(horizontal = horizontalWidth.dp),
+        text = buttonText,
+        onClick = {
+            onClick()
+        },
+        enabled = isButtonEnabled,
+        isKeyboardOpen = isKeyboardOpen
+    )
+    if (!isKeyboardOpen) {
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+
+@Composable
+fun GreenButton(
+    modifier: Modifier, text: String, onClick: () -> Unit, enabled: Boolean, isKeyboardOpen: Boolean
+) {
+    Button(modifier = modifier
+        .fillMaxWidth()
+        .height(56.dp),
+        shape = if (!isKeyboardOpen) RoundedCornerShape(size = 12.dp) else RectangleShape,
+        enabled = enabled,
+        colors = ButtonDefaults.run {
+            buttonColors(
+                disabledContainerColor = ZzanZColorPalette.current.Gray03,
+                disabledContentColor = ZzanZColorPalette.current.White,
+                containerColor = ZzanZColorPalette.current.Green04,
+                contentColor = ZzanZColorPalette.current.White,
+            )
+        },
+        onClick = { onClick() }) {
+        Text(
+            text = text, style = ZzanZTypo.current.Heading
+        )
+    }
+}
+
 @Composable
 fun GreenRoundButton(
     modifier: Modifier, text: String, onClick: () -> Unit, enabled: Boolean
@@ -74,17 +124,20 @@ fun CustomCategoryButton(
             shape = RoundedCornerShape(size = 8.dp),
             color = if (isChecked) ZzanZColorPalette.current.Green04
             else ZzanZColorPalette.current.Gray03
-        ), shape = RoundedCornerShape(size = 8.dp), colors = ButtonDefaults.run {
-        buttonColors(
-            disabledContainerColor = ZzanZColorPalette.current.White,
-            disabledContentColor = ZzanZColorPalette.current.Gray08,
-            containerColor = if (isChecked) ZzanZColorPalette.current.Green01
-            else ZzanZColorPalette.current.White,
-            contentColor = ZzanZColorPalette.current.Gray08,
-        )
-    }, onClick = {
-        onClick()
-    }) {
+        ),
+        shape = RoundedCornerShape(size = 8.dp),
+        colors = ButtonDefaults.run {
+            buttonColors(
+                disabledContainerColor = ZzanZColorPalette.current.White,
+                disabledContentColor = ZzanZColorPalette.current.Gray08,
+                containerColor = if (isChecked) ZzanZColorPalette.current.Green01
+                else ZzanZColorPalette.current.White,
+                contentColor = ZzanZColorPalette.current.Gray08,
+            )
+        },
+        onClick = {
+            onClick()
+        }) {
         Text(
             text = text, style = ZzanZTypo.current.Body02
         )

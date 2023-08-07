@@ -36,10 +36,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             getChallengeListUseCase().map { result ->
                 when (result) {
-                    is Resource.Loading -> {
-                        // TODO : 유나 - loding Status도 관리가 필요할 거 같아 Resource에 Loading도 추가함
-                    }
-
                     is Resource.Success -> {
                         setState(
                             currentState.copy(

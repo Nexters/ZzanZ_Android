@@ -18,12 +18,6 @@ class SpendingPagingSource @Inject constructor(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, SpendingDto> {
         return try {
             when (val response = challengeApi.getSpending(planId, params.key, params.loadSize)) {
-                is Resource.Loading -> {
-                    // TODO - Resource에 Loading도 필요 할거 같아서 클래스에 추가하여,
-                    //  아래 코드도 유나 임시로 추가해둠
-                    LoadResult.Invalid()
-                }
-
                 is Resource.Success -> {
                     LoadResult.Page(
                         data = response.data.spendingList,

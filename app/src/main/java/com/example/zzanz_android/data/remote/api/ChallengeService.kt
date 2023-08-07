@@ -7,7 +7,7 @@ import com.example.zzanz_android.data.remote.dto.GoalAmountDto
 import com.example.zzanz_android.data.remote.dto.SpendingListDto
 
 interface ChallengeService {
-    suspend fun getChallengeParticipate(cursor: Int?, page: Int): List<ChallengeDto>
+    suspend fun getChallengeParticipate(cursor: Int?, page: Int): Resource<List<ChallengeDto>>
     
     suspend fun postGoalAmount(goalAmountDto: GoalAmountDto): Resource<Boolean>
 

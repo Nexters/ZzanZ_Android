@@ -19,7 +19,7 @@ data class ChallengeDto(
     @SerialName("state")
     val state: String,
     @SerialName("participationId")
-    val participationId: Double,
+    val participationId: Int,
     @SerialName("goalAmount")
     val goalAmount: Int,
     @SerialName("currentAmount")

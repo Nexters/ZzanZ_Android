@@ -7,6 +7,7 @@ import com.example.zzanz_android.domain.model.ChallengeModel
 import com.example.zzanz_android.domain.usecase.home.GetChallengeListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -34,7 +35,7 @@ class HomeViewModel @Inject constructor(
 
     private fun fetchChallengeList() {
         viewModelScope.launch {
-            getChallengeListUseCase().map { result ->
+            getChallengeListUseCase().collect { result ->
                 when (result) {
                     is Resource.Success -> {
                         setState(
@@ -43,7 +44,6 @@ class HomeViewModel @Inject constructor(
                             )
                         )
                     }
-
                     is Resource.Error -> {
                         // TODO : gowoon - error handling in presentation
                     }

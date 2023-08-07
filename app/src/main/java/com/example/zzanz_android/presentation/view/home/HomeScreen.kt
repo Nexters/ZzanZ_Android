@@ -36,15 +36,16 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+import com.example.zzanz_android.domain.model.ChallengeModel
 import com.example.zzanz_android.domain.model.ChallengeStatus
 import com.example.zzanz_android.presentation.view.component.AppBarWithMoreAction
 import com.example.zzanz_android.presentation.view.component.CategoryCardItem
@@ -57,7 +58,6 @@ import com.example.zzanz_android.presentation.viewmodel.ChallengeListState
 import com.example.zzanz_android.presentation.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
 
-
 object HomeScreenValue {
     const val GRID_COUNT = 2
 }
@@ -65,46 +65,48 @@ object HomeScreenValue {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
-    navController: NavHostController,
-    viewModel: HomeViewModel = viewModel()
+    navController: NavController,
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     val challengeListState by viewModel.uiState.collectAsState()
-    var showDialog by remember{ mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier,
-        topBar = { AppBarWithMoreAction(ZzanZColorPalette.current.Gray01) {
-            showDialog = !showDialog
-        } },
+        topBar = {
+            AppBarWithMoreAction(ZzanZColorPalette.current.Gray01) {
+                showDialog = !showDialog
+            }
+        },
         containerColor = ZzanZColorPalette.current.Gray01
     ) {
         Box(modifier = Modifier.padding(it)) {
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                when(challengeListState.challengeList){
+                when (challengeListState.challengeList) {
                     is ChallengeListState.Loading -> {
                         // TODO : gowoon - loading screen
                     }
+
                     is ChallengeListState.Success -> {
                         val pagerState = rememberPagerState()
-                        val challengeList = (challengeListState.challengeList as ChallengeListState.Success).data.collectAsLazyPagingItems()
-                        val challengeStatus = challengeList[pagerState.currentPage]?.state
-                        val challengeTitle = when(challengeStatus){
-                            ChallengeStatus.PRE_OPENED -> stringResource(id = R.string.home_challenge_title_pre_opened)
-                            ChallengeStatus.OPENED -> stringResource(id = R.string.home_challenge_title_opened) // TODO : gowoon - dday 작업을 안해버림 추가해야함.
-                            ChallengeStatus.CLOSED -> stringResource(id = R.string.home_challenge_title_closed)
-                            else -> ""
-                        }
-//                        val challengeStatus = ChallengeStatus.CLOSED
-//                        val startDate = "8.8"
-//                        val endDate = "8.16"
+                        val challengeList =
+                            (challengeListState.challengeList as ChallengeListState.Success).data.collectAsLazyPagingItems()
+//                        val challengeStatus = challengeList[pagerState.currentPage]?.state
+//                        val challengeTitle = when(challengeStatus){
+//                            ChallengeStatus.PRE_OPENED -> stringResource(id = R.string.home_challenge_title_pre_opened)
+//                            ChallengeStatus.OPENED -> stringResource(id = R.string.home_challenge_title_opened) // TODO : gowoon - dday 작업을 안해버림 추가해야함.
+//                            ChallengeStatus.CLOSED -> stringResource(id = R.string.home_challenge_title_closed)
+//                            else -> ""
+//                        }
                         HomeContent(
                             modifier = Modifier.weight(1f),
                             pagerState = pagerState,
-                            challengeTitle = challengeTitle,
-                            startDate = challengeList[pagerState.currentPage]?.startAt ?: "",
-                            endDate = challengeList[pagerState.currentPage]?.endAt ?: "",
+                            pagingItems = challengeList
+//                            challengeTitle = challengeTitle,
+//                            startDate = challengeList[pagerState.currentPage]?.startAt ?: "",
+//                            endDate = challengeList[pagerState.currentPage]?.endAt ?: "",
                         )
                         Box(
                             modifier = Modifier
@@ -112,6 +114,7 @@ fun HomeScreen(
                                 .wrapContentHeight()
                                 .padding(ZzanZDimen.current.defaultHorizontal)
                         ) {
+                            val challengeStatus = ChallengeStatus.PRE_OPENED // TODO : 임시코드
                             when (challengeStatus) {
                                 ChallengeStatus.PRE_OPENED -> {
                                     GreenRoundButton(
@@ -147,12 +150,13 @@ fun HomeScreen(
                             }
                         }
                     }
+
                     is ChallengeListState.Error -> {
                         // TODO : gowoon - error screen
                     }
                 }
             }
-            if(showDialog){
+            if (showDialog) {
                 PopupSheetDialog { showDialog = false }
             }
         }
@@ -164,50 +168,58 @@ fun HomeScreen(
 fun HomeContent(
     modifier: Modifier = Modifier,
     pagerState: PagerState,
-    challengeTitle: String,
-    startDate: String,
-    endDate: String
+    pagingItems: LazyPagingItems<ChallengeModel>
 ) {
     Column(modifier.fillMaxSize()) {
-        WeekPager(pagerState)
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = ZzanZDimen.current.defaultHorizontal)
-        ) {
-            ChallengeTitle(challengeTitle, startDate, endDate)
-            Spacer(modifier = Modifier.height(28.dp))
-            CategoryList()
-        }
+        WeekPager(pagerState, pagingItems)
+//        Column(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(horizontal = ZzanZDimen.current.defaultHorizontal)
+//        ) {
+//            ChallengeTitle(challengeTitle, startDate, endDate)
+//            Spacer(modifier = Modifier.height(28.dp))
+//            CategoryList()
+//        }
+//    }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun WeekPager(
-    pagerState: PagerState
+    pagerState: PagerState,
+    pagingItems: LazyPagingItems<ChallengeModel>
 ) {
     val scope = rememberCoroutineScope()
     val paddingValue = (LocalConfiguration.current.screenWidthDp - 80) / 2
     HorizontalPager(
         modifier = Modifier.padding(bottom = 28.dp, top = 8.dp),
-        pageCount = 10,
+        pageCount = pagingItems.itemCount,
         pageSize = PageSize.Fixed(80.dp),
         pageSpacing = 8.dp,
         reverseLayout = true,
         contentPadding = PaddingValues(horizontal = paddingValue.dp),
         state = pagerState
     ) {
-        if (pagerState.currentPage == it) {
-            PagerFocusedItem(title = "타이틀", challengeStatus = ChallengeStatus.OPENED) {
-                scope.launch {
-                    pagerState.animateScrollToPage(it)
+        pagingItems[it]?.let { challenge ->
+            if (pagerState.currentPage == it) {
+                PagerFocusedItem(
+                    title = challenge.id.toString(),
+                    challengeStatus = ChallengeStatus.OPENED
+                ) {
+                    scope.launch {
+                        pagerState.animateScrollToPage(it)
+                    }
                 }
-            }
-        } else {
-            PagerUnFocusedItem(title = "타이틀", challengeStatus = ChallengeStatus.OPENED) {
-                scope.launch {
-                    pagerState.animateScrollToPage(it)
+            } else {
+                PagerUnFocusedItem(
+                    title = challenge.id.toString(),
+                    challengeStatus = ChallengeStatus.OPENED
+                ) {
+                    scope.launch {
+                        pagerState.animateScrollToPage(it)
+                    }
                 }
             }
         }
@@ -224,7 +236,11 @@ fun ChallengeTitle(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = title, style = ZzanZTypo.current.H1, color = ZzanZColorPalette.current.Gray09)
+        Text(
+            text = title,
+            style = ZzanZTypo.current.H1,
+            color = ZzanZColorPalette.current.Gray09
+        )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = "$startDate ~ $endDate",
@@ -302,11 +318,15 @@ fun ChallengeResultTitleWhenOpened(
 fun ChallengeResultTitleWhenClosed(
     message: String
 ) {
-    Text(text = message, color = ZzanZColorPalette.current.Gray08, style = ZzanZTypo.current.Body02)
+    Text(
+        text = message,
+        color = ZzanZColorPalette.current.Gray08,
+        style = ZzanZTypo.current.Body02
+    )
 }
 
 @Preview
 @Composable
 fun HomePreview() {
-    HomeScreen(navController = rememberNavController())
+    HomeScreen(rememberNavController())
 }

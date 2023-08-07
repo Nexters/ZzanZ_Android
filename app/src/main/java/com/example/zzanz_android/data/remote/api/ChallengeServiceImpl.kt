@@ -17,7 +17,6 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.cio.Response
 import io.ktor.http.contentType
 import timber.log.Timber
 import javax.inject.Inject
@@ -26,11 +25,23 @@ class ChallengeServiceImpl @Inject constructor(
     private val client: HttpClient
 ) : ChallengeService {
     private val TAG = this.javaClass.simpleName
-    override suspend fun getChallengeParticipate(cursor: Int?, page: Int): List<ChallengeDto> {
-        return client.get("challenge/participate") {
-            parameter("cursor", cursor)
-            parameter("page", page)
-        }.body()
+    override suspend fun getChallengeParticipate(cursor: Int?, page: Int): Resource<List<ChallengeDto>> {
+        try {
+            val response = client.get("challenge/participate") {
+                parameter("cursor", cursor ?: "")
+                parameter("size", page)
+            }
+            when(response.status){
+                HttpStatusCode.OK -> {
+                    return Resource.Success(response.body())
+                }
+                else -> {
+                    throw Exception("Unknown Error")
+                }
+            }
+        } catch (e: Exception){
+            return Resource.Error(e)
+        }
     }
 
     override suspend fun postGoalAmount(goalAmountDto: GoalAmountDto): Resource<Boolean> {

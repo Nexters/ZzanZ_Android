@@ -309,6 +309,6 @@ fun NestEggExplainText(
 @Composable
 fun BudgetByCategoryPreview() {
     BudgetByCategory(titleText = "Text", budgetCategoryData = remember {
-        mutableStateOf(BudgetCategoryData.category)
+        mutableStateOf(BudgetCategoryData.category.value)
     }, onAddCategoryClicked = {})
 }

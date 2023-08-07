@@ -104,10 +104,9 @@ fun Setting(
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val isKeyboardOpen by keyboardAsState()
-    val budgetCategoryData = remember {
-        mutableStateOf(BudgetCategoryData.category)
-    }
+
     val buttonState = budgetViewModel.uiState.collectAsState().value.buttonState
+    val budgetCategoryData = budgetViewModel.budgetData.collectAsState().value.category
 
     val onNavRoutes = {
         navController.navigate(uiData.nextRoute) {
@@ -130,6 +129,8 @@ fun Setting(
     }
 
     LaunchedEffect(key1 = buttonState, key2 = isKeyboardOpen, block = {})
+    LaunchedEffect(key1 = budgetCategoryData, block = {})
+
 
     if (route == SettingNavRoutes.BudgetByCategory.route && isKeyboardOpen) {
         uiData.buttonText = R.string.budget_by_category_write_btn_title
@@ -169,9 +170,6 @@ fun Setting(
                 }
 
                 SettingNavRoutes.BudgetCategory.route -> {
-//                    isButtonEnabled = budgetCategoryData.value.any {
-//                        it.isChecked
-//                    }
                     BudgetCategory(
                         textModifier = Modifier
                             .padding(horizontal = 24.dp)

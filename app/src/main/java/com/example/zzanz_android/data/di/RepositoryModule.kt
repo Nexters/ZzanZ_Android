@@ -3,6 +3,7 @@ package com.example.zzanz_android.data.di
 import com.example.zzanz_android.data.remote.datasource.ChallengePagingSource
 import com.example.zzanz_android.data.remote.datasource.GoalAmountByCategorySource
 import com.example.zzanz_android.data.remote.datasource.GoalAmountSource
+import com.example.zzanz_android.data.remote.datasource.SpendingPagingSource
 import com.example.zzanz_android.data.repository.ChallengeRepositoryImpl
 import com.example.zzanz_android.domain.repository.ChallengeRepository
 import dagger.Module
@@ -20,8 +21,14 @@ object RepositoryModule {
     fun provideChallengeRepository(
         challengePagingSource: ChallengePagingSource,
         goalAmountSource: GoalAmountSource,
-        goalAmountByCategorySource: GoalAmountByCategorySource
-    ) : ChallengeRepository {
-        return ChallengeRepositoryImpl(challengePagingSource, goalAmountSource, goalAmountByCategorySource)
+        goalAmountByCategorySource: GoalAmountByCategorySource,
+        spendingPagingSource: SpendingPagingSource
+    ): ChallengeRepository {
+        return ChallengeRepositoryImpl(
+            challengePagingSource,
+            goalAmountSource,
+            goalAmountByCategorySource,
+            spendingPagingSource
+        )
     }
 }

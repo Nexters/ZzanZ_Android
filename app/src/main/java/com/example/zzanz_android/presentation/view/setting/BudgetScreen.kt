@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -21,22 +22,28 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+import com.example.zzanz_android.presentation.contract.BudgetContract
 import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
 import com.example.zzanz_android.presentation.view.component.TitleText
+import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
 
 
 @Composable
-fun SetBudget(titleText: String, onButtonChange: (String) -> Unit) {
+fun SetBudget(
+    budgetViewModel: BudgetViewModel = hiltViewModel(),
+    titleText: String,
+) {
     val windowInfo = LocalWindowInfo.current
     val focusRequester = remember {
         FocusRequester()
     }
-    val budgetState = remember {
-        mutableStateOf(TextFieldValue(""))
-    }
+    val budgetState = budgetViewModel.uiState.collectAsState()
+    val budget = budgetState.value.budget
+
     Column(
         modifier = Modifier
             .background(ZzanZColorPalette.current.White)
@@ -59,11 +66,12 @@ fun SetBudget(titleText: String, onButtonChange: (String) -> Unit) {
                 .fillMaxWidth()
                 .height(56.dp)
                 .focusRequester(focusRequester),
-            text = budgetState.value,
+            text = budget.value,
             onClickAction = {},
             onTextChanged = { text: TextFieldValue ->
-                budgetState.value = text
-                onButtonChange(text.text)
+                budgetViewModel.setEvent(
+                    BudgetContract.Event.OnFetchBudget(text)
+                )
             },
             textSize = 18
         )
@@ -81,5 +89,5 @@ fun SetBudget(titleText: String, onButtonChange: (String) -> Unit) {
 @Preview
 @Composable
 fun SetBudgetPreview() {
-    SetBudget(titleText = "Text") {}
+    SetBudget(titleText = "Text")
 }

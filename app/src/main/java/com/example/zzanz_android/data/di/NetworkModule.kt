@@ -28,10 +28,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     private const val apiVersion = "v1/"
+
     @Singleton
     @Provides
     fun provideKtorClient(@ApplicationContext applicationContext: Context): HttpClient {
-        return HttpClient(CIO){
+        return HttpClient(CIO) {
             defaultRequest {
                 url {
                     protocol = URLProtocol.HTTP
@@ -42,20 +43,20 @@ object NetworkModule {
                 header("Authorization", AuthorizationManager.getDeviceId(applicationContext))
                 header("App-Version", AppVersionUtil.getVersionHeader())
             }
+            install(Logging) {
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        Timber.d("Ktor Logger - ", message)
+                    }
+                }
+                level = LogLevel.ALL
+            }
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys = true
                     prettyPrint = true
                     isLenient = true
                 })
-            }
-            install(Logging){
-                logger = object : Logger {
-                    override fun log(message: String) {
-                        Timber.d("Ktor Logger", message)
-                    }
-                }
-                level = LogLevel.ALL
             }
         }
     }

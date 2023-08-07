@@ -16,26 +16,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.common.navigation.NavHost
 import com.example.zzanz_android.common.ui.theme.ZzanZ_AndroidTheme
-import androidx.compose.ui.unit.dp
-import androidx.core.view.WindowCompat
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navigation
-import com.example.zzanz_android.common.NavRoutes
-import com.example.zzanz_android.common.SettingNavRoutes
-import com.example.zzanz_android.common.SpendingNavRoutes
-import com.example.zzanz_android.common.ui.theme.ZzanZ_AndroidTheme
 import com.example.zzanz_android.common.ui.util.keyboardAsState
-import com.example.zzanz_android.presentation.view.Home
-import com.example.zzanz_android.presentation.view.Setting
-import com.example.zzanz_android.presentation.view.Splash
-import com.example.zzanz_android.presentation.view.spending.AddSpendingScreen
 import dagger.hilt.android.AndroidEntryPoint
+import io.ktor.client.HttpClient
+import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

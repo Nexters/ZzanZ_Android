@@ -10,9 +10,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
-class BudgetUseCase @Inject constructor(
+class PostBudgetUseCase @Inject constructor(
     private val repository: ChallengeRepository,
     @IoDispatcher  val dispatcher: CoroutineDispatcher
 ) : BaseUseCase<Boolean, Int>() {

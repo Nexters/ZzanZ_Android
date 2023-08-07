@@ -18,27 +18,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.zzanz_android.R
 import com.example.zzanz_android.domain.model.BudgetCategoryData
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
+import com.example.zzanz_android.presentation.contract.BudgetContract
 import com.example.zzanz_android.presentation.view.component.CustomCategoryButton
 import com.example.zzanz_android.presentation.view.component.TitleText
+import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
 
 @Composable
 fun BudgetCategory(
+    budgetViewModel: BudgetViewModel = hiltViewModel(),
     textModifier: Modifier = Modifier,
     categoryModifier: Modifier = Modifier,
     titleText: String,
     budgetCategoryData: MutableState<List<BudgetCategoryModel>>
 ) {
-    LaunchedEffect(key1 = budgetCategoryData, block = {})
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         TitleText(
             modifier = textModifier, text = titleText
         )
-        LaunchedEffect(key1 = budgetCategoryData, block = {})
         LazyVerticalGrid(
             modifier = categoryModifier, columns = GridCells.Fixed(2)
         ) {
@@ -51,12 +53,11 @@ fun BudgetCategory(
                             modifier = Modifier,
                             text = stringResource(id = item.name),
                             onClick = {
-                                budgetCategoryData.value = budgetCategoryData.value.map {
-                                    if (it.name == item.name) {
-                                        it.copy(isChecked = !item.isChecked)
-                                    } else it
-                                }
-
+                                budgetViewModel.setEvent(
+                                    BudgetContract.Event.OnFetchBudgetCategoryItem(item.copy(
+                                        isChecked = !item.isChecked
+                                    ))
+                                )
                             },
                             isChecked = item.isChecked
                         )
@@ -77,7 +78,7 @@ fun BudgetCategoryPreview() {
         categoryModifier = Modifier,
         titleText = stringResource(id = R.string.next_week_budget_category),
         budgetCategoryData = remember {
-            mutableStateOf(BudgetCategoryData.category)
+            mutableStateOf(BudgetCategoryData.category.value)
         }
     )
 }

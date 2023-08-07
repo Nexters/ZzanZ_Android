@@ -36,6 +36,8 @@ import com.example.zzanz_android.presentation.view.Setting
 import com.example.zzanz_android.presentation.view.Splash
 import com.example.zzanz_android.presentation.view.spending.AddSpendingScreen
 import dagger.hilt.android.AndroidEntryPoint
+import io.ktor.client.HttpClient
+import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

@@ -28,10 +28,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     private const val apiVersion = "v1/"
+
     @Singleton
     @Provides
     fun provideKtorClient(@ApplicationContext applicationContext: Context): HttpClient {
-        return HttpClient(CIO){
+        return HttpClient(CIO) {
             defaultRequest {
                 url {
                     protocol = URLProtocol.HTTP
@@ -49,7 +50,7 @@ object NetworkModule {
                     isLenient = true
                 })
             }
-            install(Logging){
+            install(Logging) {
                 logger = object : Logger {
                     override fun log(message: String) {
                         Timber.d("Ktor Logger", message)

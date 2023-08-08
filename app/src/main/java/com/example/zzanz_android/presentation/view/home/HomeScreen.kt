@@ -5,6 +5,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,9 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
@@ -42,7 +42,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -67,6 +66,7 @@ import com.example.zzanz_android.presentation.viewmodel.ChallengeListState
 import com.example.zzanz_android.presentation.viewmodel.HomeEffect
 import com.example.zzanz_android.presentation.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
+import java.lang.Float.min
 
 object HomeScreenValue {
     const val GRID_COUNT = 2
@@ -92,7 +92,9 @@ fun HomeScreen(
         },
         containerColor = ZzanZColorPalette.current.Gray01
     ) { padding ->
-        Box(modifier = Modifier.padding(padding)) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)) {
             when (challengeListState.challengeList) {
                 is ChallengeListState.Loading -> {
                     CircularProgressIndicator(
@@ -119,26 +121,27 @@ fun HomeScreen(
                             viewModel.setEffectToShowToast()
                         }
 
-                        else -> {}
-                    }
-                    Column(Modifier.fillMaxSize()) {
-                        HomeContent(
-                            modifier = Modifier.weight(1f),
-                            pagerState = pagerState,
-                            pagingItems = challengeList
-                        ) { challenge ->
-                            challengeStatus.value = challenge.state
-                        }
-                        if (challengeStatus.value == ChallengeStatus.PRE_OPENED) {
-                            GreenRoundButton(
-                                modifier = Modifier
-                                    .padding(ZzanZDimen.current.defaultHorizontal)
-                                    .fillMaxWidth()
-                                    .height(56.dp),
-                                text = stringResource(id = R.string.home_edit_plan_btn_title),
-                                onClick = { /*TODO*/ },
-                                enabled = true
-                            )
+                        else -> {
+                            Column(Modifier.fillMaxSize()) {
+                                HomeContent(
+                                    modifier = Modifier.weight(1f),
+                                    pagerState = pagerState,
+                                    pagingItems = challengeList
+                                ) { challenge ->
+                                    challengeStatus.value = challenge.state
+                                }
+                                if (challengeStatus.value == ChallengeStatus.PRE_OPENED) {
+                                    GreenRoundButton(
+                                        modifier = Modifier
+                                            .padding(ZzanZDimen.current.defaultHorizontal)
+                                            .fillMaxWidth()
+                                            .height(56.dp),
+                                        text = stringResource(id = R.string.home_edit_plan_btn_title),
+                                        onClick = { /*TODO*/ },
+                                        enabled = true
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -169,81 +172,65 @@ fun HomeContent(
     var title by remember { mutableStateOf("") }
     var subTitle by remember { mutableStateOf("") }
     val planList = remember { mutableStateOf(emptyList<PlanModel>()) }
-    val challengeStatus = remember { mutableStateOf<ChallengeStatus?>(null) }
+    val challengeStatus = remember { mutableStateOf(ChallengeStatus.OPENED) }
+    val goalAmount = remember { mutableStateOf(0) }
+    val remainAmount = remember { mutableStateOf(0) }
+    val ratio = remember { mutableStateOf(0f) }
 
-    Column(modifier.fillMaxSize()) {
-        WeekPager(pagerState, pagingItems) {
-            pagingItems[pagerState.currentPage]?.let { challenge ->
-                setCurrentChallenge(challenge)
-                title = when (challenge.state) {
-                    ChallengeStatus.PRE_OPENED -> context.getString(R.string.home_challenge_title_pre_opened)
-                    ChallengeStatus.OPENED -> context.getString(R.string.home_challenge_title_opened) // TODO : gowoon - dday
-                    ChallengeStatus.CLOSED -> context.getString(R.string.home_challenge_title_closed)
+    LazyColumn(modifier.fillMaxSize()) {
+        item {
+            WeekPager(pagerState, pagingItems) {
+                pagingItems[pagerState.currentPage]?.let { challenge ->
+                    setCurrentChallenge(challenge)
+                    title = when (challenge.state) {
+                        ChallengeStatus.PRE_OPENED -> context.getString(R.string.home_challenge_title_pre_opened)
+                        ChallengeStatus.OPENED -> context.getString(R.string.home_challenge_title_opened) // TODO : gowoon - dday
+                        ChallengeStatus.CLOSED -> context.getString(R.string.home_challenge_title_closed)
+                    }
+                    subTitle =
+                        "${DateFormatter.format(challenge.startAt)} ~ ${DateFormatter.format(challenge.endAt)}"
+                    planList.value = challenge.planList
+                    challengeStatus.value = challenge.state
+                    goalAmount.value = challenge.goalAmount
+                    remainAmount.value = challenge.remainAmount
+                    ratio.value = (challenge.remainAmount.toFloat() / challenge.goalAmount.toFloat())
                 }
-                subTitle =
-                    "${DateFormatter.format(challenge.startAt)} ~ ${DateFormatter.format(challenge.endAt)}"
-                planList.value = challenge.planList
-                challengeStatus.value = challenge.state
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = ZzanZDimen.current.defaultHorizontal)
+            ) {
+                ChallengeTitle(title, subTitle)
+                Spacer(modifier = Modifier.height(28.dp))
             }
         }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = ZzanZDimen.current.defaultHorizontal)
-        ) {
-            ChallengeTitle(title, subTitle)
-            Spacer(modifier = Modifier.height(28.dp))
+        item {
             CategoryList(planList.value)
         }
-        //                        Box(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .wrapContentHeight()
-//                                .padding(ZzanZDimen.current.defaultHorizontal)
-//                        ) {
-//                            when (challengeStatus.value) {
-//                                ChallengeStatus.OPENED -> {
-//                                    ChallengeResult(messageContent = {
-//                                        ChallengeResultTitleWhenOpened(
-//                                            prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
-//                                            suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
-//                                            amountWithUnit = "50,000원",
-//                                            amountColor = ZzanZColorPalette.current.Green04
-//                                        )
-//                                    }, ratio = 0.7f)
-//                                }
-//
-//                                ChallengeStatus.CLOSED -> {
-//                                    ChallengeResult(messageContent = {
-//                                        ChallengeResultTitleWhenClosed(
-//                                            message = stringResource(id = R.string.home_challenge_result_title_closed_success)
-//                                        )
-//                                    }, ratio = 0.7f)
-//                                }
-//
-//                            }
-//                        }
-        when (challengeStatus.value) {
-            ChallengeStatus.OPENED -> {
-                ChallengeResult(messageContent = {
-                    ChallengeResultTitleWhenOpened(
-                        prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
-                        suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
-                        amountWithUnit = "50,000원",
-                        amountColor = ZzanZColorPalette.current.Green04
-                    )
-                }, ratio = 0.7f)
+        item {
+            Spacer(modifier = Modifier.height(10.dp))
+            when (challengeStatus.value) {
+                ChallengeStatus.OPENED -> {
+                    ChallengeResult(messageContent = {
+                        ChallengeResultTitleWhenOpened(
+                            prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
+                            suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
+                            amount = MoneyFormatter.format(remainAmount.value),
+                            amountColor = if(ratio.value > 1f) ZzanZColorPalette.current.Red04 else ZzanZColorPalette.current.Green04
+                        )
+                    }, ratio = min(ratio.value, 1f))
+                }
+                ChallengeStatus.CLOSED -> {
+                    ChallengeResult(messageContent = {
+                        ChallengeResultTitleWhenClosed(
+                            message = stringResource(id = R.string.home_challenge_result_title_closed_success)
+                        )
+                    }, ratio = min(ratio.value, 1f))
+                }
+                else -> {}
             }
-
-            ChallengeStatus.CLOSED -> {
-                ChallengeResult(messageContent = {
-                    ChallengeResultTitleWhenClosed(
-                        message = stringResource(id = R.string.home_challenge_result_title_closed_success)
-                    )
-                }, ratio = 0.7f)
-            }
-
-            else -> {}
+            Spacer(modifier = Modifier.height(25.dp))
         }
     }
 }
@@ -330,22 +317,26 @@ fun ChallengeTitle(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CategoryList(
     planList: List<PlanModel>
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(HomeScreenValue.GRID_COUNT),
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(planList) {
+    val horizontalSpace = 16.dp
+    val itemWidth = (LocalConfiguration.current.screenWidthDp.dp - (ZzanZDimen.current.defaultHorizontal*2) - horizontalSpace)/2
+    FlowRow(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = ZzanZDimen.current.defaultHorizontal),
+        horizontalArrangement = Arrangement.spacedBy(horizontalSpace),
+        maxItemsInEachRow = HomeScreenValue.GRID_COUNT) {
+        planList.forEach {
             val (amount, color) = if (it.remainAmount < 0) Pair(
                 it.goalAmount,
                 ZzanZColorPalette.current.Red04
             ) else Pair(it.remainAmount, ZzanZColorPalette.current.Green04)
             CategoryCardItem(
+                itemWidth = itemWidth,
                 title = stringResource(id = Category.valueOf(it.category).stringResId),
                 remainAmount = MoneyFormatter.format(amount),
                 ratio = (it.remainAmount.toFloat() / it.goalAmount.toFloat()),
@@ -367,7 +358,7 @@ fun ChallengeResult(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val color =
-            if (ratio < 1f) ZzanZColorPalette.current.Green04 else ZzanZColorPalette.current.Red04
+            if (ratio > 1f) ZzanZColorPalette.current.Red04 else ZzanZColorPalette.current.Green04
         messageContent()
         ProgressIndicator(
             modifier = Modifier.padding(top = 16.dp, bottom = 20.dp),
@@ -381,7 +372,7 @@ fun ChallengeResult(
 fun ChallengeResultTitleWhenOpened(
     prefix: String,
     suffix: String,
-    amountWithUnit: String,
+    amount: String,
     amountColor: Color
 ) {
     Text(
@@ -390,7 +381,7 @@ fun ChallengeResultTitleWhenOpened(
                 append(prefix)
             }
             withStyle(SpanStyle(color = amountColor)) {
-                append(" $amountWithUnit ")
+                append(" $amount${stringResource(id = R.string.money_unit)} ")
             }
             withStyle(SpanStyle(color = ZzanZColorPalette.current.Gray08)) {
                 append(suffix)
@@ -414,5 +405,12 @@ fun ChallengeResultTitleWhenClosed(
 @Preview
 @Composable
 fun HomePreview() {
-    HomeScreen(rememberNavController())
+    ChallengeResult(messageContent = {
+        ChallengeResultTitleWhenOpened(
+            prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
+            suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
+            amount = "50,000원",
+            amountColor = ZzanZColorPalette.current.Green04
+        )
+    }, ratio = 0.7f)
 }

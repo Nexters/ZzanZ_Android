@@ -10,20 +10,19 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 class BudgetByCategoryUseCase @Inject constructor(
     private val repository: ChallengeRepository,
     @IoDispatcher  val dispatcher: CoroutineDispatcher
 ) : BaseUseCase<Boolean, List<BudgetCategoryModel>>() {
 
-    override suspend fun buildRequest(budgetList: List<BudgetCategoryModel>?): Flow<Resource<Boolean>> {
-        if (budgetList.isNullOrEmpty()) {
+    override suspend fun buildRequest(params: List<BudgetCategoryModel>?): Flow<Resource<Boolean>> {
+        if (params.isNullOrEmpty()) {
             return flow {
                 emit(Resource.Error(Exception("budgetList can not be null")))
             }.flowOn(dispatcher)
         }
-        val goalAmountList = budgetList.map {
+        val goalAmountList = params.map {
             it.toDto()
         }
         return repository

@@ -19,8 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,12 +31,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
+import com.example.zzanz_android.common.NetworkState
 import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.util.keyboardAsState
-import com.example.zzanz_android.domain.model.BudgetCategoryData
 import com.example.zzanz_android.domain.model.Category
 import com.example.zzanz_android.presentation.contract.BudgetContract
 import com.example.zzanz_android.presentation.view.component.BottomGreenButton
@@ -49,6 +47,7 @@ import com.example.zzanz_android.presentation.view.setting.BudgetCategory
 import com.example.zzanz_android.presentation.view.setting.NestEggExplainText
 import com.example.zzanz_android.presentation.view.setting.SetBudget
 import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 data class SettingUiData(
@@ -97,17 +96,25 @@ fun Setting(
     route: String = SettingNavRoutes.Budget.route,
     budgetViewModel: BudgetViewModel = hiltViewModel()
 ) {
+
+    // TODO ViewModel에서 세팅할 수 있도록 변경하기
     val uiData: SettingUiData = SettingRoute.data.single {
         it.currentRoute == route
     }
+    // TODO ViewModel에서 세팅할 수 있도록 변경하기
     val title = stringResource(id = uiData.titleText)
+    var buttonTitle = stringResource(id = uiData.buttonText)
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val isKeyboardOpen by keyboardAsState()
-    val budgetCategoryData = remember {
-        mutableStateOf(BudgetCategoryData.category)
-    }
+
+    val screenType = budgetViewModel.screenType.collectAsState().value
     val buttonState = budgetViewModel.uiState.collectAsState().value.buttonState
+    val budgetCategoryData = budgetViewModel.budgetData.collectAsState().value.category
+
+    val budgetCategoryState = budgetViewModel.uiState.collectAsState().value.budgetByCategoryItemState
+    val totalCategoryCnt = budgetCategoryState.value.totalCategory.value
+    val enteredCategoryCnt = budgetCategoryState.value.enteredCategory.value
 
     val onNavRoutes = {
         navController.navigate(uiData.nextRoute) {
@@ -117,23 +124,54 @@ fun Setting(
         }
     }
 
+    LaunchedEffect(key1 = Unit, block = {
+        if (uiData.currentRoute != SettingNavRoutes.AlarmSetting.route) {
+            budgetViewModel.setEvent(BudgetContract.Event.SetSettingScreenType(uiData.currentRoute))
+        }
+    })
+
+    LaunchedEffect(key1 = screenType, block = {
+        budgetViewModel.setEvent(BudgetContract.Event.SetScreenState(uiData.currentRoute))
+    })
+
     LaunchedEffect(key1 = Unit) {
-        budgetViewModel.uiState.collect{
-            when(it.budgetState) {
-                BudgetContract.BudgetState.Success -> {
+        budgetViewModel.effect.collect {
+            when(it) {
+                BudgetContract.Effect.NextRoutes -> {
                     onNavRoutes.invoke()
                 }
-                else -> {
-                }
+
             }
         }
     }
 
-    LaunchedEffect(key1 = buttonState, key2 = isKeyboardOpen, block = {})
+    LaunchedEffect(key1 = buttonState, block = {})
+    LaunchedEffect(key1 = isKeyboardOpen, block = {})
+    LaunchedEffect(key1 = budgetCategoryData, block = {})
+    LaunchedEffect(key1 = totalCategoryCnt, key2 = enteredCategoryCnt, block = {})
 
-    if (route == SettingNavRoutes.BudgetByCategory.route && isKeyboardOpen) {
-        uiData.buttonText = R.string.budget_by_category_write_btn_title
+    if (route == SettingNavRoutes.BudgetByCategory.route) {
+        if (isKeyboardOpen) {
+            if (totalCategoryCnt != enteredCategoryCnt) {
+                uiData.buttonText = R.string.budget_by_category_write_btn_title
+            } else {
+                uiData.buttonText = R.string.budget_by_category_complete_btn_title
+            }
+        } else {
+            uiData.buttonText = R.string.next
+        }
     }
+
+    buttonTitle = if (uiData.buttonText == R.string.budget_by_category_write_btn_title) {
+        stringResource(
+            id = uiData.buttonText,
+            enteredCategoryCnt.toString(),
+            totalCategoryCnt.toString()
+        )
+    } else {
+        stringResource(id = uiData.buttonText)
+    }
+
 
     Column(
         modifier = Modifier
@@ -148,9 +186,8 @@ fun Setting(
         ) {
             when (route) {
                 SettingNavRoutes.BudgetByCategory.route -> {
-                    // TODO -  BudgetCategory 와 budgetCategoryData 공유하도록 ViewModel 연결하기
                     BudgetByCategory(titleText = title,
-                        budgetCategoryData = budgetCategoryData,
+                        budgetViewModel = budgetViewModel,
                         onAddCategoryClicked = {
                             coroutineScope.launch {
                                 sheetState.show()
@@ -169,42 +206,37 @@ fun Setting(
                 }
 
                 SettingNavRoutes.BudgetCategory.route -> {
-//                    isButtonEnabled = budgetCategoryData.value.any {
-//                        it.isChecked
-//                    }
                     BudgetCategory(
-                        textModifier = Modifier
+                        modifier = Modifier
                             .padding(horizontal = 24.dp)
                             .padding(bottom = 18.dp),
                         categoryModifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
-                        titleText = title,
-                        budgetCategoryData = budgetCategoryData
+                        titleText = title
                     )
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
-            if (route == SettingNavRoutes.BudgetByCategory.route && budgetCategoryData.value.any {
-                    it.categoryId == Category.NESTEGG && it.budget.value.toString() != "0"
-                }) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = ZzanZDimen.current.defaultHorizontal)
-                        .padding(top = 8.dp, bottom = 12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    NestEggExplainText(
-                        prefix = stringResource(id = R.string.budget_save_money_title_1),
-                        suffix = stringResource(id = R.string.budget_save_money_title_2),
-                        amount = budgetCategoryData.value.single {
-                            it.categoryId == Category.NESTEGG
-                        }.budget.value.text,
-                        amountColor = ZzanZColorPalette.current.Gray04
-                    )
+            if (route == SettingNavRoutes.BudgetByCategory.route && (enteredCategoryCnt == totalCategoryCnt)) {
+                if (!isKeyboardOpen) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = ZzanZDimen.current.defaultHorizontal)
+                            .padding(top = 8.dp, bottom = 12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        NestEggExplainText(
+                            prefix = stringResource(id = R.string.budget_save_money_title_1),
+                            suffix = stringResource(id = R.string.budget_save_money_title_2),
+                            amount = budgetCategoryData.value.single {
+                                it.categoryId == Category.NESTEGG
+                            }.budget.value.text
+                        )
+                    }
                 }
             }
             BottomGreenButton(
-                buttonText = stringResource(id = uiData.buttonText),
+                buttonText = buttonTitle,
                 onClick = {
                     if (buttonState.value) {
                         budgetViewModel.setEvent(
@@ -218,11 +250,10 @@ fun Setting(
             )
 
             if (sheetState.isVisible) {
-                // TODO - CategoryBottomSheet ViewModel 연결하기
                 CategoryBottomSheet(
+                    budgetViewModel = budgetViewModel,
                     coroutineScope = coroutineScope,
-                    sheetState = sheetState,
-                    budgetCategoryData = budgetCategoryData
+                    sheetState = sheetState
                 )
             }
         }
@@ -245,7 +276,7 @@ fun TopBar(navController: NavHostController, route: String, backRoute: String) {
                 modifier = Modifier
                     .size(28.dp)
                     .clickable {
-                        if (!backRoute.isNullOrEmpty()) {
+                        if (backRoute.isNotEmpty()) {
                             navController.navigate(backRoute) {
                                 popUpTo(NavRoutes.Setting.route) {
                                     inclusive = true

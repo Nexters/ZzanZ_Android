@@ -141,45 +141,6 @@ fun HomeScreen(
                             )
                         }
                     }
-//                        Box(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .wrapContentHeight()
-//                                .padding(ZzanZDimen.current.defaultHorizontal)
-//                        ) {
-//                            when (challengeStatus.value) {
-//                                ChallengeStatus.PRE_OPENED -> {
-//                                    GreenRoundButton(
-//                                        modifier = Modifier
-//                                            .fillMaxWidth()
-//                                            .height(56.dp),
-//                                        text = stringResource(id = R.string.home_edit_plan_btn_title),
-//                                        onClick = { /*TODO*/ },
-//                                        enabled = true
-//                                    )
-//                                }
-//
-//                                ChallengeStatus.OPENED -> {
-//                                    ChallengeResult(messageContent = {
-//                                        ChallengeResultTitleWhenOpened(
-//                                            prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
-//                                            suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
-//                                            amountWithUnit = "50,000원",
-//                                            amountColor = ZzanZColorPalette.current.Green04
-//                                        )
-//                                    }, ratio = 0.7f)
-//                                }
-//
-//                                ChallengeStatus.CLOSED -> {
-//                                    ChallengeResult(messageContent = {
-//                                        ChallengeResultTitleWhenClosed(
-//                                            message = stringResource(id = R.string.home_challenge_result_title_closed_success)
-//                                        )
-//                                    }, ratio = 0.7f)
-//                                }
-//
-//                            }
-//                        }
                 }
 
                 else -> {}
@@ -208,6 +169,7 @@ fun HomeContent(
     var title by remember { mutableStateOf("") }
     var subTitle by remember { mutableStateOf("") }
     val planList = remember { mutableStateOf(emptyList<PlanModel>()) }
+    val challengeStatus = remember { mutableStateOf<ChallengeStatus?>(null) }
 
     Column(modifier.fillMaxSize()) {
         WeekPager(pagerState, pagingItems) {
@@ -221,6 +183,7 @@ fun HomeContent(
                 subTitle =
                     "${DateFormatter.format(challenge.startAt)} ~ ${DateFormatter.format(challenge.endAt)}"
                 planList.value = challenge.planList
+                challengeStatus.value = challenge.state
             }
         }
         Column(
@@ -231,6 +194,56 @@ fun HomeContent(
             ChallengeTitle(title, subTitle)
             Spacer(modifier = Modifier.height(28.dp))
             CategoryList(planList.value)
+        }
+        //                        Box(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .wrapContentHeight()
+//                                .padding(ZzanZDimen.current.defaultHorizontal)
+//                        ) {
+//                            when (challengeStatus.value) {
+//                                ChallengeStatus.OPENED -> {
+//                                    ChallengeResult(messageContent = {
+//                                        ChallengeResultTitleWhenOpened(
+//                                            prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
+//                                            suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
+//                                            amountWithUnit = "50,000원",
+//                                            amountColor = ZzanZColorPalette.current.Green04
+//                                        )
+//                                    }, ratio = 0.7f)
+//                                }
+//
+//                                ChallengeStatus.CLOSED -> {
+//                                    ChallengeResult(messageContent = {
+//                                        ChallengeResultTitleWhenClosed(
+//                                            message = stringResource(id = R.string.home_challenge_result_title_closed_success)
+//                                        )
+//                                    }, ratio = 0.7f)
+//                                }
+//
+//                            }
+//                        }
+        when (challengeStatus.value) {
+            ChallengeStatus.OPENED -> {
+                ChallengeResult(messageContent = {
+                    ChallengeResultTitleWhenOpened(
+                        prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
+                        suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
+                        amountWithUnit = "50,000원",
+                        amountColor = ZzanZColorPalette.current.Green04
+                    )
+                }, ratio = 0.7f)
+            }
+
+            ChallengeStatus.CLOSED -> {
+                ChallengeResult(messageContent = {
+                    ChallengeResultTitleWhenClosed(
+                        message = stringResource(id = R.string.home_challenge_result_title_closed_success)
+                    )
+                }, ratio = 0.7f)
+            }
+
+            else -> {}
         }
     }
 }

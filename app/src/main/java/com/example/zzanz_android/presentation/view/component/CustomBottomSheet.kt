@@ -9,29 +9,26 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
-import com.example.zzanz_android.domain.model.BudgetCategoryData
-import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.presentation.view.setting.BudgetCategory
+import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryBottomSheet(
+    budgetViewModel: BudgetViewModel = hiltViewModel(),
     coroutineScope: CoroutineScope,
     sheetState: SheetState,
-    budgetCategoryData: MutableState<List<BudgetCategoryModel>>
 ) {
     if (sheetState.isVisible) {
         ModalBottomSheet(modifier = Modifier.wrapContentHeight(),
@@ -44,10 +41,12 @@ fun CategoryBottomSheet(
                 }
             }) {
             BudgetCategory(
-                textModifier = Modifier.padding(horizontal = 24.dp).padding(bottom = 8.dp),
+                budgetViewModel = budgetViewModel,
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 8.dp),
                 categoryModifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
-                titleText = stringResource(R.string.add_category_explain_title),
-                budgetCategoryData = budgetCategoryData
+                titleText = stringResource(R.string.add_category_explain_title)
             )
             Spacer(modifier = Modifier.height(8.dp))
             GreenRoundButton(
@@ -72,9 +71,8 @@ fun CategoryBottomSheet(
 fun BottomSheetPreview() {
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
-    CategoryBottomSheet(coroutineScope = coroutineScope,
-        sheetState = sheetState,
-        budgetCategoryData = remember {
-            mutableStateOf(BudgetCategoryData.category.value)
-        })
+    CategoryBottomSheet(
+        coroutineScope = coroutineScope,
+        sheetState = sheetState
+    )
 }

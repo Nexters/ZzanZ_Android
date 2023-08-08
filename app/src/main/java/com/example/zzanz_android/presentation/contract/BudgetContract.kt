@@ -3,6 +3,7 @@ package com.example.zzanz_android.presentation.contract
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
+import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.presentation.view.SettingRoute
 import com.example.zzanz_android.presentation.viewmodel.UiEffect
@@ -22,9 +23,16 @@ class BudgetContract {
 
     data class State(
         val budgetState: BudgetState,
-        val budget: MutableState<TextFieldValue>,
-        val buttonState: MutableState<Boolean>
+        val buttonState: MutableState<Boolean>,
+        val budgetByCategoryState: MutableState<BudgetByCategoryState>
     ) : UiState
+
+    data class BudgetByCategoryState (
+        val remainingBudget: MutableState<String>,
+        val enteredCategory: MutableState<Int>,
+        val totalCategory: MutableState<Int>
+    )
+
 
     sealed class BudgetState {
         object Idle : BudgetState()

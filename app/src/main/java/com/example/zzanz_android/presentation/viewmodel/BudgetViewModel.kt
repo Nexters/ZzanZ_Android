@@ -17,17 +17,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import okhttp3.internal.wait
 import timber.log.Timber
 import javax.inject.Inject
-
-/**
- * Event
- * 1. budget 정보 확인하는 이벤트 (숫자인지, 0보다 큰 숫자인지 등)
- * 2. budget 정보 서버에 POST 하는 이벤트 -> 결과 수신하는 이벤트
- * 3. budget 서버 통신 실패하는 이벤트
- * 4. 실패한 요청을 재시도 하는 이벤트
- */
 
 @HiltViewModel
 class BudgetViewModel @Inject constructor(
@@ -72,8 +63,14 @@ class BudgetViewModel @Inject constructor(
     override fun createInitialState(): BudgetContract.State {
         return BudgetContract.State(
             budgetState = BudgetContract.BudgetState.Idle,
-            budget = mutableStateOf(TextFieldValue("")),
-            buttonState = mutableStateOf(false)
+            buttonState = mutableStateOf(false),
+            budgetByCategoryState = mutableStateOf(
+                BudgetContract.BudgetByCategoryState(
+                    remainingBudget = mutableStateOf(""),
+                    enteredCategory = mutableStateOf(0),
+                    totalCategory = mutableStateOf(0)
+                )
+            )
         )
     }
 
@@ -82,20 +79,73 @@ class BudgetViewModel @Inject constructor(
     }
 
     private fun setScreenState(route: String) {
-        if (route == SettingNavRoutes.Budget.route) {
-            setState(
-                currentState.copy(
-                    budget = mutableStateOf(_budgetData.value.totalBudget.value),
-                    buttonState = mutableStateOf(setButtonState(route))
+        when (route) {
+            SettingNavRoutes.Budget.route -> {
+                setState(
+                    currentState.copy(
+                        buttonState = mutableStateOf(setButtonState(route))
+                    )
                 )
-            )
-        } else if (route == SettingNavRoutes.BudgetCategory.route) {
-            setState(
-                currentState.copy(
-                    buttonState = mutableStateOf(setButtonState(route))
+            }
+
+            SettingNavRoutes.BudgetCategory.route -> {
+                setState(
+                    currentState.copy(
+                        buttonState = mutableStateOf(setButtonState(route))
+                    )
                 )
-            )
+            }
+
+            SettingNavRoutes.BudgetByCategory.route -> {
+                setState(
+                    currentState.copy(
+                        buttonState = mutableStateOf(setButtonState(route)),
+                        budgetByCategoryState = mutableStateOf(setBudgetByCategoryState())
+                    )
+                )
+            }
         }
+    }
+
+    private fun getCategoryBudgetSum(): Int {
+        var budgetSum = 0
+        _budgetData.value.category.value.forEach {
+            if (it.categoryId != Category.NESTEGG) {
+                val budget = it.budget.value.text.toIntOrNull()
+                budget?.let {
+                    budgetSum += budget
+                }
+            }
+        }
+        return budgetSum
+    }
+
+    private fun getRemainingBudget(): Int {
+        return _budgetData.value.totalBudget.value.text.toInt() - getCategoryBudgetSum()
+    }
+
+    private fun setBudgetByCategoryState(): BudgetContract.BudgetByCategoryState {
+        Timber.e("### getRemainingBudget - ${getRemainingBudget()}")
+        Timber.e("### getSelectedCategoryCount - ${getSelectedCategoryCount()}")
+        Timber.e("### getEnteredBudgetCategoryCount - ${getEnteredBudgetCategoryCount()}")
+
+        return BudgetContract.BudgetByCategoryState(
+            remainingBudget = mutableStateOf(getRemainingBudget().toString()),
+            totalCategory = mutableStateOf(getSelectedCategoryCount()),
+            enteredCategory = mutableStateOf(getEnteredBudgetCategoryCount())
+        )
+    }
+
+    private fun getEnteredBudgetCategoryCount(): Int {
+        return _budgetData.value.category.value.filter {
+            it.isChecked && it.categoryId != Category.NESTEGG && (validateBudget(it.budget.value.text))
+        }.size
+    }
+
+    private fun getSelectedCategoryCount(): Int {
+        return _budgetData.value.category.value.filter {
+            (it.isChecked && it.categoryId != Category.NESTEGG)
+        }.size
     }
 
     private fun setBudgetCategoryItem(item: BudgetCategoryModel) {
@@ -104,51 +154,89 @@ class BudgetViewModel @Inject constructor(
                 item
             } else it
         }
-        setState(currentState.copy(buttonState = mutableStateOf(setButtonState(_screenType.value))))
+
+        if (_screenType.value == SettingNavRoutes.BudgetCategory.route) {
+            setState(
+                currentState.copy(
+                    buttonState = mutableStateOf(setButtonState(_screenType.value))
+                )
+            )
+        } else {
+            Timber.e("### SetBudgetCategoryItem ${_screenType.value}")
+            setNestEggCategoryItem()
+            setState(
+                currentState.copy(
+                    budgetByCategoryState = mutableStateOf(setBudgetByCategoryState()),
+                    buttonState = mutableStateOf(setButtonState(_screenType.value))
+                )
+            )
+        }
+    }
+
+    private fun setNestEggCategoryItem() {
+        _budgetData.value.category.value = _budgetData.value.category.value.map {
+            if (it.categoryId == Category.NESTEGG) {
+                if (setButtonState(_screenType.value))
+                    it.copy(budget = mutableStateOf(TextFieldValue(text = getRemainingBudget().toString())))
+                else
+                    it.copy(budget = mutableStateOf(TextFieldValue(text = "0")))
+            } else it
+        }
     }
 
     private fun setButtonState(route: String): Boolean {
-        if (route == SettingNavRoutes.Budget.route) {
-            val totalBudget = _budgetData.value.totalBudget.value
-            return if (totalBudget.text.isNullOrEmpty()) false
-            else totalBudget.text.all { Character.isDigit(it) }
-        } else if (route == SettingNavRoutes.BudgetCategory.route) {
-            return _budgetData.value.category.value.any {
-                it.isChecked && it.categoryId != Category.NESTEGG
+        Timber.e("### setButton State Route - $route")
+        return when (route) {
+            SettingNavRoutes.Budget.route -> {
+                validateBudget(_budgetData.value.totalBudget.value.text)
             }
+
+            SettingNavRoutes.BudgetCategory.route -> {
+                _budgetData.value.category.value.any {
+                    it.isChecked && it.categoryId != Category.NESTEGG
+                }
+            }
+
+            SettingNavRoutes.BudgetByCategory.route -> {
+                return getEnteredBudgetCategoryCount() == getSelectedCategoryCount()
+            }
+
+            else -> false
         }
-        return false
     }
 
     private fun setBudget(budget: TextFieldValue) {
         setTotalBudget(budget)
         setState(
             currentState.copy(
-                budget = mutableStateOf(budget),
                 buttonState = mutableStateOf(setButtonState(_screenType.value))
             )
         )
     }
 
-    private fun callBudgetUseCase() {
-        if (_budgetData.value.totalBudget.value.text.isNullOrEmpty()) return postBudgetUseCase()
-        return putBudgetUseCase()
-    }
-
-
     private fun setTotalBudget(text: TextFieldValue) {
         _budgetData.value.totalBudget = mutableStateOf(text)
     }
 
+    private fun validateBudget(budget: String): Boolean {
+        return if (budget.isEmpty()) false
+        else budget.all { Character.isDigit(it) }
+    }
+
+    private fun callBudgetUseCase() {
+        if (_budgetData.value.totalBudget.value.text.isEmpty()) return postBudgetUseCase()
+        return putBudgetUseCase()
+    }
+
+
     private fun putBudgetUseCase() {
         viewModelScope.launch {
-            putBudgetUseCase.invoke(uiState.value.budget.value.text.toInt()).onStart {
+            putBudgetUseCase.invoke(_budgetData.value.totalBudget.value.text.toInt()).onStart {
                 setState(currentState.copy(budgetState = BudgetContract.BudgetState.Loading))
             }.collect {
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
-                            setTotalBudget(uiState.value.budget.value)
                             setState(currentState.copy(budgetState = BudgetContract.BudgetState.Success))
                         }
                     }
@@ -168,18 +256,16 @@ class BudgetViewModel @Inject constructor(
 
     private fun postBudgetUseCase() {
         viewModelScope.launch {
-            postBudgetUseCase.invoke(currentState.budget.value.text.toInt()).onStart {
+            postBudgetUseCase.invoke(_budgetData.value.totalBudget.value.text.toInt()).onStart {
                 setState(currentState.copy(budgetState = BudgetContract.BudgetState.Loading))
             }.collect {
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
-                            setTotalBudget(uiState.value.budget.value)
                             setState(currentState.copy(budgetState = BudgetContract.BudgetState.Success))
                         }
 
                     }
-
                     is Resource.Error -> {
                         setEffect(BudgetContract.Effect.ShowError(it.exception.message.toString()))
                         it.exception.message?.let { message: String ->

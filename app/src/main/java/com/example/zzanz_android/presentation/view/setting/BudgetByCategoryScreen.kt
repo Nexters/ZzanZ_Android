@@ -54,6 +54,7 @@ import com.example.zzanz_android.common.ui.util.keyboardHeightAsState
 import com.example.zzanz_android.domain.model.BudgetCategoryData
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.domain.model.Category
+import com.example.zzanz_android.presentation.contract.BudgetContract
 import com.example.zzanz_android.presentation.view.component.CategoryIcon
 import com.example.zzanz_android.presentation.view.component.InfoIcon
 import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
@@ -65,7 +66,6 @@ import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
 fun BudgetByCategory(
     titleText: String,
     budgetViewModel: BudgetViewModel = hiltViewModel(),
-    budgetCategoryData: MutableState<List<BudgetCategoryModel>>,
     onAddCategoryClicked: () -> Unit
 ) {
     val focusRequester = remember {
@@ -76,10 +76,12 @@ fun BudgetByCategory(
     val keyboardHeight by keyboardHeightAsState()
     //TODO maxHeight 다시 계산해야함 (임시로 300 빼도록 함)
     val maxHeight =
-        if (isKeyboardOpen) (LocalView.current.height - keyboardHeight - 56 - 56 - 320).dp else 560.dp
+        if (isKeyboardOpen) (LocalView.current.height - keyboardHeight - 56 - 56 - 300).dp else 560.dp
+    val budgetCategoryState = budgetViewModel.uiState.collectAsState().value.budgetByCategoryState.value
+    val remainingBudget = budgetCategoryState.remainingBudget
+    val budgetCategoryData = budgetViewModel.budgetData.collectAsState().value.category
 
-    val totalBudget = budgetViewModel.budgetData.collectAsState().value.totalBudget
-    LaunchedEffect(key1 = totalBudget, key2 = budgetCategoryData, block = {})
+    LaunchedEffect(key1 = remainingBudget, key2 = budgetCategoryData, block = {})
 
     Column(
         modifier = Modifier
@@ -93,20 +95,20 @@ fun BudgetByCategory(
                     modifier = Modifier.padding(horizontal = 24.dp), text = titleText
                 )
                 Spacer(modifier = Modifier.height(28.dp))
-                ExplainTotalBudget(totalBudget = totalBudget.value.text)
+                ExplainTotalBudget(totalBudget = remainingBudget.value)
             }
             items(budgetCategoryData.value.size) { idx ->
                 val item = budgetCategoryData.value[idx]
                 if (item.isChecked && item.categoryId != Category.NESTEGG) {
                     BudgetByCategoryItem(
-                        budgetCategoryData = budgetCategoryData,
+                        budgetViewModel = budgetViewModel,
                         budgetCategoryItem = item,
                         modifier = Modifier.focusRequester(focusRequester)
                     )
                 }
                 if (item.categoryId == Category.NESTEGG) {
                     BudgetByCategoryItem(
-                        budgetCategoryData = budgetCategoryData,
+                        budgetViewModel = budgetViewModel,
                         budgetCategoryItem = item,
                         modifier = Modifier.focusRequester(focusRequester)
                     )
@@ -156,12 +158,10 @@ fun ExplainTotalBudget(totalBudget: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BudgetByCategoryItem(
-    budgetCategoryData: MutableState<List<BudgetCategoryModel>>,
+    budgetViewModel: BudgetViewModel = hiltViewModel(),
     budgetCategoryItem: BudgetCategoryModel,
     modifier: Modifier,
 ) {
-    LaunchedEffect(key1 = budgetCategoryData, block = {})
-
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -205,18 +205,11 @@ fun BudgetByCategoryItem(
                         text = budgetCategoryItem.budget.value,
                         onClickAction = {},
                         onTextChanged = { text: TextFieldValue ->
-                            budgetCategoryData.value = budgetCategoryData.value.map {
-                                if (it.name == budgetCategoryItem.name) {
-                                    it.copy(
-                                        budget = mutableStateOf(
-                                            TextFieldValue(
-                                                text = text.text,
-                                                selection = TextRange(text.text.length)
-                                            )
-                                        )
-                                    )
-                                } else it
-                            }
+                            budgetViewModel.setEvent(
+                                BudgetContract.Event.OnFetchBudgetCategoryItem(
+                                    budgetCategoryItem.copy(budget = mutableStateOf(text))
+                                )
+                            )
                         },
                         textSize = 16,
                         isShowUnit = false,
@@ -234,11 +227,11 @@ fun BudgetByCategoryItem(
         }
         Spacer(modifier = Modifier.weight(1f))
         DeleteCategory {
-            budgetCategoryData.value = budgetCategoryData.value.map {
-                if (it.name == budgetCategoryItem.name) {
-                    it.copy(isChecked = false)
-                } else it
-            }
+            budgetViewModel.setEvent(
+                BudgetContract.Event.OnFetchBudgetCategoryItem(
+                    budgetCategoryItem.copy(budget = mutableStateOf(TextFieldValue("")), isChecked = false)
+                )
+            )
         }
     }
 }
@@ -313,9 +306,5 @@ fun NestEggExplainText(
 @Preview
 @Composable
 fun BudgetByCategoryPreview() {
-    BudgetByCategory(titleText = "Text",
-        budgetCategoryData = remember {
-            mutableStateOf(BudgetCategoryData.category.value)
-        },
-        onAddCategoryClicked = {})
+    BudgetByCategory(titleText = "Text", onAddCategoryClicked = {})
 }

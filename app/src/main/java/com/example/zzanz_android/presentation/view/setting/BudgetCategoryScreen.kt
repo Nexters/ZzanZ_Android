@@ -1,5 +1,6 @@
 package com.example.zzanz_android.presentation.view.setting
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -30,16 +32,19 @@ import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
 @Composable
 fun BudgetCategory(
     budgetViewModel: BudgetViewModel = hiltViewModel(),
-    textModifier: Modifier = Modifier,
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     categoryModifier: Modifier = Modifier,
     titleText: String,
-    budgetCategoryData: MutableState<List<BudgetCategoryModel>>
 ) {
+    val budgetCategoryData = budgetViewModel.budgetData.collectAsState().value.category
+
+    LaunchedEffect(key1 = budgetCategoryData, block = {})
+
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         TitleText(
-            modifier = textModifier, text = titleText
+            modifier = modifier, text = titleText
         )
         LazyVerticalGrid(
             modifier = categoryModifier, columns = GridCells.Fixed(2)
@@ -74,11 +79,8 @@ fun BudgetCategory(
 @Composable
 fun BudgetCategoryPreview() {
     BudgetCategory(
-        textModifier = Modifier,
+        modifier = Modifier,
         categoryModifier = Modifier,
-        titleText = stringResource(id = R.string.next_week_budget_category),
-        budgetCategoryData = remember {
-            mutableStateOf(BudgetCategoryData.category.value)
-        }
+        titleText = stringResource(id = R.string.next_week_budget_category)
     )
 }

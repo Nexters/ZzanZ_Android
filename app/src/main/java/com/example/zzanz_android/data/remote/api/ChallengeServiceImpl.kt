@@ -61,25 +61,26 @@ class ChallengeServiceImpl @Inject constructor(
 
     override suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Resource<Boolean> {
         return try {
-            client.post("challenge/plan/category") {
+            val response =  client.post("challenge/plan/category") {
                 contentType(ContentType.Application.Json)
                 setBody(goalAmountDtoList)
-            }.let {
-                Resource.Success(it.status == HttpStatusCode.OK)
             }
-        } catch (e: ClientRequestException) {
-            // 4XX response
-            // TODO - 에러시 오류 로직 처리
-            Log.e(TAG, "Error : ${e.response.body<BaseResponseDto>().message}")
-            return Resource.Error(e)
-        } catch (e: ServerResponseException) {
-            // 5XX response
-            // TODO - 에러시 오류 로직 처리
-            Log.e(TAG, "Error : ${e.response.status.description}")
-            return Resource.Error(e)
+            when (response.status) {
+                HttpStatusCode.OK -> {
+                    Resource.Success(true)
+                }
+
+                HttpStatusCode.BadRequest -> {
+                    // 4xx - 아직 챌린지에 참여하지 않았습니다.
+                    throw Exception(response.body<BaseResponseDto>().message)
+                }
+
+                else -> {
+                    throw Exception("Unknown Error")
+                }
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "Error : ${e.message}")
-            return Resource.Error(e)
+            Resource.Error(e)
         }
     }
 
@@ -91,11 +92,11 @@ class ChallengeServiceImpl @Inject constructor(
             }
             when (response.status) {
                 HttpStatusCode.OK -> {
-                    return Resource.Success(true)
+                    Resource.Success(true)
                 }
 
                 HttpStatusCode.BadRequest -> {
-                    // 400 : 아직 챌린지에 참여하지 않았습니다.
+                    // 4xx - 아직 챌린지에 참여하지 않았습니다.
                     throw Exception(response.body<BaseResponseDto>().message)
                 }
 
@@ -104,8 +105,7 @@ class ChallengeServiceImpl @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            Timber.e("${e.message}")
-            return Resource.Error(e)
+            Resource.Error(e)
         }
     }
 

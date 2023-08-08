@@ -75,7 +75,7 @@ fun BudgetByCategory(
     val maxHeight =
         if (isKeyboardOpen) (LocalView.current.height - keyboardHeight - 56 - 56 - 300).dp else 560.dp
     val budgetCategoryState =
-        budgetViewModel.uiState.collectAsState().value.budgetByCategoryState.value
+        budgetViewModel.uiState.collectAsState().value.budgetByCategoryItemState.value
     val remainingBudget = budgetCategoryState.remainingBudget
     val budgetCategoryData = budgetViewModel.budgetData.collectAsState().value.category
 

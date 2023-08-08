@@ -3,11 +3,13 @@ package com.example.zzanz_android.presentation.viewmodel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
+import com.example.zzanz_android.common.NetworkState
 import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.domain.model.BudgetCategoryData
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.domain.model.Category
+import com.example.zzanz_android.domain.usecase.BudgetByCategoryUseCase
 import com.example.zzanz_android.domain.usecase.PostBudgetUseCase
 import com.example.zzanz_android.domain.usecase.PutBudgetUseCase
 import com.example.zzanz_android.presentation.contract.BudgetContract
@@ -22,7 +24,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BudgetViewModel @Inject constructor(
-    private val postBudgetUseCase: PostBudgetUseCase, private val putBudgetUseCase: PutBudgetUseCase
+    private val postBudgetUseCase: PostBudgetUseCase,
+    private val putBudgetUseCase: PutBudgetUseCase,
+    private val postBudgetByCategoryUseCase: BudgetByCategoryUseCase
 ) : BaseViewModel<BudgetContract.Event, BudgetContract.State, BudgetContract.Effect>() {
     private val _screenType = MutableStateFlow("")
     val screenType = _screenType.asStateFlow()
@@ -51,8 +55,9 @@ class BudgetViewModel @Inject constructor(
             is BudgetContract.Event.OnNextButtonClicked -> {
                 if (_screenType.value == SettingNavRoutes.BudgetByCategory.route) {
                     callBudgetUseCase()
+                } else {
+                    setEffect(BudgetContract.Effect.NextRoutes)
                 }
-                setState(currentState.copy(budgetState = BudgetContract.BudgetState.Success))
             }
 
         }
@@ -60,9 +65,10 @@ class BudgetViewModel @Inject constructor(
 
     override fun createInitialState(): BudgetContract.State {
         return BudgetContract.State(
-            budgetState = BudgetContract.BudgetState.Idle,
+            budgetState = NetworkState.Idle,
             buttonState = mutableStateOf(false),
-            budgetByCategoryState = mutableStateOf(
+            budgetByCategoryState = NetworkState.Idle,
+            budgetByCategoryItemState = mutableStateOf(
                 BudgetContract.BudgetByCategoryState(
                     remainingBudget = mutableStateOf(""),
                     enteredCategory = mutableStateOf(0),
@@ -98,7 +104,7 @@ class BudgetViewModel @Inject constructor(
                 setState(
                     currentState.copy(
                         buttonState = mutableStateOf(setButtonState(route)),
-                        budgetByCategoryState = mutableStateOf(setBudgetByCategoryState())
+                        budgetByCategoryItemState = mutableStateOf(setBudgetByCategoryState())
                     )
                 )
             }
@@ -137,7 +143,6 @@ class BudgetViewModel @Inject constructor(
                     && validateCategoryBudget(it.budget.value.text)
                     && getCategoryBudgetSum() <= _budgetData.value.totalBudget.value.text.toInt()
         }.size
-        Timber.e("### getEnteredBudgetCategoryCount", item)
         return item
     }
 
@@ -164,7 +169,7 @@ class BudgetViewModel @Inject constructor(
             setNestEggCategoryItem()
             setState(
                 currentState.copy(
-                    budgetByCategoryState = mutableStateOf(setBudgetByCategoryState()),
+                    budgetByCategoryItemState = mutableStateOf(setBudgetByCategoryState()),
                     buttonState = mutableStateOf(setButtonState(_screenType.value))
                 )
             )
@@ -233,20 +238,51 @@ class BudgetViewModel @Inject constructor(
     }
 
 
+    private fun postBudgetByCategoryUseCase() {
+        viewModelScope.launch {
+            val budgetByCategoryList = _budgetData.value.category.value.filter {
+                it.isChecked
+            }
+            postBudgetByCategoryUseCase.invoke(budgetByCategoryList)
+                .onStart {
+                    setState(currentState.copy(budgetByCategoryState = NetworkState.Loading))
+                }
+                .collect {
+                    when (it) {
+                        is Resource.Success -> {
+                            if (it.data) {
+                                GlobalUiEvent.showToast("postBudgetCategoryUseCase - Success")
+                                setEffect(BudgetContract.Effect.NextRoutes)
+                                setState(currentState.copy(budgetByCategoryState = NetworkState.Success))
+                            }
+                        }
+
+                        is Resource.Error -> {
+                            it.exception.message?.let { message: String ->
+                                Timber.e(message)
+                                GlobalUiEvent.showToast(message)
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
+
     private fun putBudgetUseCase() {
         viewModelScope.launch {
             putBudgetUseCase.invoke(_budgetData.value.totalBudget.value.text.toInt()).onStart {
-                setState(currentState.copy(budgetState = BudgetContract.BudgetState.Loading))
+                setState(currentState.copy(budgetState = NetworkState.Loading))
             }.collect {
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
-                            setState(currentState.copy(budgetState = BudgetContract.BudgetState.Success))
+                            setState(currentState.copy(budgetState = NetworkState.Success))
+                            postBudgetByCategoryUseCase()
                         }
                     }
 
                     is Resource.Error -> {
-                        setEffect(BudgetContract.Effect.ShowError(it.exception.message.toString()))
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
                             postBudgetUseCase()
@@ -261,18 +297,18 @@ class BudgetViewModel @Inject constructor(
     private fun postBudgetUseCase() {
         viewModelScope.launch {
             postBudgetUseCase.invoke(_budgetData.value.totalBudget.value.text.toInt()).onStart {
-                setState(currentState.copy(budgetState = BudgetContract.BudgetState.Loading))
+                setState(currentState.copy(budgetState = NetworkState.Loading))
             }.collect {
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
-                            setState(currentState.copy(budgetState = BudgetContract.BudgetState.Success))
+                            setState(currentState.copy(budgetState = NetworkState.Success))
+                            postBudgetByCategoryUseCase()
                         }
 
                     }
 
                     is Resource.Error -> {
-                        setEffect(BudgetContract.Effect.ShowError(it.exception.message.toString()))
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
                             putBudgetUseCase()

@@ -20,7 +20,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,7 +36,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -51,7 +49,6 @@ import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.common.ui.util.keyboardAsState
 import com.example.zzanz_android.common.ui.util.keyboardHeightAsState
-import com.example.zzanz_android.domain.model.BudgetCategoryData
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.domain.model.Category
 import com.example.zzanz_android.presentation.contract.BudgetContract
@@ -77,7 +74,8 @@ fun BudgetByCategory(
     //TODO maxHeight 다시 계산해야함 (임시로 300 빼도록 함)
     val maxHeight =
         if (isKeyboardOpen) (LocalView.current.height - keyboardHeight - 56 - 56 - 300).dp else 560.dp
-    val budgetCategoryState = budgetViewModel.uiState.collectAsState().value.budgetByCategoryState.value
+    val budgetCategoryState =
+        budgetViewModel.uiState.collectAsState().value.budgetByCategoryState.value
     val remainingBudget = budgetCategoryState.remainingBudget
     val budgetCategoryData = budgetViewModel.budgetData.collectAsState().value.category
 
@@ -95,7 +93,12 @@ fun BudgetByCategory(
                     modifier = Modifier.padding(horizontal = 24.dp), text = titleText
                 )
                 Spacer(modifier = Modifier.height(28.dp))
-                ExplainTotalBudget(totalBudget = remainingBudget.value)
+                val isRemainingBudgetEmpty = remainingBudget.value.toString()
+                    .isNotEmpty() && remainingBudget.value.toString().toInt() == 0
+                ExplainRemainingBudget(
+                    totalBudget = remainingBudget.value,
+                    isRemainingBudgetEmpty = isRemainingBudgetEmpty
+                )
             }
             items(budgetCategoryData.value.size) { idx ->
                 val item = budgetCategoryData.value[idx]
@@ -124,8 +127,14 @@ fun BudgetByCategory(
 }
 
 @Composable
-fun ExplainTotalBudget(totalBudget: String) {
-    Row(
+fun ExplainRemainingBudget(
+    isRemainingBudgetEmpty: Boolean = false, totalBudget: String
+) {
+    val budgetTitle = if (totalBudget.isEmpty()) "0" else {
+        if (totalBudget.toInt() < 0) "0"
+        else totalBudget
+    }
+    val budgetText = Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(0.dp)
@@ -138,17 +147,8 @@ fun ExplainTotalBudget(totalBudget: String) {
         InfoIcon(color = ZzanZColorPalette.current.Gray08)
         Spacer(modifier = Modifier.width(7.dp))
         Text(
-            text = stringResource(id = R.string.total_budget_title_1) + " ",
-            style = ZzanZTypo.current.Body03,
-            color = ZzanZColorPalette.current.Gray08
-        )
-        Text(
-            text = stringResource(id = R.string.money_krw, totalBudget),
-            style = ZzanZTypo.current.Body03.copy(fontWeight = FontWeight.Bold),
-            color = ZzanZColorPalette.current.Gray08
-        )
-        Text(
-            text = stringResource(id = R.string.total_budget_title_2),
+            text = if (isRemainingBudgetEmpty) stringResource(id = R.string.week_budget_complete_title)
+            else stringResource(id = R.string.remaining_budget_title, budgetTitle),
             style = ZzanZTypo.current.Body03,
             color = ZzanZColorPalette.current.Gray08
         )
@@ -229,7 +229,9 @@ fun BudgetByCategoryItem(
         DeleteCategory {
             budgetViewModel.setEvent(
                 BudgetContract.Event.OnFetchBudgetCategoryItem(
-                    budgetCategoryItem.copy(budget = mutableStateOf(TextFieldValue("")), isChecked = false)
+                    budgetCategoryItem.copy(
+                        budget = mutableStateOf(TextFieldValue("")), isChecked = false
+                    )
                 )
             )
         }
@@ -286,15 +288,16 @@ fun AddBudgetByCategoryItemBtn(onAddClicked: () -> Unit) {
 
 @Composable
 fun NestEggExplainText(
-    prefix: String, suffix: String, amount: String, amountColor: Color
+    prefix: String, suffix: String, amount: String
 ) {
+    // TODO 만약에 totalBudget보다 크게 할 경우 어떻게 처리할지?
     Text(
         buildAnnotatedString {
             withStyle(SpanStyle(color = ZzanZColorPalette.current.Gray06)) {
                 append(prefix)
             }
             withStyle(SpanStyle(color = ZzanZColorPalette.current.Green04)) {
-                append("${stringResource(R.string.money_krw, amount)}")
+                append(stringResource(R.string.money_krw, amount))
             }
             withStyle(SpanStyle(color = ZzanZColorPalette.current.Gray06)) {
                 append(suffix)

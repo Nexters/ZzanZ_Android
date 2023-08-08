@@ -230,8 +230,7 @@ fun Setting(
                             suffix = stringResource(id = R.string.budget_save_money_title_2),
                             amount = budgetCategoryData.value.single {
                                 it.categoryId == Category.NESTEGG
-                            }.budget.value.text,
-                            amountColor = ZzanZColorPalette.current.Gray04
+                            }.budget.value.text
                         )
                     }
                 }

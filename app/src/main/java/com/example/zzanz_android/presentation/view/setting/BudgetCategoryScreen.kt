@@ -24,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.zzanz_android.R
 import com.example.zzanz_android.domain.model.BudgetCategoryData
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
+import com.example.zzanz_android.domain.model.Category
 import com.example.zzanz_android.presentation.contract.BudgetContract
 import com.example.zzanz_android.presentation.view.component.CustomCategoryButton
 import com.example.zzanz_android.presentation.view.component.TitleText
@@ -51,7 +52,7 @@ fun BudgetCategory(
         ) {
             items(budgetCategoryData.value.size) { idx ->
                 val item = budgetCategoryData.value[idx]
-                if (item.name != R.string.category_nestegg) {
+                if (item.categoryId != Category.NESTEGG) {
                     val categoryPaddingValues = PaddingValues(horizontal = 6.dp, vertical = 10.dp)
                     Box(modifier = Modifier.padding(categoryPaddingValues)) {
                         CustomCategoryButton(

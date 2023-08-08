@@ -24,8 +24,6 @@ import javax.inject.Inject
 class BudgetViewModel @Inject constructor(
     private val postBudgetUseCase: PostBudgetUseCase, private val putBudgetUseCase: PutBudgetUseCase
 ) : BaseViewModel<BudgetContract.Event, BudgetContract.State, BudgetContract.Effect>() {
-    private val TAG = this.javaClass.simpleName
-
     private val _screenType = MutableStateFlow("")
     val screenType = _screenType.asStateFlow()
 
@@ -121,14 +119,11 @@ class BudgetViewModel @Inject constructor(
     }
 
     private fun getRemainingBudget(): Int {
-        return _budgetData.value.totalBudget.value.text.toInt() - getCategoryBudgetSum()
+        return (_budgetData.value.totalBudget.value.text.toInt() - getCategoryBudgetSum())
     }
 
     private fun setBudgetByCategoryState(): BudgetContract.BudgetByCategoryState {
-        Timber.e("### getRemainingBudget - ${getRemainingBudget()}")
-        Timber.e("### getSelectedCategoryCount - ${getSelectedCategoryCount()}")
-        Timber.e("### getEnteredBudgetCategoryCount - ${getEnteredBudgetCategoryCount()}")
-
+        Timber.e("setBudgetByCategoryState ${getEnteredBudgetCategoryCount()}")
         return BudgetContract.BudgetByCategoryState(
             remainingBudget = mutableStateOf(getRemainingBudget().toString()),
             totalCategory = mutableStateOf(getSelectedCategoryCount()),
@@ -137,9 +132,13 @@ class BudgetViewModel @Inject constructor(
     }
 
     private fun getEnteredBudgetCategoryCount(): Int {
-        return _budgetData.value.category.value.filter {
-            it.isChecked && it.categoryId != Category.NESTEGG && (validateBudget(it.budget.value.text))
+        val item = _budgetData.value.category.value.filter {
+            it.isChecked && it.categoryId != Category.NESTEGG
+                    && validateCategoryBudget(it.budget.value.text)
+                    && getCategoryBudgetSum() <= _budgetData.value.totalBudget.value.text.toInt()
         }.size
+        Timber.e("### getEnteredBudgetCategoryCount", item)
+        return item
     }
 
     private fun getSelectedCategoryCount(): Int {
@@ -162,7 +161,6 @@ class BudgetViewModel @Inject constructor(
                 )
             )
         } else {
-            Timber.e("### SetBudgetCategoryItem ${_screenType.value}")
             setNestEggCategoryItem()
             setState(
                 currentState.copy(
@@ -176,16 +174,17 @@ class BudgetViewModel @Inject constructor(
     private fun setNestEggCategoryItem() {
         _budgetData.value.category.value = _budgetData.value.category.value.map {
             if (it.categoryId == Category.NESTEGG) {
-                if (setButtonState(_screenType.value))
-                    it.copy(budget = mutableStateOf(TextFieldValue(text = getRemainingBudget().toString())))
-                else
-                    it.copy(budget = mutableStateOf(TextFieldValue(text = "0")))
+                if (setButtonState(_screenType.value)) it.copy(
+                    budget = mutableStateOf(
+                        TextFieldValue(text = getRemainingBudget().toString())
+                    )
+                )
+                else it.copy(budget = mutableStateOf(TextFieldValue(text = "0")))
             } else it
         }
     }
 
     private fun setButtonState(route: String): Boolean {
-        Timber.e("### setButton State Route - $route")
         return when (route) {
             SettingNavRoutes.Budget.route -> {
                 validateBudget(_budgetData.value.totalBudget.value.text)
@@ -198,7 +197,7 @@ class BudgetViewModel @Inject constructor(
             }
 
             SettingNavRoutes.BudgetByCategory.route -> {
-                return getEnteredBudgetCategoryCount() == getSelectedCategoryCount()
+                getEnteredBudgetCategoryCount() == getSelectedCategoryCount() && getRemainingBudget() >= 0
             }
 
             else -> false
@@ -219,7 +218,12 @@ class BudgetViewModel @Inject constructor(
     }
 
     private fun validateBudget(budget: String): Boolean {
-        return if (budget.isEmpty()) false
+        return if (budget.isEmpty() || budget == "0") false
+        else budget.all { Character.isDigit(it) }
+    }
+
+    private fun validateCategoryBudget(budget: String): Boolean {
+        return if (budget.isEmpty() || budget == "0") false
         else budget.all { Character.isDigit(it) }
     }
 
@@ -266,6 +270,7 @@ class BudgetViewModel @Inject constructor(
                         }
 
                     }
+
                     is Resource.Error -> {
                         setEffect(BudgetContract.Effect.ShowError(it.exception.message.toString()))
                         it.exception.message?.let { message: String ->

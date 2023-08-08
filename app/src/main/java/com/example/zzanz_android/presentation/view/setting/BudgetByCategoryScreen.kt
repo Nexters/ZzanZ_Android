@@ -1,6 +1,5 @@
 package com.example.zzanz_android.presentation.view.setting
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
@@ -58,10 +59,12 @@ import com.example.zzanz_android.presentation.view.component.InfoIcon
 import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
 import com.example.zzanz_android.presentation.view.component.PlusIcon
 import com.example.zzanz_android.presentation.view.component.TitleText
+import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
 
 @Composable
 fun BudgetByCategory(
     titleText: String,
+    budgetViewModel: BudgetViewModel = hiltViewModel(),
     budgetCategoryData: MutableState<List<BudgetCategoryModel>>,
     onAddCategoryClicked: () -> Unit
 ) {
@@ -74,7 +77,9 @@ fun BudgetByCategory(
     //TODO maxHeight 다시 계산해야함 (임시로 300 빼도록 함)
     val maxHeight =
         if (isKeyboardOpen) (LocalView.current.height - keyboardHeight - 56 - 56 - 320).dp else 560.dp
-    LaunchedEffect(key1 = budgetCategoryData, block = {})
+
+    val totalBudget = budgetViewModel.budgetData.collectAsState().value.totalBudget
+    LaunchedEffect(key1 = totalBudget, key2 = budgetCategoryData, block = {})
 
     Column(
         modifier = Modifier
@@ -88,7 +93,7 @@ fun BudgetByCategory(
                     modifier = Modifier.padding(horizontal = 24.dp), text = titleText
                 )
                 Spacer(modifier = Modifier.height(28.dp))
-                ExplainTotalBudget(totalBudget = 10000)
+                ExplainTotalBudget(totalBudget = totalBudget.value.text)
             }
             items(budgetCategoryData.value.size) { idx ->
                 val item = budgetCategoryData.value[idx]
@@ -117,7 +122,7 @@ fun BudgetByCategory(
 }
 
 @Composable
-fun ExplainTotalBudget(totalBudget: Int) {
+fun ExplainTotalBudget(totalBudget: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -308,7 +313,9 @@ fun NestEggExplainText(
 @Preview
 @Composable
 fun BudgetByCategoryPreview() {
-    BudgetByCategory(titleText = "Text", budgetCategoryData = remember {
-        mutableStateOf(BudgetCategoryData.category.value)
-    }, onAddCategoryClicked = {})
+    BudgetByCategory(titleText = "Text",
+        budgetCategoryData = remember {
+            mutableStateOf(BudgetCategoryData.category.value)
+        },
+        onAddCategoryClicked = {})
 }

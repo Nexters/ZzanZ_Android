@@ -97,16 +97,22 @@ fun Setting(
     route: String = SettingNavRoutes.Budget.route,
     budgetViewModel: BudgetViewModel = hiltViewModel()
 ) {
+
+    // TODO ViewModel에서 세팅할 수 있도록 변경하기
     val uiData: SettingUiData = SettingRoute.data.single {
         it.currentRoute == route
     }
+    // TODO ViewModel에서 세팅할 수 있도록 변경하기
     val title = stringResource(id = uiData.titleText)
+
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val isKeyboardOpen by keyboardAsState()
 
+    val screenType = budgetViewModel.screenType.collectAsState().value
     val buttonState = budgetViewModel.uiState.collectAsState().value.buttonState
     val budgetCategoryData = budgetViewModel.budgetData.collectAsState().value.category
+    val totalBudget = budgetViewModel.budgetData.collectAsState().value.totalBudget
 
     val onNavRoutes = {
         navController.navigate(uiData.nextRoute) {
@@ -115,6 +121,16 @@ fun Setting(
             }
         }
     }
+
+    LaunchedEffect(key1 = Unit, block = {
+        if (uiData.currentRoute != SettingNavRoutes.AlarmSetting.route) {
+            budgetViewModel.setEvent(BudgetContract.Event.SetSettingScreenType(uiData.currentRoute))
+        }
+    })
+
+    LaunchedEffect(key1 = screenType, block = {
+        budgetViewModel.setEvent(BudgetContract.Event.SetScreenState(uiData.currentRoute))
+    })
 
     LaunchedEffect(key1 = Unit) {
         budgetViewModel.uiState.collect{
@@ -150,7 +166,9 @@ fun Setting(
             when (route) {
                 SettingNavRoutes.BudgetByCategory.route -> {
                     // TODO -  BudgetCategory 와 budgetCategoryData 공유하도록 ViewModel 연결하기
-                    BudgetByCategory(titleText = title,
+                    BudgetByCategory(
+                        titleText = title,
+                        budgetViewModel = budgetViewModel,
                         budgetCategoryData = budgetCategoryData,
                         onAddCategoryClicked = {
                             coroutineScope.launch {

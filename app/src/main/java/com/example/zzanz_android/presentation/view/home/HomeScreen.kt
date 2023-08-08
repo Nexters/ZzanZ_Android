@@ -92,9 +92,11 @@ fun HomeScreen(
         },
         containerColor = ZzanZColorPalette.current.Gray01
     ) { padding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
             when (challengeListState.challengeList) {
                 is ChallengeListState.Loading -> {
                     CircularProgressIndicator(
@@ -170,6 +172,7 @@ fun HomeContent(
 ) {
     val context = LocalContext.current
     var title by remember { mutableStateOf("") }
+    var dday by remember { mutableStateOf<Int?>(null) }
     var subTitle by remember { mutableStateOf("") }
     val planList = remember { mutableStateOf(emptyList<PlanModel>()) }
     val challengeStatus = remember { mutableStateOf(ChallengeStatus.OPENED) }
@@ -184,16 +187,26 @@ fun HomeContent(
                     setCurrentChallenge(challenge)
                     title = when (challenge.state) {
                         ChallengeStatus.PRE_OPENED -> context.getString(R.string.home_challenge_title_pre_opened)
-                        ChallengeStatus.OPENED -> context.getString(R.string.home_challenge_title_opened) // TODO : gowoon - dday
+                        ChallengeStatus.OPENED -> context.getString(R.string.home_challenge_title_opened)
                         ChallengeStatus.CLOSED -> context.getString(R.string.home_challenge_title_closed)
                     }
+                    dday = if (challenge.state == ChallengeStatus.OPENED) {
+                        DateFormatter.calculateDday(challenge.endAt)
+                    } else {
+                        null
+                    }
                     subTitle =
-                        "${DateFormatter.format(challenge.startAt)} ~ ${DateFormatter.format(challenge.endAt)}"
+                        "${DateFormatter.format(challenge.startAt)} ~ ${
+                            DateFormatter.format(
+                                challenge.endAt
+                            )
+                        }"
                     planList.value = challenge.planList
                     challengeStatus.value = challenge.state
                     goalAmount.value = challenge.goalAmount
                     remainAmount.value = challenge.remainAmount
-                    ratio.value = (challenge.remainAmount.toFloat() / challenge.goalAmount.toFloat())
+                    ratio.value =
+                        (challenge.remainAmount.toFloat() / challenge.goalAmount.toFloat())
                 }
             }
             Column(
@@ -201,7 +214,7 @@ fun HomeContent(
                     .fillMaxSize()
                     .padding(horizontal = ZzanZDimen.current.defaultHorizontal)
             ) {
-                ChallengeTitle(title, subTitle)
+                ChallengeTitle(title, subTitle, dday = dday)
                 Spacer(modifier = Modifier.height(28.dp))
             }
         }
@@ -217,10 +230,11 @@ fun HomeContent(
                             prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
                             suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
                             amount = MoneyFormatter.format(remainAmount.value),
-                            amountColor = if(ratio.value > 1f) ZzanZColorPalette.current.Red04 else ZzanZColorPalette.current.Green04
+                            amountColor = if (ratio.value > 1f) ZzanZColorPalette.current.Red04 else ZzanZColorPalette.current.Green04
                         )
                     }, ratio = min(ratio.value, 1f))
                 }
+
                 ChallengeStatus.CLOSED -> {
                     ChallengeResult(messageContent = {
                         ChallengeResultTitleWhenClosed(
@@ -228,6 +242,7 @@ fun HomeContent(
                         )
                     }, ratio = min(ratio.value, 1f))
                 }
+
                 else -> {}
             }
             Spacer(modifier = Modifier.height(25.dp))
@@ -297,16 +312,25 @@ fun WeekPager(
 @Composable
 fun ChallengeTitle(
     title: String,
-    subtitle: String
+    subtitle: String,
+    dday: Int? = null
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = title,
+            buildAnnotatedString {
+                withStyle(SpanStyle(color = ZzanZColorPalette.current.Gray09)) {
+                    append(title)
+                }
+                dday?.let {
+                    withStyle(SpanStyle(color = ZzanZColorPalette.current.Green04)) {
+                        append(" ${stringResource(id = R.string.home_challenge_title_opened_dday)}$it")
+                    }
+                }
+            },
             style = ZzanZTypo.current.H1,
-            color = ZzanZColorPalette.current.Gray09
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
@@ -323,13 +347,15 @@ fun CategoryList(
     planList: List<PlanModel>
 ) {
     val horizontalSpace = 16.dp
-    val itemWidth = (LocalConfiguration.current.screenWidthDp.dp - (ZzanZDimen.current.defaultHorizontal*2) - horizontalSpace)/2
+    val itemWidth =
+        (LocalConfiguration.current.screenWidthDp.dp - (ZzanZDimen.current.defaultHorizontal * 2) - horizontalSpace) / 2
     FlowRow(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = ZzanZDimen.current.defaultHorizontal),
         horizontalArrangement = Arrangement.spacedBy(horizontalSpace),
-        maxItemsInEachRow = HomeScreenValue.GRID_COUNT) {
+        maxItemsInEachRow = HomeScreenValue.GRID_COUNT
+    ) {
         planList.forEach {
             val (amount, color) = if (it.remainAmount < 0) Pair(
                 it.goalAmount,

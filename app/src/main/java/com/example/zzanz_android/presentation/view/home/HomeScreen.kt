@@ -85,8 +85,8 @@ fun HomeScreen(
             }
         },
         containerColor = ZzanZColorPalette.current.Gray01
-    ) { it ->
-        Box(modifier = Modifier.padding(it)) {
+    ) { padding ->
+        Box(modifier = Modifier.padding(padding)) {
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
@@ -109,45 +109,45 @@ fun HomeScreen(
                                 challengeStatus.value = challenge.state
                             }
                         }
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                                .padding(ZzanZDimen.current.defaultHorizontal)
-                        ) {
-                            when (challengeStatus.value) {
-                                ChallengeStatus.PRE_OPENED -> {
-                                    GreenRoundButton(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(56.dp),
-                                        text = stringResource(id = R.string.home_edit_plan_btn_title),
-                                        onClick = { /*TODO*/ },
-                                        enabled = true
-                                    )
-                                }
-
-                                ChallengeStatus.OPENED -> {
-                                    ChallengeResult(messageContent = {
-                                        ChallengeResultTitleWhenOpened(
-                                            prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
-                                            suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
-                                            amountWithUnit = "50,000원",
-                                            amountColor = ZzanZColorPalette.current.Green04
-                                        )
-                                    }, ratio = 0.7f)
-                                }
-
-                                ChallengeStatus.CLOSED -> {
-                                    ChallengeResult(messageContent = {
-                                        ChallengeResultTitleWhenClosed(
-                                            message = stringResource(id = R.string.home_challenge_result_title_closed_success)
-                                        )
-                                    }, ratio = 0.7f)
-                                }
-
-                            }
-                        }
+//                        Box(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .wrapContentHeight()
+//                                .padding(ZzanZDimen.current.defaultHorizontal)
+//                        ) {
+//                            when (challengeStatus.value) {
+//                                ChallengeStatus.PRE_OPENED -> {
+//                                    GreenRoundButton(
+//                                        modifier = Modifier
+//                                            .fillMaxWidth()
+//                                            .height(56.dp),
+//                                        text = stringResource(id = R.string.home_edit_plan_btn_title),
+//                                        onClick = { /*TODO*/ },
+//                                        enabled = true
+//                                    )
+//                                }
+//
+//                                ChallengeStatus.OPENED -> {
+//                                    ChallengeResult(messageContent = {
+//                                        ChallengeResultTitleWhenOpened(
+//                                            prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
+//                                            suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
+//                                            amountWithUnit = "50,000원",
+//                                            amountColor = ZzanZColorPalette.current.Green04
+//                                        )
+//                                    }, ratio = 0.7f)
+//                                }
+//
+//                                ChallengeStatus.CLOSED -> {
+//                                    ChallengeResult(messageContent = {
+//                                        ChallengeResultTitleWhenClosed(
+//                                            message = stringResource(id = R.string.home_challenge_result_title_closed_success)
+//                                        )
+//                                    }, ratio = 0.7f)
+//                                }
+//
+//                            }
+//                        }
                     }
 
                     is ChallengeListState.Error -> {
@@ -299,7 +299,7 @@ fun CategoryList(
                 ZzanZColorPalette.current.Red04
             ) else Pair(it.remainAmount, ZzanZColorPalette.current.Green04)
             CategoryCardItem(
-                title = Category.valueOf(it.category).name,
+                title = stringResource(id = Category.valueOf(it.category).stringResId),
                 remainAmount = MoneyFormatter.format(amount),
                 ratio = (it.remainAmount.toFloat() / it.goalAmount.toFloat()),
                 indicatorColor = color

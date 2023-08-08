@@ -58,6 +58,7 @@ import com.example.zzanz_android.domain.util.DateFormatter
 import com.example.zzanz_android.domain.util.MoneyFormatter
 import com.example.zzanz_android.presentation.view.component.AppBarWithMoreAction
 import com.example.zzanz_android.presentation.view.component.CategoryCardItem
+import com.example.zzanz_android.presentation.view.component.GreenRoundButton
 import com.example.zzanz_android.presentation.view.component.PagerFocusedItem
 import com.example.zzanz_android.presentation.view.component.PagerUnFocusedItem
 import com.example.zzanz_android.presentation.view.component.PopupSheetDialog
@@ -102,7 +103,8 @@ fun HomeScreen(
 
                 is ChallengeListState.Success -> {
                     val pagerState = rememberPagerState()
-                    val challengeList = (challengeListState.challengeList as ChallengeListState.Success).data.collectAsLazyPagingItems()
+                    val challengeList =
+                        (challengeListState.challengeList as ChallengeListState.Success).data.collectAsLazyPagingItems()
                     val challengeStatus = remember { mutableStateOf(ChallengeStatus.CLOSED) }
 
                     when (challengeList.loadState.refresh) {
@@ -112,18 +114,31 @@ fun HomeScreen(
                                 color = ZzanZColorPalette.current.Green04
                             )
                         }
+
                         is LoadState.Error -> {
                             viewModel.setEffectToShowToast()
                         }
+
                         else -> {}
                     }
-                    HomeContent(
-                        modifier = Modifier,
-                        pagerState = pagerState,
-                        pagingItems = challengeList
-                    ) { page ->
-                        challengeList[page]?.let { challenge ->
+                    Column(Modifier.fillMaxSize()) {
+                        HomeContent(
+                            modifier = Modifier.weight(1f),
+                            pagerState = pagerState,
+                            pagingItems = challengeList
+                        ) { challenge ->
                             challengeStatus.value = challenge.state
+                        }
+                        if (challengeStatus.value == ChallengeStatus.PRE_OPENED) {
+                            GreenRoundButton(
+                                modifier = Modifier
+                                    .padding(ZzanZDimen.current.defaultHorizontal)
+                                    .fillMaxWidth()
+                                    .height(56.dp),
+                                text = stringResource(id = R.string.home_edit_plan_btn_title),
+                                onClick = { /*TODO*/ },
+                                enabled = true
+                            )
                         }
                     }
 //                        Box(
@@ -166,14 +181,16 @@ fun HomeScreen(
 //                            }
 //                        }
                 }
+
                 else -> {}
             }
             if (showDialog) {
                 PopupSheetDialog { showDialog = false }
             }
 
-            if (effect is HomeEffect.ShowToast){
-                Toast.makeText(context, (effect as HomeEffect.ShowToast).message, Toast.LENGTH_LONG).show()
+            if (effect is HomeEffect.ShowToast) {
+                Toast.makeText(context, (effect as HomeEffect.ShowToast).message, Toast.LENGTH_LONG)
+                    .show()
             }
         }
     }
@@ -185,7 +202,7 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     pagerState: PagerState,
     pagingItems: LazyPagingItems<ChallengeModel>,
-    setCurrentPage: (Int) -> Unit
+    setCurrentChallenge: (ChallengeModel) -> Unit
 ) {
     val context = LocalContext.current
     var title by remember { mutableStateOf("") }
@@ -194,8 +211,8 @@ fun HomeContent(
 
     Column(modifier.fillMaxSize()) {
         WeekPager(pagerState, pagingItems) {
-            setCurrentPage(it)
             pagingItems[pagerState.currentPage]?.let { challenge ->
+                setCurrentChallenge(challenge)
                 title = when (challenge.state) {
                     ChallengeStatus.PRE_OPENED -> context.getString(R.string.home_challenge_title_pre_opened)
                     ChallengeStatus.OPENED -> context.getString(R.string.home_challenge_title_opened) // TODO : gowoon - dday

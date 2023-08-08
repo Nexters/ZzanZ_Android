@@ -250,7 +250,8 @@ fun CategoryCardItem(
     title: String,
     remainAmount: String,
     ratio: Float,
-    indicatorColor: Color
+    indicatorColor: Color,
+    onClickItem: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -265,6 +266,7 @@ fun CategoryCardItem(
             .clip(RoundedCornerShape(12.dp))
             .background(ZzanZColorPalette.current.White)
             .padding(16.dp)
+            .clickable { onClickItem() },
     ) {
         Box(
             modifier = Modifier
@@ -366,5 +368,7 @@ fun AmountText(amount: String) {
 fun ComponentPreview() {
     CategoryCardItem(154.dp,
         title = "식비", remainAmount = "50,000원", 0.7f, ZzanZColorPalette.current.Green04
-    )
+    ){
+
+    }
 }

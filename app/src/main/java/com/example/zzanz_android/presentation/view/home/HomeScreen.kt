@@ -128,10 +128,14 @@ fun HomeScreen(
                                 HomeContent(
                                     modifier = Modifier.weight(1f),
                                     pagerState = pagerState,
-                                    pagingItems = challengeList
-                                ) { challenge ->
-                                    challengeStatus.value = challenge.state
-                                }
+                                    pagingItems = challengeList,
+                                    setCurrentChallenge = { challenge ->
+                                        challengeStatus.value = challenge.state
+                                    },
+                                    onClickItem = { planId ->
+                                        // TODO : gowoon - navigate to Category Screen with planId
+                                    }
+                                )
                                 if (challengeStatus.value == ChallengeStatus.PRE_OPENED) {
                                     GreenRoundButton(
                                         modifier = Modifier
@@ -139,7 +143,9 @@ fun HomeScreen(
                                             .fillMaxWidth()
                                             .height(56.dp),
                                         text = stringResource(id = R.string.home_edit_plan_btn_title),
-                                        onClick = { /*TODO*/ },
+                                        onClick = {
+                                            // TODO : gowoon - navigate to modify budget ( 유나한테 route, bundle 정보 받아서 연결 )
+                                        },
                                         enabled = true
                                     )
                                 }
@@ -151,7 +157,12 @@ fun HomeScreen(
                 else -> {}
             }
             if (showDialog) {
-                PopupSheetDialog { showDialog = false }
+                PopupSheetDialog(
+                    onDismiss = { showDialog = false },
+                    onClickChangeAlarm = { /* TODO */  },
+                    onClickSendFeedback = { /* TODO */  },
+                    onClickJoinCommunity = { /* TODO */  },
+                )
             }
 
             if (effect is HomeEffect.ShowToast) {
@@ -168,7 +179,8 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     pagerState: PagerState,
     pagingItems: LazyPagingItems<ChallengeModel>,
-    setCurrentChallenge: (ChallengeModel) -> Unit
+    setCurrentChallenge: (ChallengeModel) -> Unit,
+    onClickItem: (Int) -> Unit
 ) {
     val context = LocalContext.current
     var title by remember { mutableStateOf("") }
@@ -219,7 +231,7 @@ fun HomeContent(
             }
         }
         item {
-            CategoryList(planList.value)
+            CategoryList(planList.value, onClickItem)
         }
         item {
             Spacer(modifier = Modifier.height(10.dp))
@@ -344,7 +356,8 @@ fun ChallengeTitle(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CategoryList(
-    planList: List<PlanModel>
+    planList: List<PlanModel>,
+    onClickItem: (Int) -> Unit
 ) {
     val horizontalSpace = 16.dp
     val itemWidth =
@@ -366,7 +379,8 @@ fun CategoryList(
                 title = stringResource(id = Category.valueOf(it.category).stringResId),
                 remainAmount = MoneyFormatter.format(amount),
                 ratio = (it.remainAmount.toFloat() / it.goalAmount.toFloat()),
-                indicatorColor = color
+                indicatorColor = color,
+                onClickItem = { onClickItem(it.id) }
             )
         }
     }

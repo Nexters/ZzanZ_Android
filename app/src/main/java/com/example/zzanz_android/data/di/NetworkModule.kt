@@ -10,7 +10,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -21,6 +22,7 @@ import io.ktor.http.URLProtocol
 import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import okhttp3.logging.HttpLoggingInterceptor
 import timber.log.Timber
 import javax.inject.Singleton
 
@@ -32,7 +34,12 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideKtorClient(@ApplicationContext applicationContext: Context): HttpClient {
-        return HttpClient(CIO) {
+        return HttpClient(OkHttp) {
+            engine {
+                val loggingInterceptor = HttpLoggingInterceptor()
+                loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+                addInterceptor(loggingInterceptor)
+            }
             defaultRequest {
                 url {
                     protocol = URLProtocol.HTTP
@@ -43,13 +50,18 @@ object NetworkModule {
                 header("Authorization", AuthorizationManager.getDeviceId(applicationContext))
                 header("App-Version", AppVersionUtil.getVersionHeader())
             }
-            install(Logging) {
-                logger = object : Logger {
-                    override fun log(message: String) {
-                        Timber.d("Ktor Logger - ", message)
-                    }
-                }
-                level = LogLevel.ALL
+            // TODO - Logging message Not Working
+//            install(Logging) {
+//                logger = object : Logger {
+//                    override fun log(message: String) {
+//                        Timber.d("Ktor Logger", message)
+//                    }
+//                }
+//                level = LogLevel.ALL
+//            }
+            install(HttpTimeout) {
+                // TODO - 타임아웃 지정해야 함
+                requestTimeoutMillis = 3000
             }
             install(ContentNegotiation) {
                 json(Json {

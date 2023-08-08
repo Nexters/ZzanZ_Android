@@ -1,5 +1,6 @@
 package com.example.zzanz_android.presentation.view.home
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.zzanz_android.R
@@ -55,12 +58,12 @@ import com.example.zzanz_android.domain.util.DateFormatter
 import com.example.zzanz_android.domain.util.MoneyFormatter
 import com.example.zzanz_android.presentation.view.component.AppBarWithMoreAction
 import com.example.zzanz_android.presentation.view.component.CategoryCardItem
-import com.example.zzanz_android.presentation.view.component.GreenRoundButton
 import com.example.zzanz_android.presentation.view.component.PagerFocusedItem
 import com.example.zzanz_android.presentation.view.component.PagerUnFocusedItem
 import com.example.zzanz_android.presentation.view.component.PopupSheetDialog
 import com.example.zzanz_android.presentation.view.component.ProgressIndicator
 import com.example.zzanz_android.presentation.viewmodel.ChallengeListState
+import com.example.zzanz_android.presentation.viewmodel.HomeEffect
 import com.example.zzanz_android.presentation.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
 
@@ -74,7 +77,9 @@ fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val challengeListState by viewModel.uiState.collectAsState()
+    val effect by viewModel.effect.collectAsState(initial = null)
     var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -87,28 +92,40 @@ fun HomeScreen(
         containerColor = ZzanZColorPalette.current.Gray01
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                when (challengeListState.challengeList) {
-                    is ChallengeListState.Loading -> {
-                        // TODO : gowoon - loading screen
-                    }
+            when (challengeListState.challengeList) {
+                is ChallengeListState.Loading -> {
+                    CircularProgressIndicator(
+                        Modifier.align(Alignment.Center),
+                        color = ZzanZColorPalette.current.Green04
+                    )
+                }
 
-                    is ChallengeListState.Success -> {
-                        val pagerState = rememberPagerState()
-                        val challengeList =
-                            (challengeListState.challengeList as ChallengeListState.Success).data.collectAsLazyPagingItems()
-                        val challengeStatus = remember { mutableStateOf(ChallengeStatus.CLOSED) }
-                        HomeContent(
-                            modifier = Modifier.weight(1f),
-                            pagerState = pagerState,
-                            pagingItems = challengeList
-                        ) { page ->
-                            challengeList[page]?.let { challenge ->
-                                challengeStatus.value = challenge.state
-                            }
+                is ChallengeListState.Success -> {
+                    val pagerState = rememberPagerState()
+                    val challengeList = (challengeListState.challengeList as ChallengeListState.Success).data.collectAsLazyPagingItems()
+                    val challengeStatus = remember { mutableStateOf(ChallengeStatus.CLOSED) }
+
+                    when (challengeList.loadState.refresh) {
+                        is LoadState.Loading -> {
+                            CircularProgressIndicator(
+                                Modifier.align(Alignment.Center),
+                                color = ZzanZColorPalette.current.Green04
+                            )
                         }
+                        is LoadState.Error -> {
+                            viewModel.setEffectToShowToast()
+                        }
+                        else -> {}
+                    }
+                    HomeContent(
+                        modifier = Modifier,
+                        pagerState = pagerState,
+                        pagingItems = challengeList
+                    ) { page ->
+                        challengeList[page]?.let { challenge ->
+                            challengeStatus.value = challenge.state
+                        }
+                    }
 //                        Box(
 //                            modifier = Modifier
 //                                .fillMaxWidth()
@@ -148,15 +165,15 @@ fun HomeScreen(
 //
 //                            }
 //                        }
-                    }
-
-                    is ChallengeListState.Error -> {
-                        // TODO : gowoon - error screen
-                    }
                 }
+                else -> {}
             }
             if (showDialog) {
                 PopupSheetDialog { showDialog = false }
+            }
+
+            if (effect is HomeEffect.ShowToast){
+                Toast.makeText(context, (effect as HomeEffect.ShowToast).message, Toast.LENGTH_LONG).show()
             }
         }
     }

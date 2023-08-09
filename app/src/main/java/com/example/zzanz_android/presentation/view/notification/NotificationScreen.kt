@@ -1,6 +1,5 @@
-package com.example.zzanz_android.presentation.view.alarm
+package com.example.zzanz_android.presentation.view.notification
 
-import android.app.TimePickerDialog
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
@@ -16,26 +15,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TimeInput
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,13 +37,10 @@ import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavigation
 import com.example.zzanz_android.presentation.view.component.GreenRoundButton
 import com.example.zzanz_android.presentation.view.component.TitleText
-import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.text.SimpleDateFormat
-import java.util.Calendar
 
 @Composable
-fun AlarmSetting(navController: NavHostController) {
+fun NotificationSetting(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -66,7 +51,7 @@ fun AlarmSetting(navController: NavHostController) {
         Spacer(modifier = Modifier.height(8.dp))
         TitleText(
             modifier = Modifier,
-            text = stringResource(id = R.string.set_alarm_time_title)
+            text = stringResource(id = R.string.set_notification_time_title)
         )
         Spacer(modifier = Modifier.weight(1f))
         Row(
@@ -87,7 +72,7 @@ fun AlarmSetting(navController: NavHostController) {
         Spacer(modifier = Modifier.weight(1f))
         GreenRoundButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(id = R.string.set_alarm_time_btn_title),
+            text = stringResource(id = R.string.set_notification_time_btn_title),
             onClick = { navController.navigate(NavRoutes.Home.route) },
             enabled = true
         )
@@ -134,12 +119,11 @@ fun CircularNumber(
             flingBehavior = rememberSnapFlingBehavior(lazyListState = scrollState)
         ) {
             items(expandedSize, itemContent = {
-                Timber.e(expandedSize.toString())
-                Timber.e(targetIndex.toString())
-
                 // if 12hr format, move 1 hour so instead of displaying 00 -> 11
                 // it will display 01 to 12
                 val num = (it % hourSize) + hourOffset
+                Timber.e(scrollState.firstVisibleItemIndex.toString())
+                Timber.e("## - ${it.toString()}")
                 Box(
                     modifier = Modifier.height(cellSize), contentAlignment = Alignment.Center
                 ) {
@@ -156,6 +140,6 @@ fun CircularNumber(
 
 @Preview
 @Composable
-fun AlarmSettingPreview() {
-    AlarmSetting(navController = rememberNavController())
+fun NotificationSettingPreview() {
+    NotificationSetting(navController = rememberNavController())
 }

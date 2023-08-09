@@ -1,20 +1,31 @@
 package com.example.zzanz_android.presentation.view.component
 
+import androidx.compose.foundation.background
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBarWithBackNavigation() {
+fun AppBarWithBackNavigation(
+    onBackButtonAction: () -> Unit = {},
+    isBackIconVisible: Boolean = true) {
     TopAppBar(
+        modifier = Modifier.background(ZzanZColorPalette.current.White),
         title = {},
         navigationIcon = {
-            IconButton(onClick = { /*TODO*/ }) { // TODO : gowoon - 그냥 BackPress일 수도 있을 거 같아서 우선 TODO
-                BackIcon()
+            if (isBackIconVisible) {
+                IconButton(onClick = {
+                    onBackButtonAction.invoke()
+                }) {
+                    BackIcon()
+                }
             }
         }
     )

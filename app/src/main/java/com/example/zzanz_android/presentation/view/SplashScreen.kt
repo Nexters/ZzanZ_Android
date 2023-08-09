@@ -44,6 +44,7 @@ fun Splash(navController: NavHostController) {
                 TestNavButton(route = NavRoutes.Setting.route, navController = navController)
                 TestNavButton(route = NavRoutes.Home.route, navController = navController)
                 TestNavButton(route = NavRoutes.Spending.route, navController = navController)
+                TestNavButton(route = NavRoutes.Alarm.route, navController = navController)
             }
         }
     }

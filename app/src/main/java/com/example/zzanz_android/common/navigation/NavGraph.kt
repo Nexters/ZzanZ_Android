@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.example.zzanz_android.presentation.view.Setting
 import com.example.zzanz_android.presentation.view.Splash
+import com.example.zzanz_android.presentation.view.alarm.AlarmSetting
 import com.example.zzanz_android.presentation.view.home.HomeScreen
 import com.example.zzanz_android.presentation.view.spending.AddSpendingScreen
 
@@ -33,6 +34,9 @@ fun NavHost(
         composable(NavRoutes.Spending.route) {
             AddSpendingScreen(navController)
         }
+        composable(NavRoutes.Alarm.route) {
+            AlarmSetting(navController)
+        }
         settingGraph(navController = navController)
     }
 }
@@ -50,9 +54,6 @@ fun NavGraphBuilder.settingGraph(navController: NavHostController) {
         }
         composable(SettingNavRoutes.BudgetCategory.route) {
             Setting(navController = navController, route = SettingNavRoutes.BudgetCategory.route)
-        }
-        composable(SettingNavRoutes.AlarmSetting.route) {
-            Setting(navController = navController, route = SettingNavRoutes.AlarmSetting.route)
         }
     }
 }

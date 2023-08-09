@@ -33,6 +33,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -55,7 +56,7 @@ class MainActivity : ComponentActivity() {
                     LaunchedEffect(key1 = isKeyboardOpen, block = {})
                     LaunchedEffect(key1 = Unit) {
                         GlobalUiEvent.uiEffect.collect {
-                            Log.e("### Collected GlobalContract Effect", "$it")
+                            Timber.d("### Collected GlobalContract Effect - $it")
                             when (it) {
                                 is GlobalContract.Effect.ShowToast -> {
                                     job?.cancel()

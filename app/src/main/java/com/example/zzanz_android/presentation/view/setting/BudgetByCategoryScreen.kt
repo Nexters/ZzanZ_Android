@@ -16,13 +16,11 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +34,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -93,8 +92,8 @@ fun BudgetByCategory(
                     modifier = Modifier.padding(horizontal = 24.dp), text = titleText
                 )
                 Spacer(modifier = Modifier.height(28.dp))
-                val isRemainingBudgetEmpty = remainingBudget.value.toString()
-                    .isNotEmpty() && remainingBudget.value.toString().toInt() == 0
+                val isRemainingBudgetEmpty = remainingBudget.value
+                    .isNotEmpty() && remainingBudget.value.toInt() == 0
                 ExplainRemainingBudget(
                     totalBudget = remainingBudget.value,
                     isRemainingBudgetEmpty = isRemainingBudgetEmpty
@@ -134,7 +133,7 @@ fun ExplainRemainingBudget(
         if (totalBudget.toInt() < 0) "0"
         else totalBudget
     }
-    val budgetText = Row(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(0.dp)
@@ -155,7 +154,6 @@ fun ExplainRemainingBudget(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BudgetByCategoryItem(
     budgetViewModel: BudgetViewModel = hiltViewModel(),
@@ -182,7 +180,7 @@ fun BudgetByCategoryItem(
             Row {
                 if (budgetCategoryItem.categoryId == Category.NESTEGG) {
                     Text(
-                        text = budgetCategoryItem.budget.value.text,
+                        text = budgetCategoryItem.budget,
                         style = ZzanZTypo.current.Body01.copy(
                             fontWeight = FontWeight.SemiBold
                         ),
@@ -202,12 +200,15 @@ fun BudgetByCategoryItem(
                         innerTextModifier = Modifier
                             .widthIn(max = 60.dp)
                             .height(24.dp),
-                        text = budgetCategoryItem.budget.value,
+                        text = TextFieldValue(
+                            text = budgetCategoryItem.budget,
+                            selection = TextRange(0)
+                        ),
                         onClickAction = {},
                         onTextChanged = { text: TextFieldValue ->
                             budgetViewModel.setEvent(
                                 BudgetContract.Event.OnFetchBudgetCategoryItem(
-                                    budgetCategoryItem.copy(budget = mutableStateOf(text))
+                                    budgetCategoryItem.copy(budget = text.text)
                                 )
                             )
                         },
@@ -230,7 +231,7 @@ fun BudgetByCategoryItem(
             budgetViewModel.setEvent(
                 BudgetContract.Event.OnFetchBudgetCategoryItem(
                     budgetCategoryItem.copy(
-                        budget = mutableStateOf(TextFieldValue("")), isChecked = false
+                        budget = "", isChecked = false
                     )
                 )
             )

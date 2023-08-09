@@ -31,7 +31,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
-import com.example.zzanz_android.common.NetworkState
 import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
@@ -47,7 +46,6 @@ import com.example.zzanz_android.presentation.view.setting.BudgetCategory
 import com.example.zzanz_android.presentation.view.setting.NestEggExplainText
 import com.example.zzanz_android.presentation.view.setting.SetBudget
 import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 data class SettingUiData(
@@ -103,7 +101,7 @@ fun Setting(
     }
     // TODO ViewModel에서 세팅할 수 있도록 변경하기
     val title = stringResource(id = uiData.titleText)
-    var buttonTitle = stringResource(id = uiData.buttonText)
+    var buttonTitle : String = ""
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val isKeyboardOpen by keyboardAsState()
@@ -112,7 +110,8 @@ fun Setting(
     val buttonState = budgetViewModel.uiState.collectAsState().value.buttonState
     val budgetCategoryData = budgetViewModel.budgetData.collectAsState().value.category
 
-    val budgetCategoryState = budgetViewModel.uiState.collectAsState().value.budgetByCategoryItemState
+    val budgetCategoryState =
+        budgetViewModel.uiState.collectAsState().value.budgetByCategoryItemState
     val totalCategoryCnt = budgetCategoryState.value.totalCategory.value
     val enteredCategoryCnt = budgetCategoryState.value.enteredCategory.value
 
@@ -136,7 +135,7 @@ fun Setting(
 
     LaunchedEffect(key1 = Unit) {
         budgetViewModel.effect.collect {
-            when(it) {
+            when (it) {
                 BudgetContract.Effect.NextRoutes -> {
                     onNavRoutes.invoke()
                 }
@@ -230,7 +229,7 @@ fun Setting(
                             suffix = stringResource(id = R.string.budget_save_money_title_2),
                             amount = budgetCategoryData.value.single {
                                 it.categoryId == Category.NESTEGG
-                            }.budget.value.text
+                            }.budget
                         )
                     }
                 }

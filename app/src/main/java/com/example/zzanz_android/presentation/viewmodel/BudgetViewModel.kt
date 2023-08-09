@@ -1,7 +1,6 @@
 package com.example.zzanz_android.presentation.viewmodel
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.common.NetworkState
 import com.example.zzanz_android.common.Resource
@@ -115,7 +114,7 @@ class BudgetViewModel @Inject constructor(
         var budgetSum = 0
         _budgetData.value.category.value.forEach {
             if (it.categoryId != Category.NESTEGG) {
-                val budget = it.budget.value.text.toIntOrNull()
+                val budget = it.budget.toIntOrNull()
                 budget?.let {
                     budgetSum += budget
                 }
@@ -125,7 +124,7 @@ class BudgetViewModel @Inject constructor(
     }
 
     private fun getRemainingBudget(): Int {
-        return (_budgetData.value.totalBudget.value.text.toInt() - getCategoryBudgetSum())
+        return (_budgetData.value.totalBudget.value.toInt() - getCategoryBudgetSum())
     }
 
     private fun setBudgetByCategoryState(): BudgetContract.BudgetByCategoryState {
@@ -140,8 +139,8 @@ class BudgetViewModel @Inject constructor(
     private fun getEnteredBudgetCategoryCount(): Int {
         val item = _budgetData.value.category.value.filter {
             it.isChecked && it.categoryId != Category.NESTEGG
-                    && validateCategoryBudget(it.budget.value.text)
-                    && getCategoryBudgetSum() <= _budgetData.value.totalBudget.value.text.toInt()
+                    && validateCategoryBudget(it.budget)
+                    && getCategoryBudgetSum() <= _budgetData.value.totalBudget.value.toInt()
         }.size
         return item
     }
@@ -180,11 +179,9 @@ class BudgetViewModel @Inject constructor(
         _budgetData.value.category.value = _budgetData.value.category.value.map {
             if (it.categoryId == Category.NESTEGG) {
                 if (setButtonState(_screenType.value)) it.copy(
-                    budget = mutableStateOf(
-                        TextFieldValue(text = getRemainingBudget().toString())
-                    )
+                    budget = getRemainingBudget().toString()
                 )
-                else it.copy(budget = mutableStateOf(TextFieldValue(text = "0")))
+                else it.copy(budget = "0")
             } else it
         }
     }
@@ -192,7 +189,7 @@ class BudgetViewModel @Inject constructor(
     private fun setButtonState(route: String): Boolean {
         return when (route) {
             SettingNavRoutes.Budget.route -> {
-                validateBudget(_budgetData.value.totalBudget.value.text)
+                validateBudget(_budgetData.value.totalBudget.value)
             }
 
             SettingNavRoutes.BudgetCategory.route -> {
@@ -209,7 +206,7 @@ class BudgetViewModel @Inject constructor(
         }
     }
 
-    private fun setBudget(budget: TextFieldValue) {
+    private fun setBudget(budget: String) {
         setTotalBudget(budget)
         setState(
             currentState.copy(
@@ -218,7 +215,7 @@ class BudgetViewModel @Inject constructor(
         )
     }
 
-    private fun setTotalBudget(text: TextFieldValue) {
+    private fun setTotalBudget(text: String) {
         _budgetData.value.totalBudget = mutableStateOf(text)
     }
 
@@ -233,7 +230,7 @@ class BudgetViewModel @Inject constructor(
     }
 
     private fun callBudgetUseCase() {
-        if (_budgetData.value.totalBudget.value.text.isEmpty()) return postBudgetUseCase()
+        if (_budgetData.value.totalBudget.value.isEmpty()) return postBudgetUseCase()
         return putBudgetUseCase()
     }
 
@@ -271,7 +268,7 @@ class BudgetViewModel @Inject constructor(
 
     private fun putBudgetUseCase() {
         viewModelScope.launch {
-            putBudgetUseCase.invoke(_budgetData.value.totalBudget.value.text.toInt()).onStart {
+            putBudgetUseCase.invoke(_budgetData.value.totalBudget.value.toInt()).onStart {
                 setState(currentState.copy(budgetState = NetworkState.Loading))
             }.collect {
                 when (it) {
@@ -296,7 +293,7 @@ class BudgetViewModel @Inject constructor(
 
     private fun postBudgetUseCase() {
         viewModelScope.launch {
-            postBudgetUseCase.invoke(_budgetData.value.totalBudget.value.text.toInt()).onStart {
+            postBudgetUseCase.invoke(_budgetData.value.totalBudget.value.toInt()).onStart {
                 setState(currentState.copy(budgetState = NetworkState.Loading))
             }.collect {
                 when (it) {

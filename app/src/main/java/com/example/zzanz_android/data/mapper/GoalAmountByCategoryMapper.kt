@@ -6,7 +6,7 @@ import com.example.zzanz_android.domain.model.BudgetCategoryModel
 
 object GoalAmountByCategoryMapper : MapperToDto<GoalAmountByCategoryDto, BudgetCategoryModel> {
     override fun BudgetCategoryModel.toDto() = GoalAmountByCategoryDto(
-        goalAmount = budget.value.text.toInt(),
+        goalAmount = budget.toInt(),
         category = categoryId.name
     )
 

@@ -13,17 +13,18 @@ data class BudgetCategoryModel(
     @StringRes val name: Int,
     val categoryId: Category,
     var isChecked: Boolean = false,
-    var budget: MutableState<TextFieldValue> = mutableStateOf(
-        TextFieldValue(
-            "",
-            selection = TextRange(0)
-        )
-    ),
+    var budget: String = "",
+//    var budget: MutableState<TextFieldValue> = mutableStateOf(
+//        TextFieldValue(
+//            "",
+//            selection = TextRange(0)
+//        )
+//    ),
     @DrawableRes val categoryImage: Int
 )
 
 object BudgetCategoryData {
-    var totalBudget: MutableState<TextFieldValue> = mutableStateOf(TextFieldValue(""))
+    var totalBudget: MutableState<String> = mutableStateOf("")
     val category = mutableStateOf(
         listOf(
             BudgetCategoryModel(
@@ -71,7 +72,7 @@ object BudgetCategoryData {
             ), BudgetCategoryModel(
                 id = 7,
                 name = R.string.category_nestegg,
-                budget = mutableStateOf(TextFieldValue("0")),
+                budget = "0",
                 categoryId = Category.NESTEGG,
                 isChecked = true,
                 categoryImage = R.drawable.icon_nestegg

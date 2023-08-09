@@ -12,7 +12,7 @@ class BudgetContract {
     sealed class Event : UiEvent {
         data class SetSettingScreenType(val route: String) : Event()
         data class SetScreenState(val route: String) : Event()
-        data class OnFetchBudget(val budget: TextFieldValue) : Event()
+        data class OnFetchBudget(val budget: String) : Event()
         data class OnFetchBudgetCategoryItem(val budgetCategory: BudgetCategoryModel) : Event()
         object OnNextButtonClicked : Event()
     }

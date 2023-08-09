@@ -10,10 +10,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -41,8 +39,7 @@ fun SetBudget(
     val focusRequester = remember {
         FocusRequester()
     }
-    val budgetState = budgetViewModel.uiState.collectAsState()
-    val budget = budgetState.value.budget
+    val budget = budgetViewModel.budgetData.collectAsState().value.totalBudget.value
 
     Column(
         modifier = Modifier
@@ -66,11 +63,11 @@ fun SetBudget(
                 .fillMaxWidth()
                 .height(56.dp)
                 .focusRequester(focusRequester),
-            text = budget.value,
+            text = TextFieldValue(budget),
             onClickAction = {},
             onTextChanged = { text: TextFieldValue ->
                 budgetViewModel.setEvent(
-                    BudgetContract.Event.OnFetchBudget(text)
+                    BudgetContract.Event.OnFetchBudget(text.text)
                 )
             },
             textSize = 18

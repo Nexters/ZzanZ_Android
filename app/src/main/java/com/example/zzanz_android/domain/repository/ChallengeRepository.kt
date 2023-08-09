@@ -18,5 +18,5 @@ interface ChallengeRepository {
 
     suspend fun putGoalAmount(goalAmountDto: GoalAmountDto): Flow<Resource<Boolean>>
 
-    suspend fun getSpendingList(planId: Int): Flow<PagingData<SpendingModel>>
+    suspend fun getSpendingList(planId: Int): Flow<Resource<PagingData<SpendingModel>>>
 }

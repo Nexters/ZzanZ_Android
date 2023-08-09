@@ -60,16 +60,16 @@ class ChallengeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getSpendingList(planId: Int): Flow<PagingData<SpendingModel>> {
+    override suspend fun getSpendingList(planId: Int): Flow<Resource<PagingData<SpendingModel>>> {
         return Pager(
             config = PagingConfig(SPENDING_PAGE_SIZE),
             pagingSourceFactory = { spendingPagingSource }).flow.map { pagingData ->
-            pagingData.map { dto -> dto.toModel() }
+            Resource.Success(pagingData.map { it.toModel() })
         }
     }
 
     companion object {
         const val CHALLENGE_PAGE_SIZE = 5
-        const val SPENDING_PAGE_SIZE = 30
+        const val SPENDING_PAGE_SIZE = 20
     }
 }

@@ -39,6 +39,11 @@
     <string name="home_challenge_title_opened">챌린지 진행 중</string>
     <string name="home_challenge_title_opened_dday">D-</string>
     <string name="home_challenge_title_closed">챌린지 종료</string>
+    <string name="pre_week">지난 주</string>
+    <string name="this_week">이번 주</string>
+    <string name="next_week">다음 주</string>
+    <string name="month">월</string>
+    <string name="week">주</string>
     <!-- home more dialog -->
     <string name="more_dialog_title">더 보기</string>
     <string name="change_noti_time">알림 시간 바꾸기</string>

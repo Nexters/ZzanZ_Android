@@ -2,7 +2,6 @@ package com.example.zzanz_android.presentation.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -15,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -38,12 +36,13 @@ fun Splash(navController: NavHostController) {
                 text = "Splash Screen", style = ZzanZTypo.current.Caption
             )
             Spacer(modifier = Modifier.height(20.dp))
-            Row(
+            Column(
                 modifier = Modifier.wrapContentWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 TestNavButton(route = NavRoutes.Setting.route, navController = navController)
+                TestNavButton(route = NavRoutes.Home.route, navController = navController)
                 TestNavButton(route = NavRoutes.Spending.route, navController = navController)
             }
         }

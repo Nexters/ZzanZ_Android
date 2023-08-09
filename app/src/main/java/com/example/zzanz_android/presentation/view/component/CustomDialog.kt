@@ -1,10 +1,10 @@
 package com.example.zzanz_android.presentation.view.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,7 +27,10 @@ import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 
 @Composable
 fun PopupSheetDialog(
-    onDismiss:() -> Unit
+    onDismiss:() -> Unit,
+    onClickChangeAlarm: () -> Unit,
+    onClickSendFeedback: () -> Unit,
+    onClickJoinCommunity: () -> Unit,
 ) {
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -46,9 +49,9 @@ fun PopupSheetDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 DialogTitle(title = stringResource(id = R.string.more_dialog_title))
-                DialogComponent(icon = { AlarmIcon() }, title = stringResource(id = R.string.change_noti_time))
-                DialogComponent(icon = { FeedbackIcon() }, title = stringResource(id = R.string.send_feedback))
-                DialogComponent(icon = { CommunityIcon() }, title = stringResource(id = R.string.join_community))
+                DialogComponent(icon = { AlarmIcon() }, title = stringResource(id = R.string.change_noti_time), onClickChangeAlarm)
+                DialogComponent(icon = { FeedbackIcon() }, title = stringResource(id = R.string.send_feedback), onClickSendFeedback)
+                DialogComponent(icon = { CommunityIcon() }, title = stringResource(id = R.string.join_community), onClickJoinCommunity)
             }
         }
     }
@@ -60,8 +63,8 @@ fun DialogTitle(title: String){
 }
 
 @Composable
-fun DialogComponent(icon: @Composable () -> Unit, title: String){
-    Row(Modifier.height(56.dp), verticalAlignment = Alignment.CenterVertically){
+fun DialogComponent(icon: @Composable () -> Unit, title: String, onClick: () -> Unit){
+    Row(Modifier.fillMaxWidth().height(56.dp).clickable { onClick() }, verticalAlignment = Alignment.CenterVertically){
         icon()
         Spacer(Modifier.width(16.dp))
         Text(text = title, style = ZzanZTypo.current.Body01, color = ZzanZColorPalette.current.Gray07)
@@ -71,7 +74,5 @@ fun DialogComponent(icon: @Composable () -> Unit, title: String){
 @Preview
 @Composable
 fun DialogPreview() {
-    Surface(Modifier.fillMaxSize()) {
-        PopupSheetDialog({})
-    }
+    DialogComponent(icon = { CommunityIcon() }, title = stringResource(id = R.string.join_community)){}
 }

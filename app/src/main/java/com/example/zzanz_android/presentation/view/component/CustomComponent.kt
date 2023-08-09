@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -43,6 +44,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.zzanz_android.R
@@ -52,6 +54,7 @@ import com.example.zzanz_android.common.ui.util.dpToPx
 import com.example.zzanz_android.domain.model.ChallengeStatus
 import com.example.zzanz_android.domain.util.MoneyFormatter
 import com.example.zzanz_android.presentation.view.component.util.MoneyCommaVisualTransformation
+import java.lang.Float.min
 
 @Composable
 fun ProgressIndicator(
@@ -120,7 +123,10 @@ fun MoneyInputTextField(
         onValueChange = onTextChanged,
         textStyle = ZzanZTypo.current.SubHeading.copy(fontSize = textSize.sp),
         singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
         keyboardActions = keyboardActions,
         visualTransformation = MoneyCommaVisualTransformation(
             stringResource(id = R.string.money_unit),
@@ -162,13 +168,13 @@ fun InputTextFieldBox(
     content: @Composable () -> Unit
 ) {
     Box(modifier = modifier.drawBehind {
-            drawLine(
-                color = color,
-                start = Offset(0f, size.height),
-                end = Offset(size.width, size.height),
-                strokeWidth = borderSize
-            )
-        }) {
+        drawLine(
+            color = color,
+            start = Offset(0f, size.height),
+            end = Offset(size.width, size.height),
+            strokeWidth = borderSize
+        )
+    }) {
         Box(modifier = Modifier.align(Alignment.CenterStart)) {
             content()
         }
@@ -240,15 +246,27 @@ fun PagerUnFocusedItem(
 
 @Composable
 fun CategoryCardItem(
-    title: String, remainAmount: String, ratio: Float, indicatorColor: Color
+    itemWidth: Dp,
+    title: String,
+    remainAmount: String,
+    ratio: Float,
+    indicatorColor: Color,
+    onClickItem: () -> Unit
 ) {
     Column(
         modifier = Modifier
-            .width(154.dp)
-            .height(96.dp)
+            .padding(bottom = 16.dp)
+            .shadow(
+                elevation = 13.dp,
+                spotColor = Color(0x0F000000),
+                ambientColor = Color(0x0F000000)
+            )
+            .width(itemWidth)
+            .height(100.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(ZzanZColorPalette.current.White)
             .padding(16.dp)
+            .clickable { onClickItem() },
     ) {
         Box(
             modifier = Modifier
@@ -257,11 +275,11 @@ fun CategoryCardItem(
         ) {
             CategoryTitleText(modifier = Modifier.align(Alignment.TopStart), title = title)
             RemainAmountText(
-                modifier = Modifier.align(Alignment.BottomEnd), remainAmount = remainAmount
+                modifier = Modifier.align(Alignment.BottomEnd), remainAmount = remainAmount + stringResource(id = R.string.money_unit)
             )
         }
         ProgressIndicator(
-            modifier = Modifier.padding(top = 8.dp), color = indicatorColor, ratio = ratio
+            modifier = Modifier.padding(top = 8.dp), color = indicatorColor, ratio = min(ratio, 1f)
         )
     }
 }
@@ -348,7 +366,9 @@ fun AmountText(amount: String) {
 @Preview
 @Composable
 fun ComponentPreview() {
-    CategoryCardItem(
+    CategoryCardItem(154.dp,
         title = "식비", remainAmount = "50,000원", 0.7f, ZzanZColorPalette.current.Green04
-    )
+    ){
+
+    }
 }

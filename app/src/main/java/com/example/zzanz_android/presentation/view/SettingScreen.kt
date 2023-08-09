@@ -1,18 +1,13 @@
 package com.example.zzanz_android.presentation.view
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -22,8 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,9 +31,9 @@ import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.util.keyboardAsState
 import com.example.zzanz_android.domain.model.Category
 import com.example.zzanz_android.presentation.contract.BudgetContract
+import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavigation
 import com.example.zzanz_android.presentation.view.component.BottomGreenButton
 import com.example.zzanz_android.presentation.view.component.CategoryBottomSheet
-import com.example.zzanz_android.presentation.view.setting.AlarmSetting
 import com.example.zzanz_android.presentation.view.setting.BudgetByCategory
 import com.example.zzanz_android.presentation.view.setting.BudgetCategory
 import com.example.zzanz_android.presentation.view.setting.NestEggExplainText
@@ -61,15 +54,9 @@ object SettingRoute {
         SettingUiData(
             currentRoute = SettingNavRoutes.BudgetByCategory.route,
             titleText = R.string.budget_by_category_title,
-            nextRoute = SettingNavRoutes.AlarmSetting.route,
+            nextRoute = NavRoutes.Notification.route,
             backRoute = SettingNavRoutes.BudgetCategory.route,
             buttonText = R.string.next
-        ), SettingUiData(
-            currentRoute = SettingNavRoutes.AlarmSetting.route,
-            titleText = R.string.set_alarm_time_title,
-            nextRoute = NavRoutes.Home.route,
-            backRoute = SettingNavRoutes.BudgetByCategory.route,
-            buttonText = R.string.set_alarm_time_btn_title
         ), SettingUiData(
             currentRoute = SettingNavRoutes.Budget.route,
             titleText = R.string.next_week_budget_title,
@@ -101,7 +88,7 @@ fun Setting(
     }
     // TODO ViewModel에서 세팅할 수 있도록 변경하기
     val title = stringResource(id = uiData.titleText)
-    var buttonTitle : String = ""
+    var buttonTitle: String = ""
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val isKeyboardOpen by keyboardAsState()
@@ -124,9 +111,7 @@ fun Setting(
     }
 
     LaunchedEffect(key1 = Unit, block = {
-        if (uiData.currentRoute != SettingNavRoutes.AlarmSetting.route) {
-            budgetViewModel.setEvent(BudgetContract.Event.SetSettingScreenType(uiData.currentRoute))
-        }
+        budgetViewModel.setEvent(BudgetContract.Event.SetSettingScreenType(uiData.currentRoute))
     })
 
     LaunchedEffect(key1 = screenType, block = {
@@ -194,10 +179,6 @@ fun Setting(
                         })
                 }
 
-                SettingNavRoutes.AlarmSetting.route -> {
-                    AlarmSetting(title)
-                }
-
                 SettingNavRoutes.Budget.route -> {
                     SetBudget(
                         budgetViewModel = budgetViewModel, titleText = title
@@ -261,32 +242,20 @@ fun Setting(
 
 @Composable
 fun TopBar(navController: NavHostController, route: String, backRoute: String) {
-    Row(
-        modifier = Modifier
-            .padding()
-            .height(56.dp)
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        if (route != SettingNavRoutes.AlarmSetting.route || route != SettingNavRoutes.Budget.route) {
-            Image(painter = painterResource(id = R.drawable.icon_left),
-                contentDescription = "back to before frame",
-                contentScale = ContentScale.None,
-                modifier = Modifier
-                    .size(28.dp)
-                    .clickable {
-                        if (backRoute.isNotEmpty()) {
-                            navController.navigate(backRoute) {
-                                popUpTo(NavRoutes.Setting.route) {
-                                    inclusive = true
-                                }
-                            }
-                        } else {
-                            navController.popBackStack()
-                        }
-                    })
-        }
-    }
+    AppBarWithBackNavigation(
+        onBackButtonAction = {
+            if (backRoute.isNotEmpty()) {
+                navController.navigate(backRoute) {
+                    popUpTo(NavRoutes.Setting.route) {
+                        inclusive = true
+                    }
+                }
+            } else {
+                navController.popBackStack()
+            }
+        },
+        isBackIconVisible = route != SettingNavRoutes.Budget.route
+    )
 }
 
 @Preview

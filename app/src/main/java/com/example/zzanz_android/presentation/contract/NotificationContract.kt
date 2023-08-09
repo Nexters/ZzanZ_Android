@@ -7,17 +7,16 @@ import com.example.zzanz_android.presentation.viewmodel.UiState
 
 class NotificationContract {
     sealed class Event : UiEvent {
-        data class SetNotificationTime(val isHour: Boolean = true, val num: Int) : Event()
+        data class SetNotificationTime(
+            val isHour: Boolean = true, val num: Int
+        ) : Event()
+        object OnNextButtonClicked : Event()
     }
 
     data class State(
-        val timeState: TimeState,
+        val hour: MutableState<Int>, val minute: MutableState<Int>
     ) : UiState
 
-    data class TimeState(
-        val hour: MutableState<Int>, val minute: MutableState<Int>
-
-    )
 
     sealed class Effect : UiEffect {
         object NextRoutes : Effect()

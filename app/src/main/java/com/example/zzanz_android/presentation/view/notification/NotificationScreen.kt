@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -27,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
@@ -34,13 +36,37 @@ import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+import com.example.zzanz_android.presentation.contract.NotificationContract
 import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavigation
 import com.example.zzanz_android.presentation.view.component.GreenRoundButton
 import com.example.zzanz_android.presentation.view.component.TitleText
+import com.example.zzanz_android.presentation.viewmodel.NotificationViewModel
 import timber.log.Timber
 
 @Composable
-fun NotificationSetting(navController: NavHostController) {
+fun NotificationSetting(
+    navController: NavHostController,
+    notificationViewModel: NotificationViewModel = hiltViewModel()
+) {
+    val hour = notificationViewModel.uiState.collectAsState().value.hour.value
+    val minute = notificationViewModel.uiState.collectAsState().value.minute.value
+    var buttonTitle = stringResource(id = R.string.set_notification_time_btn_title)
+
+    LaunchedEffect(key1 = Unit, block = {
+        notificationViewModel.effect.collect {
+            when (it) {
+                NotificationContract.Effect.NextRoutes -> {
+                    navController.navigate(NavRoutes.Home.route)
+                }
+            }
+        }
+    })
+
+    LaunchedEffect(key1 = hour, key2 = minute, block = {
+    })
+    val args = "${String.format("%02d", hour)}:${String.format("%02d", minute)}"
+    buttonTitle = stringResource(id = R.string.set_notification_time_btn_title, args)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -59,7 +85,14 @@ fun NotificationSetting(navController: NavHostController) {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CircularNumber(hourSize = 24, initialHour = 22, maxSize = 12, isHour = true, numberPadding = 1)
+            CircularNumber(
+                hourSize = 24,
+                initialHour = 22,
+                maxSize = 12,
+                isHour = true,
+                notificationViewModel = notificationViewModel,
+                numberPadding = 1
+            )
             Spacer(modifier = Modifier.width(32.dp))
             Text(
                 text = ":",
@@ -67,13 +100,21 @@ fun NotificationSetting(navController: NavHostController) {
                 style = ZzanZTypo.current.Heading
             )
             Spacer(modifier = Modifier.width(32.dp))
-            CircularNumber(hourSize = 60, initialHour = 0, maxSize = 59, isHour = false, numberPadding = 10)
+            CircularNumber(
+                hourSize = 60,
+                initialHour = 0,
+                maxSize = 59,
+                isHour = false,
+                numberPadding = 10
+            )
         }
         Spacer(modifier = Modifier.weight(1f))
         GreenRoundButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(id = R.string.set_notification_time_btn_title),
-            onClick = { navController.navigate(NavRoutes.Home.route) },
+            text = buttonTitle,
+            onClick = {
+                notificationViewModel.setEvent(NotificationContract.Event.OnNextButtonClicked)
+            },
             enabled = true
         )
         Spacer(modifier = Modifier.height(24.dp))
@@ -85,6 +126,7 @@ fun NotificationSetting(navController: NavHostController) {
 fun CircularNumber(
     isHour: Boolean,
     hourSize: Int, initialHour: Int, maxSize: Int,
+    notificationViewModel: NotificationViewModel = hiltViewModel(),
     numberPadding: Int,
 ) {
     val height = 160.dp
@@ -99,6 +141,11 @@ fun CircularNumber(
     val hour by remember { derivedStateOf { (scrollState.firstVisibleItemIndex + 1) % hourSize } }
 
     if (!scrollState.isScrollInProgress) {
+        notificationViewModel.setEvent(
+            NotificationContract.Event.SetNotificationTime(
+                isHour = isHour, num = hour
+            )
+        )
         Timber.e("FocusedHour ${hour}")
     }
 
@@ -123,7 +170,7 @@ fun CircularNumber(
                 // it will display 01 to 12
                 val num = (it % hourSize) + hourOffset
                 Timber.e(scrollState.firstVisibleItemIndex.toString())
-                Timber.e("## - ${it.toString()}")
+                Timber.e("## - $it")
                 Box(
                     modifier = Modifier.height(cellSize), contentAlignment = Alignment.Center
                 ) {

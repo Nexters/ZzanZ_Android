@@ -124,7 +124,6 @@ fun Setting(
                 BudgetContract.Effect.NextRoutes -> {
                     onNavRoutes.invoke()
                 }
-
             }
         }
     }

@@ -9,8 +9,8 @@
     <string name="remaining_budget_title">분배할 수 있는 예산이 %s원 남았어요</string>
     <string name="budget_save_money_title_1">남은 "</string>
     <string name="budget_save_money_title_2">은 비상금에 쏙! 넣어드릴게요."</string>
-    <string name="set_alarm_time_title">소비 기록을 잊지 않도록\n매일 알림을 보내드릴게요</string>
-    <string name="set_alarm_time_btn_title">%s에 알림받기</string>
+    <string name="set_notification_time_title">소비 기록을 잊지 않도록\n매일 알림을 보내드릴게요</string>
+    <string name="set_notification_time_btn_title">%s에 알림받기</string>
     <string name="add_category_explain_title">어떤 카테고리를 추가할까요?</string>
     <string name="budget_by_category_write_btn_title">%1$s/%2$s 입력했어요</string>
     <string name="budget_by_category_complete_btn_title">모두 입력했어요</string>

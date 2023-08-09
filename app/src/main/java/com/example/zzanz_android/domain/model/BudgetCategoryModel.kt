@@ -14,12 +14,6 @@ data class BudgetCategoryModel(
     val categoryId: Category,
     var isChecked: Boolean = false,
     var budget: String = "",
-//    var budget: MutableState<TextFieldValue> = mutableStateOf(
-//        TextFieldValue(
-//            "",
-//            selection = TextRange(0)
-//        )
-//    ),
     @DrawableRes val categoryImage: Int
 )
 

@@ -1,6 +1,5 @@
 package com.example.zzanz_android.presentation.viewmodel
 
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import com.example.zzanz_android.common.Resource
@@ -9,7 +8,6 @@ import com.example.zzanz_android.domain.usecase.home.GetChallengeListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

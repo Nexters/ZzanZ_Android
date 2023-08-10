@@ -6,15 +6,17 @@ import com.example.zzanz_android.data.remote.datasource.GoalAmountSource
 import com.example.zzanz_android.data.remote.datasource.SpendingPagingSource
 import com.example.zzanz_android.data.repository.ChallengeRepositoryImpl
 import com.example.zzanz_android.domain.repository.ChallengeRepository
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
+import javax.inject.Singleton
 
 @Module
 @InstallIn(ViewModelComponent::class)
-object RepositoryModule {
+abstract class RepositoryModule {
 
     @Provides
     @ViewModelScoped
@@ -31,4 +33,10 @@ object RepositoryModule {
             spendingPagingSource
         )
     }
+
+    @Binds
+    @Singleton
+    abstract fun bindsSpendingRepository(
+        challengeRepositoryImpl: ChallengeRepositoryImpl
+    ): ChallengeRepository
 }

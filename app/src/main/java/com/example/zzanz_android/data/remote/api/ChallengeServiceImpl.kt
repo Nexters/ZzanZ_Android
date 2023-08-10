@@ -162,7 +162,7 @@ class ChallengeServiceImpl @Inject constructor(
                     // 400 : 소비내역 추가 및 변경이 가능한 기간이 아닙니다. spendingId = {spendingId}
                     // 400 : 카테고리 정보가 존재하지 않습니다. planId = {planId}
                     // 400 : 요청 파라미터 조건이 맞지 않습니다.
-                    throw Exception(response.status.description)
+                    throw Exception(response.body<BaseResponseDto>().message)
                 }
                 else -> {
                     throw Exception("Unknown Error")

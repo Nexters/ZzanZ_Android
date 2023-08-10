@@ -16,5 +16,6 @@ sealed class SettingNavRoutes {
 
 object ArgumentKey{
     const val planIn = "planId"
+    const val categoryName = "categoryName"
     const val remainAmount = "remainAmount"
 }

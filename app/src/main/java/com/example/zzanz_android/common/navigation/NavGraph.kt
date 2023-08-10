@@ -33,14 +33,17 @@ fun NavHost(
             HomeScreen(navController)
         }
         composable(
-            route = NavRoutes.Spending.route + "/{${ArgumentKey.planIn}}/{${ArgumentKey.remainAmount}}",
+            route = NavRoutes.Spending.route + "/{${ArgumentKey.planIn}}/{${ArgumentKey.remainAmount}}/{${ArgumentKey.categoryName}}",
             arguments = listOf(
                 navArgument(ArgumentKey.planIn) {
                     type = NavType.IntType
                 },
                 navArgument(ArgumentKey.remainAmount) {
                     type = NavType.IntType
-                }
+                },
+                navArgument(ArgumentKey.categoryName) {
+                    type = NavType.StringType
+                },
             )
         ) {
             AddSpendingScreen(navController = navController)

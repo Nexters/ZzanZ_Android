@@ -41,6 +41,7 @@ import com.example.zzanz_android.presentation.view.component.PlainInputTextField
 import com.example.zzanz_android.presentation.viewmodel.AddSpendingEvent
 import com.example.zzanz_android.presentation.viewmodel.AddSpendingViewModel
 import com.example.zzanz_android.presentation.viewmodel.STEP
+import timber.log.Timber
 
 @Composable
 fun AddSpendingScreen(
@@ -67,21 +68,32 @@ fun AddSpendingScreen(
                 ?: ""
         )
     }
-    val btnEnabled = remember {
-        mutableStateOf(
-            when (addSpendingState.currentStep) {
-                STEP.AMOUNT -> amount.value.text.isNotEmpty()
-                STEP.TITLE -> title.value.text.isNotEmpty()
-                else -> true
-            }
-        )
+    val btnEnabled = remember { mutableStateOf(false) }
+
+    LaunchedEffect(addSpendingState.spending.amount) {
+        btnEnabled.value = addSpendingState.spending.amount > 0
+    }
+
+    LaunchedEffect(addSpendingState.spending.title) {
+        btnEnabled.value = addSpendingState.spending.title.isNotEmpty()
     }
 
     LaunchedEffect(addSpendingState.currentStep) {
         when (addSpendingState.currentStep) {
-            STEP.AMOUNT -> amountFocusRequester.requestFocus()
-            STEP.TITLE -> titleFocusRequester.requestFocus()
-            else -> focusManager.clearFocus()
+            STEP.AMOUNT -> {
+                amountFocusRequester.requestFocus()
+                btnEnabled.value = false
+            }
+
+            STEP.TITLE -> {
+                titleFocusRequester.requestFocus()
+                btnEnabled.value = false
+            }
+
+            else -> {
+                focusManager.clearFocus()
+                btnEnabled.value = true
+            }
         }
     }
 
@@ -153,12 +165,18 @@ fun AddSpendingScreen(
                 }
             )
             BottomGreenButton(
-                buttonText = if (isKeyboardOpen) {
-                    stringResource(id = R.string.next)
-                } else {
+                buttonText = if (addSpendingState.currentStep.ordinal >= STEP.MEMO.ordinal) {
                     stringResource(id = R.string.spending_done_btn_title)
+                } else {
+                    stringResource(id = R.string.next)
                 },
-                onClick = { /*TODO*/ },
+                onClick = {
+                    if (addSpendingState.currentStep.ordinal >= STEP.MEMO.ordinal) {
+                        viewModel.setEvent(AddSpendingEvent.OnClickDone)
+                    } else {
+                        viewModel.setEvent(AddSpendingEvent.OnClickNext)
+                    }
+                },
                 isButtonEnabled = btnEnabled.value,
                 isKeyboardOpen = isKeyboardOpen,
                 horizontalWidth = if (isKeyboardOpen) 0.dp else ZzanZDimen.current.defaultHorizontal
@@ -192,7 +210,7 @@ fun AddSpendingContent(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item { TitleText(Modifier.padding(top = 8.dp, bottom = 4.dp)) }
-        if (currentStep.ordinal >= 1) {
+        if (currentStep.ordinal >= STEP.TITLE.ordinal) {
             item {
                 SpendingTitle(
                     title = titleValue,
@@ -202,20 +220,18 @@ fun AddSpendingContent(
                 )
             }
         }
-        if (currentStep.ordinal >= 0) {
-            item {
-                SpendingAmount(
-                    amount = amountValue,
-                    diffAmount = diffAmount,
-                    isOver = isOver,
-                    category = category,
-                    onTextChanged = onAmountChanged,
-                    onClickAction = onClickAction,
-                    focusRequester = amountFocusRequester
-                )
-            }
+        item {
+            SpendingAmount(
+                amount = amountValue,
+                diffAmount = diffAmount,
+                isOver = isOver,
+                category = category,
+                onTextChanged = onAmountChanged,
+                onClickAction = onClickAction,
+                focusRequester = amountFocusRequester
+            )
         }
-        if (currentStep.ordinal >= 2) {
+        if (currentStep.ordinal >= STEP.MEMO.ordinal) {
             item {
                 SpendingMemo(
                     memo = memoValue,
@@ -271,7 +287,9 @@ fun SpendingAmount(
         Spacer(modifier = Modifier.height(12.dp))
 
         diffAmount?.let {
-            val amount = if(it.first() == '-'){ it.substring(1) } else it
+            val amount = if (it.first() == '-') {
+                it.substring(1)
+            } else it
             InformationComponent(
                 iconColor = color,
                 textColor = color,

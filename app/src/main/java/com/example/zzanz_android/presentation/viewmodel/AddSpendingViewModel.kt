@@ -81,7 +81,7 @@ class AddSpendingViewModel @Inject constructor(
             STEP.TITLE -> {
                 setState(
                     currentState.copy(
-                        currentStep = STEP.TITLE
+                        currentStep = STEP.MEMO
                     )
                 )
             }
@@ -123,7 +123,7 @@ data class AddSpendingState(
 ) : UiState
 
 enum class STEP {
-    AMOUNT, TITLE, MEMO, DONE
+    AMOUNT, TITLE, MEMO
 }
 
 data class DiffAmountState(

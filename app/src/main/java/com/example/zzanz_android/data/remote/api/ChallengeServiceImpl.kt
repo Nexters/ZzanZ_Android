@@ -1,6 +1,5 @@
 package com.example.zzanz_android.data.remote.api
 
-import android.util.Log
 import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.data.remote.dto.BaseResponseDto
 import com.example.zzanz_android.data.remote.dto.ChallengeDto
@@ -9,8 +8,6 @@ import com.example.zzanz_android.data.remote.dto.GoalAmountDto
 import com.example.zzanz_android.data.remote.dto.SpendingListDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
@@ -26,21 +23,25 @@ class ChallengeServiceImpl @Inject constructor(
     private val client: HttpClient
 ) : ChallengeService {
     private val TAG = this.javaClass.simpleName
-    override suspend fun getChallengeParticipate(cursor: Int?, page: Int): Resource<List<ChallengeDto>> {
+    override suspend fun getChallengeParticipate(
+        cursor: Int?,
+        page: Int
+    ): Resource<List<ChallengeDto>> {
         try {
             val response = client.get("challenge/participate") {
                 parameter("cursor", cursor ?: "")
                 parameter("size", page)
             }
-            when(response.status){
+            when (response.status) {
                 HttpStatusCode.OK -> {
                     return Resource.Success(response.body())
                 }
+
                 else -> {
                     throw Exception("Unknown Error")
                 }
             }
-        } catch (e: Exception){
+        } catch (e: Exception) {
             return Resource.Error(e)
         }
     }
@@ -73,7 +74,7 @@ class ChallengeServiceImpl @Inject constructor(
 
     override suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Resource<Boolean> {
         return try {
-            val response =  client.post("challenge/plan/category") {
+            val response = client.post("challenge/plan/category") {
                 contentType(ContentType.Application.Json)
                 setBody(goalAmountDtoList)
             }

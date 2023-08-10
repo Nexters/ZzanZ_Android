@@ -27,11 +27,28 @@ class AddSpendingViewModel @Inject constructor(
             AddSpendingEvent.InitBundleData -> {
                 setDiffAmountState()
             }
+
             AddSpendingEvent.OnClickNext -> {
-                // TODO
+                setNextStep()
             }
+
             AddSpendingEvent.OnClickDone -> {
                 submitSpending()
+            }
+            is AddSpendingEvent.UpdateTitleValue -> {
+                setState(currentState.copy(spending = currentState.spending.copy(
+                    title = event.value
+                )))
+            }
+            is AddSpendingEvent.UpdateAmountValue -> {
+                setState(currentState.copy(spending = currentState.spending.copy(
+                    amount = event.value
+                )))
+            }
+            is AddSpendingEvent.UpdateMemoValue -> {
+                setState(currentState.copy(spending = currentState.spending.copy(
+                    memo = event.value
+                )))
             }
         }
     }
@@ -49,7 +66,29 @@ class AddSpendingViewModel @Inject constructor(
         )
     }
 
-    private fun submitSpending(){
+    private fun setNextStep() {
+        when (currentState.currentStep) {
+            STEP.AMOUNT -> {
+                setState(
+                    currentState.copy(
+                        currentStep = STEP.TITLE
+                    )
+                )
+            }
+
+            STEP.TITLE -> {
+                setState(
+                    currentState.copy(
+                        currentStep = STEP.TITLE
+                    )
+                )
+            }
+
+            else -> {}
+        }
+    }
+
+    private fun submitSpending() {
         viewModelScope.launch {
             val planId: Int = checkNotNull(savedStateHandle[ArgumentKey.planIn])
             addSpendingUseCase(planId, currentState.spending)
@@ -63,8 +102,12 @@ class AddSpendingViewModel @Inject constructor(
 
 sealed class AddSpendingEvent : UiEvent {
     object InitBundleData : AddSpendingEvent()
-    object OnClickNext: AddSpendingEvent()
-    object OnClickDone: AddSpendingEvent()
+    object OnClickNext : AddSpendingEvent()
+
+    object OnClickDone : AddSpendingEvent()
+    data class UpdateTitleValue(val value: String): AddSpendingEvent()
+    data class UpdateAmountValue(val value: Int): AddSpendingEvent()
+    data class UpdateMemoValue(val value: String): AddSpendingEvent()
 }
 
 sealed class AddSpendingEffect : UiEffect {

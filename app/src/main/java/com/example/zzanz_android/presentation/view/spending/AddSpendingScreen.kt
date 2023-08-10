@@ -61,16 +61,24 @@ fun AddSpendingScreen(
     val memo = remember { mutableStateOf(TextFieldValue("")) }
 
     val addSpendingState by viewModel.uiState.collectAsState()
-    val currentStep by remember { mutableStateOf(addSpendingState.currentStep) }
-    val diffAmount by remember { mutableStateOf(addSpendingState.diffAmountState?.diffAmount) }
-    val isOver by remember { mutableStateOf(addSpendingState.diffAmountState?.isOver ?: false) }
     val category = remember {
-        mutableStateOf(navController.currentBackStackEntry?.arguments?.getString(ArgumentKey.categoryName) ?: "")
+        mutableStateOf(
+            navController.currentBackStackEntry?.arguments?.getString(ArgumentKey.categoryName)
+                ?: ""
+        )
     }
-    val btnEnabled = remember { mutableStateOf(amount.value.text.isNotEmpty() && title.value.text.isNotEmpty()) }
+    val btnEnabled = remember {
+        mutableStateOf(
+            when (addSpendingState.currentStep) {
+                STEP.AMOUNT -> amount.value.text.isNotEmpty()
+                STEP.TITLE -> title.value.text.isNotEmpty()
+                else -> true
+            }
+        )
+    }
 
-    LaunchedEffect(currentStep) {
-        when (currentStep) {
+    LaunchedEffect(addSpendingState.currentStep) {
+        when (addSpendingState.currentStep) {
             STEP.AMOUNT -> amountFocusRequester.requestFocus()
             STEP.TITLE -> titleFocusRequester.requestFocus()
             else -> focusManager.clearFocus()
@@ -88,7 +96,7 @@ fun AddSpendingScreen(
         ) {
             AddSpendingContent(
                 modifier = Modifier.weight(1f),
-                currentStep = currentStep,
+                currentStep = addSpendingState.currentStep,
                 titleFocusRequester = titleFocusRequester,
                 amountFocusRequester = amountFocusRequester,
                 memoFocusRequester = memoFocusRequester,
@@ -98,8 +106,12 @@ fun AddSpendingScreen(
                     viewModel.setEvent(AddSpendingEvent.UpdateTitleValue(newText.text))
                 },
                 amountValue = amount.value,
-                diffAmount = diffAmount?.let { MoneyFormatter.format(it) },
-                isOver = isOver,
+                diffAmount = addSpendingState.diffAmountState?.diffAmount?.let { diffAmount ->
+                    MoneyFormatter.format(
+                        diffAmount
+                    )
+                },
+                isOver = addSpendingState.diffAmountState?.isOver ?: false,
                 category = category.value,
                 onAmountChanged = { newText ->
                     amount.value = newText
@@ -117,7 +129,7 @@ fun AddSpendingScreen(
                     viewModel.setEvent(AddSpendingEvent.UpdateMemoValue(newText.text))
                 },
                 onClickAction = {
-                    when (currentStep) {
+                    when (addSpendingState.currentStep) {
                         STEP.AMOUNT -> {
                             if (amount.value.text.isEmpty()) {
                                 focusManager.clearFocus()
@@ -259,10 +271,11 @@ fun SpendingAmount(
         Spacer(modifier = Modifier.height(12.dp))
 
         diffAmount?.let {
+            val amount = if(it.first() == '-'){ it.substring(1) } else it
             InformationComponent(
                 iconColor = color,
                 textColor = color,
-                message = stringResource(id = infoMsgId, category, diffAmount)
+                message = stringResource(id = infoMsgId, category, amount)
             )
         }
     }

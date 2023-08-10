@@ -44,6 +44,7 @@ class AddSpendingViewModel @Inject constructor(
                 setState(currentState.copy(spending = currentState.spending.copy(
                     amount = event.value
                 )))
+                setDiffAmountState()
             }
             is AddSpendingEvent.UpdateMemoValue -> {
                 setState(currentState.copy(spending = currentState.spending.copy(
@@ -56,11 +57,12 @@ class AddSpendingViewModel @Inject constructor(
     private fun setDiffAmountState() {
         val diffAmountFromBundle: Int =
             checkNotNull(savedStateHandle[ArgumentKey.remainAmount])
+        val newDiffAmount = diffAmountFromBundle-currentState.spending.amount
         setState(
             currentState.copy(
                 diffAmountState = DiffAmountState(
-                    diffAmount = diffAmountFromBundle,
-                    isOver = diffAmountFromBundle < 0
+                    diffAmount = newDiffAmount,
+                    isOver = newDiffAmount < 0
                 )
             )
         )

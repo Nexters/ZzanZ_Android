@@ -16,14 +16,11 @@ class SpendingRepositoryImpl @Inject constructor(
         planId: Int,
         spendingModel: SpendingModel
     ): Flow<Resource<Boolean>> {
-        return flow {
-            emit(
-                try {
-                    challengeService.postSpending(planId, spendingModel.toDto())
-                } catch (e: Exception) {
-                    Resource.Error(e)
-                }
-            )
+        return try {
+            val result = challengeService.postSpending(planId, spendingModel.toDto())
+            flow { emit(result) }
+        } catch (e: Exception){
+            flow { emit(Resource.Error(e)) }
         }
     }
 }

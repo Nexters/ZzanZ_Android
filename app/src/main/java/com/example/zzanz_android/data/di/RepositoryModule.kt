@@ -37,7 +37,7 @@ object RepositoryModule {
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideSpendingRepository(
         challengeService: ChallengeService
     ): SpendingRepository {

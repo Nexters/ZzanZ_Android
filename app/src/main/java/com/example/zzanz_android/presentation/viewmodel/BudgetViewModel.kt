@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.common.NetworkState
 import com.example.zzanz_android.common.Resource
+import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.domain.model.BudgetCategoryData
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
@@ -11,6 +12,7 @@ import com.example.zzanz_android.domain.model.Category
 import com.example.zzanz_android.domain.usecase.BudgetByCategoryUseCase
 import com.example.zzanz_android.domain.usecase.PostBudgetUseCase
 import com.example.zzanz_android.domain.usecase.PutBudgetUseCase
+import com.example.zzanz_android.domain.usecase.preference.SetLastSettingRouteUseCase
 import com.example.zzanz_android.presentation.contract.BudgetContract
 import com.example.zzanz_android.presentation.contract.GlobalUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,7 +27,8 @@ import javax.inject.Inject
 class BudgetViewModel @Inject constructor(
     private val postBudgetUseCase: PostBudgetUseCase,
     private val putBudgetUseCase: PutBudgetUseCase,
-    private val postBudgetByCategoryUseCase: BudgetByCategoryUseCase
+    private val postBudgetByCategoryUseCase: BudgetByCategoryUseCase,
+    private val setLastSettingRouteUseCase: SetLastSettingRouteUseCase
 ) : BaseViewModel<BudgetContract.Event, BudgetContract.State, BudgetContract.Effect>() {
     private val _screenType = MutableStateFlow("")
     val screenType = _screenType.asStateFlow()
@@ -249,6 +252,7 @@ class BudgetViewModel @Inject constructor(
                         is Resource.Success -> {
                             if (it.data) {
                                 GlobalUiEvent.showToast("postBudgetCategoryUseCase - Success")
+                                setLastSettingRouteUseCase.buildRequest(NavRoutes.Notification.route)
                                 setEffect(BudgetContract.Effect.NextRoutes)
                                 setState(currentState.copy(budgetByCategoryState = NetworkState.Success))
                             }

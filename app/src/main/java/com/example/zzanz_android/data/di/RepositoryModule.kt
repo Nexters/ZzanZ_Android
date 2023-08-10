@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(ViewModelComponent::class)
-abstract class RepositoryModule {
+object RepositoryModule {
 
     @Provides
     @ViewModelScoped

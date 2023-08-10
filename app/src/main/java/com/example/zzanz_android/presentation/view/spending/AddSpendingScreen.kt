@@ -12,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,31 +24,36 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+import com.example.zzanz_android.common.ui.util.keyboardAsState
 import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavigation
-import com.example.zzanz_android.presentation.view.component.GreenRoundButton
+import com.example.zzanz_android.presentation.view.component.BottomGreenButton
 import com.example.zzanz_android.presentation.view.component.InformationComponent
 import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
 import com.example.zzanz_android.presentation.view.component.PlainInputTextField
-
-enum class STEP {
-    AMOUNT, TITLE, MEMO, DONE
-}
+import com.example.zzanz_android.presentation.viewmodel.AddSpendingViewModel
+import com.example.zzanz_android.presentation.viewmodel.STEP
 
 @Composable
-fun AddSpendingScreen(navController: NavController) {
+fun AddSpendingScreen(
+    navController: NavController,
+    viewModel: AddSpendingViewModel = hiltViewModel()
+) {
+    val addSpendingState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
+    val isKeyboardOpen by keyboardAsState()
     val titleFocusRequester = remember { FocusRequester() }
     val amountFocusRequester = remember { FocusRequester() }
     val memoFocusRequester = remember { FocusRequester() }
     var currentStep by remember { mutableStateOf(STEP.AMOUNT) }
 
-    LaunchedEffect(currentStep){
-        when(currentStep){
+    LaunchedEffect(currentStep) {
+        when (currentStep) {
             STEP.AMOUNT -> amountFocusRequester.requestFocus()
             STEP.TITLE -> titleFocusRequester.requestFocus()
             else -> focusManager.clearFocus()
@@ -87,33 +93,46 @@ fun AddSpendingScreen(navController: NavController) {
                 memoValue = memo.value,
                 onMemoChanged = { newText -> memo.value = newText },
                 onClickAction = {
-                    when(currentStep){
+                    when (currentStep) {
                         STEP.AMOUNT -> {
-                            if(amount.value.text.isEmpty()){
+                            if (amount.value.text.isEmpty()) {
                                 focusManager.clearFocus()
-                            }else{
+                            } else {
                                 currentStep = STEP.TITLE
                             }
                         }
+
                         STEP.TITLE -> {
-                            if(title.value.text.isEmpty()){
+                            if (title.value.text.isEmpty()) {
                                 focusManager.clearFocus()
-                            }else{
+                            } else {
                                 currentStep = STEP.MEMO
                             }
                         }
+
                         else -> {
                             focusManager.clearFocus()
                         }
                     }
                 }
             )
-            GreenRoundButton(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 25.dp),
-                text = stringResource(id = R.string.spending_done_btn_title),
+            BottomGreenButton(
+                buttonText = if (isKeyboardOpen) {
+                    stringResource(id = R.string.next)
+                } else {
+                    stringResource(id = R.string.spending_done_btn_title)
+                },
                 onClick = { /*TODO*/ },
-                enabled = btnEnabled
+                isButtonEnabled = btnEnabled,
+                isKeyboardOpen = isKeyboardOpen,
+                horizontalWidth = if (isKeyboardOpen) 0.dp else ZzanZDimen.current.defaultHorizontal
             )
+//            GreenRoundButton(
+//                modifier = Modifier.padding(horizontal = 20.dp, vertical = 25.dp),
+//                text = stringResource(id = R.string.spending_done_btn_title),
+//                onClick = { /*TODO*/ },
+//                enabled = btnEnabled
+//            )
         }
     }
 }
@@ -143,7 +162,7 @@ fun AddSpendingContent(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item { TitleText(Modifier.padding(top = 8.dp, bottom = 4.dp)) }
-        if(currentStep.ordinal >= 1){
+        if (currentStep.ordinal >= 1) {
             item {
                 SpendingTitle(
                     title = titleValue,
@@ -153,7 +172,7 @@ fun AddSpendingContent(
                 )
             }
         }
-        if(currentStep.ordinal >= 0){
+        if (currentStep.ordinal >= 0) {
             item {
                 SpendingAmount(
                     amount = amountValue,
@@ -166,7 +185,7 @@ fun AddSpendingContent(
                 )
             }
         }
-        if(currentStep.ordinal >= 2){
+        if (currentStep.ordinal >= 2) {
             item {
                 SpendingMemo(
                     memo = memoValue,
@@ -193,7 +212,7 @@ fun SpendingTitle(
         onClickAction = onClickAction,
         onTextChanged = onTextChanged,
 
-    )
+        )
 }
 
 @Composable
@@ -213,7 +232,8 @@ fun SpendingAmount(
         MoneyInputTextField(
             modifier = Modifier
                 .focusRequester(focusRequester)
-                .fillMaxWidth().height(56.dp),
+                .fillMaxWidth()
+                .height(56.dp),
             text = amount,
             onClickAction = onClickAction,
             onTextChanged = onTextChanged,

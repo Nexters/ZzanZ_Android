@@ -1,30 +1,87 @@
 package com.example.zzanz_android.presentation.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
+import com.example.zzanz_android.common.navigation.ArgumentKey
+import com.example.zzanz_android.domain.model.SpendingModel
 import com.example.zzanz_android.domain.usecase.AddSpendingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AddSpendingViewModel @Inject constructor(
-    private val addSpendingUseCase: AddSpendingUseCase
-): BaseViewModel<AddSpendingEvent, AddSpendingState, AddSpendingEffect>() {
+    private val savedStateHandle: SavedStateHandle,
+    private val addSpendingUseCase: AddSpendingUseCase,
+) : BaseViewModel<AddSpendingEvent, AddSpendingState, AddSpendingEffect>() {
     override fun createInitialState(): AddSpendingState {
-        TODO("Not yet implemented")
+        return AddSpendingState(
+            spending = SpendingModel(-1, "", "", 0),
+            currentStep = STEP.AMOUNT,
+            diffAmountState = null
+        )
     }
 
     override fun handleEvent(event: AddSpendingEvent) {
-        TODO("Not yet implemented")
+        when (event) {
+            AddSpendingEvent.InitBundleData -> {
+                setDiffAmountState()
+            }
+            AddSpendingEvent.OnClickNext -> {
+                // TODO
+            }
+            AddSpendingEvent.OnClickDone -> {
+                submitSpending()
+            }
+        }
+    }
+
+    private fun setDiffAmountState() {
+        val diffAmountFromBundle: Int =
+            checkNotNull(savedStateHandle[ArgumentKey.remainAmount])
+        setState(
+            currentState.copy(
+                diffAmountState = DiffAmountState(
+                    diffAmount = diffAmountFromBundle,
+                    isOver = diffAmountFromBundle < 0
+                )
+            )
+        )
+    }
+
+    private fun submitSpending(){
+        viewModelScope.launch {
+            val planId: Int = checkNotNull(savedStateHandle[ArgumentKey.planIn])
+            addSpendingUseCase(planId, currentState.spending)
+        }
+    }
+
+    init {
+        setEvent(AddSpendingEvent.InitBundleData)
     }
 }
 
-sealed class AddSpendingEvent: UiEvent{
-
+sealed class AddSpendingEvent : UiEvent {
+    object InitBundleData : AddSpendingEvent()
+    object OnClickNext: AddSpendingEvent()
+    object OnClickDone: AddSpendingEvent()
 }
 
-sealed class AddSpendingEffect: UiEffect{
+sealed class AddSpendingEffect : UiEffect {
 
 }
 
 data class AddSpendingState(
-    val t: Nothing
-): UiState
+    val spending: SpendingModel,
+    val currentStep: STEP,
+    val diffAmountState: DiffAmountState?
+) : UiState
+
+enum class STEP {
+    AMOUNT, TITLE, MEMO, DONE
+}
+
+data class DiffAmountState(
+    val diffAmount: Int,
+    val isOver: Boolean
+)

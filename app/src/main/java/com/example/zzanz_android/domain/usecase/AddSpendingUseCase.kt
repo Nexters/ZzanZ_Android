@@ -16,6 +16,9 @@ class AddSpendingUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(planId: Int, spendingModel: SpendingModel): Flow<Resource<Boolean>> {
         return try {
+            if(spendingModel.amount <= 0 || spendingModel.title.trim().isEmpty()){
+                throw Exception("Invalid Value")
+            }
             spendingRepository.postSpending(planId, spendingModel)
         } catch (e: Exception){
             flow { emit(Resource.Error(e)) }

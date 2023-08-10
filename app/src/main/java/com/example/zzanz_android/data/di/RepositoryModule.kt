@@ -1,12 +1,14 @@
 package com.example.zzanz_android.data.di
 
+import com.example.zzanz_android.data.remote.api.ChallengeService
 import com.example.zzanz_android.data.remote.datasource.ChallengePagingSource
 import com.example.zzanz_android.data.remote.datasource.GoalAmountByCategorySource
 import com.example.zzanz_android.data.remote.datasource.GoalAmountSource
 import com.example.zzanz_android.data.remote.datasource.SpendingPagingSource
 import com.example.zzanz_android.data.repository.ChallengeRepositoryImpl
+import com.example.zzanz_android.data.repository.SpendingRepositoryImpl
 import com.example.zzanz_android.domain.repository.ChallengeRepository
-import dagger.Binds
+import com.example.zzanz_android.domain.repository.SpendingRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,9 +36,11 @@ abstract class RepositoryModule {
         )
     }
 
-    @Binds
+    @Provides
     @Singleton
-    abstract fun bindsSpendingRepository(
-        challengeRepositoryImpl: ChallengeRepositoryImpl
-    ): ChallengeRepository
+    fun provideSpendingRepository(
+        challengeService: ChallengeService
+    ): SpendingRepository {
+        return SpendingRepositoryImpl(challengeService)
+    }
 }

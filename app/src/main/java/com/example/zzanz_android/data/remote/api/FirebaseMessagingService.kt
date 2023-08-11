@@ -1,42 +1,71 @@
 package com.example.zzanz_android.data.remote.api
 
-import com.example.zzanz_android.common.Resource
-import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.media.RingtoneManager
+import androidx.core.app.NotificationCompat
+import com.example.zzanz_android.MainActivity
+import com.example.zzanz_android.R
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import timber.log.Timber
-import javax.inject.Inject
 
-class FirebaseMessagingService @Inject constructor(
-    private val userPrefApi: UserPreferenceServiceImpl
-) : FirebaseMessagingService() {
+
+class FirebaseMessagingService : FirebaseMessagingService() {
+    private val TAG = "Notification -"
     override fun onNewToken(token: String) {
         Timber.d("FirebaseMessagingService New token :: $token")
         suspend {
-            saveFcmToken(token)
-        }
-    }
-
-    private suspend fun saveFcmToken(token: String) {
-        val result = userPrefApi.setFcmToken(token)
-        if (result == Resource.Success(Boolean)) {
-            if (result == Resource.Success(true)) {
-                GlobalUiEvent.showToast("FirebaseMessagingService saveFcmToken Success")
-            } else {
-                GlobalUiEvent.showToast("FirebaseMessagingService saveFcmToken Success Error - $result")
-            }
-        } else {
-            GlobalUiEvent.showToast("FirebaseMessagingService saveFcmToken Failed Error - $result")
+            sendTokenToServer(token)
         }
     }
 
     private fun sendTokenToServer(token: String) {
-        Timber.d("FirebaseMessagingService sendTokenToServer: $token")
+        // TODO - Server에 수정된 토큰 보낼 수 있도록 연결하기
+        Timber.d("$TAG sendTokenToServer: $token")
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        Timber.d("FirebaseMessagingService Notification Title :: ${remoteMessage.notification?.title}")
-        Timber.d("FirebaseMessagingService Notification Body :: ${remoteMessage.notification?.body}")
-        Timber.d("FirebaseMessagingService Notification Data :: ${remoteMessage.data}")
+        Timber.e("$TAG ${remoteMessage.from}")
+        Timber.e("$TAG Title :: ${remoteMessage.notification?.title}")
+        Timber.e("$TAG Body :: ${remoteMessage.notification?.body}")
+        Timber.e("$TAG Data :: ${remoteMessage.data}")
+
+        remoteMessage.notification?.let {
+            showNotification(it)
+        }
+    }
+
+    private fun showNotification(notification: RemoteMessage.Notification) {
+        val intent = Intent(this, MainActivity::class.java)
+        val pIntent = PendingIntent.getActivity(
+            this, 0, intent, PendingIntent.FLAG_IMMUTABLE
+        )
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channelId = getString(R.string.app_name)
+        val defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+
+        val channel = NotificationChannel(
+            "0", getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH,
+        )
+        channel.setShowBadge(true)
+        channel.canShowBadge()
+        channel.enableLights(true)
+        channel.enableVibration(true)
+        notificationManager.createNotificationChannel(channel)
+
+        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(notification.title)
+            .setContentText(notification.body)
+            .setSound(defaultSound)
+            .setContentIntent(pIntent)
+        notificationManager.notify(0, notificationBuilder.build())
+
     }
 }

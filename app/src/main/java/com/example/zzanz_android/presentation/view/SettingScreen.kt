@@ -1,6 +1,5 @@
 package com.example.zzanz_android.presentation.view
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,49 +29,16 @@ import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.util.keyboardAsState
 import com.example.zzanz_android.domain.model.Category
-import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavigation
 import com.example.zzanz_android.presentation.view.component.BottomGreenButton
 import com.example.zzanz_android.presentation.view.component.CategoryBottomSheet
+import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 import com.example.zzanz_android.presentation.view.setting.BudgetByCategory
 import com.example.zzanz_android.presentation.view.setting.BudgetCategory
 import com.example.zzanz_android.presentation.view.setting.NestEggExplainText
 import com.example.zzanz_android.presentation.view.setting.SetBudget
 import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
 import kotlinx.coroutines.launch
-
-data class SettingUiData(
-    val currentRoute: String,
-    @StringRes val titleText: Int,
-    @StringRes var buttonText: Int,
-    val nextRoute: String,
-    val backRoute: String,
-)
-
-object SettingRoute {
-    val data = listOf(
-        SettingUiData(
-            currentRoute = SettingNavRoutes.BudgetByCategory.route,
-            titleText = R.string.budget_by_category_title,
-            nextRoute = NavRoutes.Notification.route,
-            backRoute = SettingNavRoutes.BudgetCategory.route,
-            buttonText = R.string.next
-        ), SettingUiData(
-            currentRoute = SettingNavRoutes.Budget.route,
-            titleText = R.string.next_week_budget_title,
-            nextRoute = SettingNavRoutes.BudgetCategory.route,
-            backRoute = NavRoutes.Splash.route,
-            buttonText = R.string.next
-        ), SettingUiData(
-            currentRoute = SettingNavRoutes.BudgetCategory.route,
-            titleText = R.string.next_week_budget_category,
-            nextRoute = SettingNavRoutes.BudgetByCategory.route,
-            backRoute = SettingNavRoutes.Budget.route,
-            buttonText = R.string.next
-
-        )
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,13 +47,17 @@ fun Setting(
     route: String = SettingNavRoutes.Budget.route,
     budgetViewModel: BudgetViewModel = hiltViewModel()
 ) {
+    val uiData = budgetViewModel.uiData.collectAsState().value
+    LaunchedEffect(key1 = true, block = {
+        budgetViewModel.setEvent(BudgetContract.Event.GetSettingUiData(route))
+    })
 
-    // TODO ViewModel에서 세팅할 수 있도록 변경하기
-    val uiData: SettingUiData = SettingRoute.data.single {
-        it.currentRoute == route
-    }
-    // TODO ViewModel에서 세팅할 수 있도록 변경하기
+    LaunchedEffect(key1 = uiData, block = {
+    })
+    if (uiData == null) return
+
     val title = stringResource(id = uiData.titleText)
+
     var buttonTitle: String = ""
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)

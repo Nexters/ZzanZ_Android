@@ -1,7 +1,9 @@
 package com.example.zzanz_android.presentation.viewmodel
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
+import com.example.zzanz_android.R
 import com.example.zzanz_android.common.NetworkState
 import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.common.navigation.NavRoutes
@@ -36,6 +38,9 @@ class BudgetViewModel @Inject constructor(
     private val _budgetData = MutableStateFlow(BudgetCategoryData)
     val budgetData = _budgetData.asStateFlow()
 
+    private val _uiData: MutableStateFlow<SettingUiData?> = MutableStateFlow(null)
+    val uiData = _uiData.asStateFlow()
+
     override fun handleEvent(event: BudgetContract.Event) {
         when (event) {
             is BudgetContract.Event.SetSettingScreenType -> {
@@ -62,6 +67,10 @@ class BudgetViewModel @Inject constructor(
                 }
             }
 
+            is BudgetContract.Event.GetSettingUiData -> {
+                getSettingUiData(event.route)
+            }
+
         }
     }
 
@@ -78,6 +87,12 @@ class BudgetViewModel @Inject constructor(
                 )
             )
         )
+    }
+
+    private fun getSettingUiData(route: String) {
+        _uiData.value = SettingRoute.data.single {
+            it.currentRoute == route
+        }
     }
 
     private fun setScreenType(route: String) {
@@ -141,9 +156,7 @@ class BudgetViewModel @Inject constructor(
 
     private fun getEnteredBudgetCategoryCount(): Int {
         val item = _budgetData.value.category.value.filter {
-            it.isChecked && it.categoryId != Category.NESTEGG
-                    && validateCategoryBudget(it.budget)
-                    && getCategoryBudgetSum() <= _budgetData.value.totalBudget.value.toInt()
+            it.isChecked && it.categoryId != Category.NESTEGG && validateCategoryBudget(it.budget) && getCategoryBudgetSum() <= _budgetData.value.totalBudget.value.toInt()
         }.size
         return item
     }
@@ -243,11 +256,9 @@ class BudgetViewModel @Inject constructor(
             val budgetByCategoryList = _budgetData.value.category.value.filter {
                 it.isChecked
             }
-            postBudgetByCategoryUseCase.invoke(budgetByCategoryList)
-                .onStart {
+            postBudgetByCategoryUseCase.invoke(budgetByCategoryList).onStart {
                     setState(currentState.copy(budgetByCategoryState = NetworkState.Loading))
-                }
-                .collect {
+                }.collect {
                     when (it) {
                         is Resource.Success -> {
                             if (it.data) {
@@ -341,6 +352,38 @@ class BudgetViewModel @Inject constructor(
         }
     }
 
+    object SettingRoute {
+        val data = listOf(
+            SettingUiData(
+                currentRoute = SettingNavRoutes.BudgetByCategory.route,
+                titleText = R.string.budget_by_category_title,
+                nextRoute = NavRoutes.Notification.route,
+                backRoute = SettingNavRoutes.BudgetCategory.route,
+                buttonText = R.string.next
+            ), SettingUiData(
+                currentRoute = SettingNavRoutes.Budget.route,
+                titleText = R.string.next_week_budget_title,
+                nextRoute = SettingNavRoutes.BudgetCategory.route,
+                backRoute = NavRoutes.Splash.route,
+                buttonText = R.string.next
+            ), SettingUiData(
+                currentRoute = SettingNavRoutes.BudgetCategory.route,
+                titleText = R.string.next_week_budget_category,
+                nextRoute = SettingNavRoutes.BudgetByCategory.route,
+                backRoute = SettingNavRoutes.Budget.route,
+                buttonText = R.string.next
+
+            )
+        )
+    }
 }
+
+data class SettingUiData(
+    val currentRoute: String,
+    @StringRes val titleText: Int,
+    @StringRes var buttonText: Int,
+    val nextRoute: String,
+    val backRoute: String,
+)
 
 

@@ -15,6 +15,8 @@ class BudgetContract {
         data class OnFetchBudget(val budget: String) : Event()
         data class OnFetchBudgetCategoryItem(val budgetCategory: BudgetCategoryModel) : Event()
         object OnNextButtonClicked : Event()
+        data class GetSettingUiData(val route: String) : Event()
+
     }
 
     data class State(

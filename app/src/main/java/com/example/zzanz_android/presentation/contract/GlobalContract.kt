@@ -16,6 +16,7 @@ class GlobalContract {
 
     sealed class Effect : UiEffect {
         data class ShowToast(val message: String) : Effect()
+        data class SetSettingLastRoute(val route: String?) : Effect()
     }
 }
 

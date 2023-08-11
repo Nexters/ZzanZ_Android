@@ -8,6 +8,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.data.remote.dto.UserPrefDto
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
@@ -16,17 +18,18 @@ import kotlinx.coroutines.runBlocking
 import java.io.IOException
 import javax.inject.Inject
 
+private val Context.userDataStore by preferencesDataStore(
+    name = PreferenceName.USER_PREFERENCES_NAME
+)
+
+object PreferenceName {
+    const val USER_PREFERENCES_NAME = "user_preferences"
+}
+
+@ActivityRetainedScoped
 class UserPreferenceServiceImpl @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) : UserPreferenceService {
-
-    companion object {
-        private const val USER_PREFERENCES_NAME = "user_preferences"
-    }
-
-    private val Context.userDataStore by preferencesDataStore(
-        name = USER_PREFERENCES_NAME
-    )
 
     private object PreferenceKeys {
         val KEY_USER_FCM_TOKEN = stringPreferencesKey("KEY_FCM_TOKEN")
@@ -52,7 +55,7 @@ class UserPreferenceServiceImpl @Inject constructor(
         return Resource.Success(true)
     }
 
-    override suspend fun getUserPreference(): Resource<UserPrefDto?> {
+    override suspend fun getUserPreference(): UserPrefDto? {
         var userPref: UserPrefDto? = null
         runBlocking {
             context.userDataStore.data.first { preferences ->
@@ -65,7 +68,7 @@ class UserPreferenceServiceImpl @Inject constructor(
                 true
             }
         }
-        return Resource.Success(userPref)
+        return userPref
     }
 
     override suspend fun clear(): Resource<Boolean> {

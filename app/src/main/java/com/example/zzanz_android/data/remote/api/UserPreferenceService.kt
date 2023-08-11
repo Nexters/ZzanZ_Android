@@ -6,7 +6,7 @@ import com.example.zzanz_android.data.remote.dto.UserPrefDto
 interface UserPreferenceService {
     suspend fun setUserPreference(userPrefDto: UserPrefDto): Resource<Boolean>
 
-    suspend fun getUserPreference(): Resource<UserPrefDto?>
+    suspend fun getUserPreference(): UserPrefDto?
 
     suspend fun clear() : Resource<Boolean>
 

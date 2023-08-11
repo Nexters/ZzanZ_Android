@@ -1,10 +1,12 @@
 package com.example.zzanz_android.data.repository
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import com.example.zzanz_android.common.Resource
+import com.example.zzanz_android.data.mapper.UserPrefMapper.toModel
 import com.example.zzanz_android.data.remote.datasource.prefererence.FcmTokenUserPrefSource
 import com.example.zzanz_android.data.remote.datasource.prefererence.LastRoutePrefSource
 import com.example.zzanz_android.data.remote.datasource.prefererence.UserPrefSource
+import com.example.zzanz_android.data.remote.dto.UserPrefDto
+import com.example.zzanz_android.domain.model.UserPref
 import com.example.zzanz_android.domain.repository.UserPreferenceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -16,6 +18,23 @@ class UserPreferenceRepositoryImpl @Inject constructor(
     private val fcmTokenUserPrefSource: FcmTokenUserPrefSource,
     private val routePrefSource: LastRoutePrefSource,
 ) : UserPreferenceRepository {
+    override suspend fun setUserPref(userPref: UserPrefDto): Flow<Resource<Boolean>> {
+        return flow {
+            val result = userPrefSource.setUserPreference(userPrefDto = userPref)
+            emit(result)
+        }
+    }
+
+    override suspend fun getUserPref():Flow<Resource<UserPref?>>{
+        return flow {
+            try {
+                emit(Resource.Success(userPrefSource.getUserPreference()?.toModel()))
+            } catch (exception : Exception) {
+                emit(Resource.Error(exception))
+            }
+        }
+    }
+
     override suspend fun setFcmToken(fcmToken: String): Flow<Resource<Boolean>> {
         return flow {
             val result = fcmTokenUserPrefSource.setFcmToken(fcmToken = fcmToken)

@@ -6,19 +6,15 @@ import com.example.zzanz_android.data.remote.dto.UserPrefDto
 import javax.inject.Inject
 
 class UserPrefSource @Inject constructor(
-    private val userPreferenceService: UserPreferenceServiceImpl
+    private val userPrefApi: UserPreferenceServiceImpl
 ) {
-    suspend fun getUserPreference(): Resource<UserPrefDto?> {
-        return try {
-            userPreferenceService.getUserPreference()
-        } catch (e: Exception) {
-            Resource.Error(e)
-        }
+    suspend fun getUserPreference(): UserPrefDto? {
+        return userPrefApi.getUserPreference()
     }
 
     suspend fun setUserPreference(userPrefDto: UserPrefDto): Resource<Boolean> {
         return try {
-            userPreferenceService.setUserPreference(userPrefDto)
+            userPrefApi.setUserPreference(userPrefDto)
         } catch (e: Exception) {
             Resource.Error(e)
         }

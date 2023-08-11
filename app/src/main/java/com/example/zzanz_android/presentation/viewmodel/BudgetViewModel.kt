@@ -251,9 +251,8 @@ class BudgetViewModel @Inject constructor(
                     when (it) {
                         is Resource.Success -> {
                             if (it.data) {
+                                setLastSettingRoute()
                                 GlobalUiEvent.showToast("postBudgetCategoryUseCase - Success")
-                                setLastSettingRouteUseCase.buildRequest(NavRoutes.Notification.route)
-                                setEffect(BudgetContract.Effect.NextRoutes)
                                 setState(currentState.copy(budgetByCategoryState = NetworkState.Success))
                             }
                         }
@@ -266,6 +265,27 @@ class BudgetViewModel @Inject constructor(
                         }
                     }
                 }
+        }
+    }
+
+    private fun setLastSettingRoute() {
+        viewModelScope.launch {
+            setLastSettingRouteUseCase.invoke(NavRoutes.Notification.route).collect {
+                when (it) {
+                    is Resource.Success -> {
+                        if (it.data) {
+                            setEffect(BudgetContract.Effect.NextRoutes)
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        it.exception.message?.let { message: String ->
+                            Timber.e(message)
+                            GlobalUiEvent.showToast(message)
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -146,7 +146,7 @@ fun CircularNumber(
                 isHour = isHour, num = hour
             )
         )
-        Timber.e("FocusedHour ${hour}")
+        // Timber.e("FocusedHour ${hour}")
     }
 
     LaunchedEffect(Unit) {

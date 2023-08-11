@@ -205,7 +205,7 @@ fun BudgetByCategoryItem(
                             .height(24.dp),
                         text = TextFieldValue(
                             text = budgetCategoryItem.budget,
-                            selection = TextRange(0)
+                            selection = TextRange(budgetCategoryItem.budget.length)
                         ),
                         onClickAction = {},
                         onTextChanged = { text: TextFieldValue ->

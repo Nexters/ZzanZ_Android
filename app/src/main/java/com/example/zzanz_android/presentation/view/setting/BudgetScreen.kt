@@ -17,6 +17,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,7 +64,7 @@ fun SetBudget(
                 .fillMaxWidth()
                 .height(56.dp)
                 .focusRequester(focusRequester),
-            text = TextFieldValue(budget),
+            text = TextFieldValue(budget, selection = TextRange(budget.length)),
             onClickAction = {},
             onTextChanged = { text: TextFieldValue ->
                 budgetViewModel.setEvent(

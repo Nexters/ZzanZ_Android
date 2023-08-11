@@ -24,7 +24,7 @@ import com.example.zzanz_android.MainViewModel
 import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
-import com.example.zzanz_android.presentation.contract.GlobalContract
+import com.example.zzanz_android.presentation.view.component.contract.GlobalContract
 import timber.log.Timber
 
 @Composable

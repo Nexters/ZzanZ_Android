@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.zzanz_android.MainActivity
 import com.example.zzanz_android.R
@@ -34,9 +35,12 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         Timber.e("$TAG Body :: ${remoteMessage.notification?.body}")
         Timber.e("$TAG Data :: ${remoteMessage.data}")
 
-        remoteMessage.notification?.let {
-            showNotification(it)
-        }
+        /**
+         * 앱이 포그라운드에 있는 상태에서 굳이 노티를 보여줄 필요가 있을까? 해서 일단은 노티 호출 함수 제거
+         */
+//        remoteMessage.notification?.let {
+//            showNotification(it)
+//        }
     }
 
     private fun showNotification(notification: RemoteMessage.Notification) {
@@ -50,7 +54,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         val defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
         val channel = NotificationChannel(
-            "0", getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH,
+            "0",channelId, NotificationManager.IMPORTANCE_HIGH,
         )
         channel.setShowBadge(true)
         channel.canShowBadge()
@@ -65,6 +69,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             .setContentText(notification.body)
             .setSound(defaultSound)
             .setContentIntent(pIntent)
+
         notificationManager.notify(0, notificationBuilder.build())
 
     }

@@ -13,8 +13,8 @@ import com.example.zzanz_android.domain.usecase.BudgetByCategoryUseCase
 import com.example.zzanz_android.domain.usecase.PostBudgetUseCase
 import com.example.zzanz_android.domain.usecase.PutBudgetUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetLastSettingRouteUseCase
-import com.example.zzanz_android.presentation.contract.BudgetContract
-import com.example.zzanz_android.presentation.contract.GlobalUiEvent
+import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
+import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

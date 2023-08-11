@@ -16,6 +16,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ZzanZ_Android"
         tools:targetApi="31">
+        <service
+            android:name=".data.remote.api.FirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+            <meta-data
+                android:name="com.google.firebase.messaging.default_notification_channel_id"
+                android:value="@string/app_name" />
+        </service>
         <activity
             android:name=".MainActivity"
             android:exported="true"

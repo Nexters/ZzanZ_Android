@@ -30,7 +30,7 @@ import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.util.keyboardAsState
 import com.example.zzanz_android.domain.model.Category
-import com.example.zzanz_android.presentation.contract.BudgetContract
+import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavigation
 import com.example.zzanz_android.presentation.view.component.BottomGreenButton
 import com.example.zzanz_android.presentation.view.component.CategoryBottomSheet

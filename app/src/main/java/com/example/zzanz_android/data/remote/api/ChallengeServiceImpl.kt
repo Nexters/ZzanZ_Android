@@ -1,16 +1,14 @@
 package com.example.zzanz_android.data.remote.api
 
-import android.util.Log
 import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.data.remote.dto.BaseResponseDto
 import com.example.zzanz_android.data.remote.dto.ChallengeDto
 import com.example.zzanz_android.data.remote.dto.GoalAmountByCategoryDto
 import com.example.zzanz_android.data.remote.dto.GoalAmountDto
 import com.example.zzanz_android.data.remote.dto.SpendingListDto
+import com.example.zzanz_android.data.remote.dto.request.SpendingDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
@@ -26,21 +24,25 @@ class ChallengeServiceImpl @Inject constructor(
     private val client: HttpClient
 ) : ChallengeService {
     private val TAG = this.javaClass.simpleName
-    override suspend fun getChallengeParticipate(cursor: Int?, page: Int): Resource<List<ChallengeDto>> {
+    override suspend fun getChallengeParticipate(
+        cursor: Int?,
+        page: Int
+    ): Resource<List<ChallengeDto>> {
         try {
             val response = client.get("challenge/participate") {
                 parameter("cursor", cursor ?: "")
                 parameter("size", page)
             }
-            when(response.status){
+            when (response.status) {
                 HttpStatusCode.OK -> {
                     return Resource.Success(response.body())
                 }
+
                 else -> {
                     throw Exception("Unknown Error")
                 }
             }
-        } catch (e: Exception){
+        } catch (e: Exception) {
             return Resource.Error(e)
         }
     }
@@ -73,7 +75,7 @@ class ChallengeServiceImpl @Inject constructor(
 
     override suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Resource<Boolean> {
         return try {
-            val response =  client.post("challenge/plan/category") {
+            val response = client.post("challenge/plan/category") {
                 contentType(ContentType.Application.Json)
                 setBody(goalAmountDtoList)
             }
@@ -146,6 +148,32 @@ class ChallengeServiceImpl @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            return Resource.Error(e)
+        }
+    }
+
+    override suspend fun postSpending(planId: Int, spendingDto: SpendingDto): Resource<Boolean>{
+        try {
+            val response = client.post("challenge/plan/${planId}/spending"){
+                contentType(ContentType.Application.Json)
+                setBody(spendingDto)
+            }
+            when(response.status){
+                HttpStatusCode.OK -> {
+                    return Resource.Success(true)
+                }
+                HttpStatusCode.BadRequest -> {
+                    // 400 : 카테고리에 해당하는 챌린지 정보가 없습니다. planId = {planId}
+                    // 400 : 소비내역 추가 및 변경이 가능한 기간이 아닙니다. spendingId = {spendingId}
+                    // 400 : 카테고리 정보가 존재하지 않습니다. planId = {planId}
+                    // 400 : 요청 파라미터 조건이 맞지 않습니다.
+                    throw Exception(response.body<BaseResponseDto>().message)
+                }
+                else -> {
+                    throw Exception("Unknown Error")
+                }
+            }
+        } catch (e: Exception){
             return Resource.Error(e)
         }
     }

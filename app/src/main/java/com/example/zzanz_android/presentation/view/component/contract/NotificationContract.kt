@@ -1,4 +1,4 @@
-package com.example.zzanz_android.presentation.contract
+package com.example.zzanz_android.presentation.view.component.contract
 
 import androidx.compose.runtime.MutableState
 import com.example.zzanz_android.presentation.viewmodel.UiEffect

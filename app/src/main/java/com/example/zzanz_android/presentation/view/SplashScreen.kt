@@ -12,18 +12,53 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.zzanz_android.MainViewModel
 import com.example.zzanz_android.common.navigation.NavRoutes
+import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+import com.example.zzanz_android.presentation.view.component.contract.GlobalContract
+import timber.log.Timber
 
 @Composable
-fun Splash(navController: NavHostController) {
-    // NavHostController TestCode
+fun Splash(navController: NavHostController, mainViewModel: MainViewModel = hiltViewModel()) {
+    // TestCode
+    var settingRoute = SettingNavRoutes.Budget.route
+    val onButtonClicked = { route: String ->
+        navController.navigate(route) {
+            popUpTo(route) {
+                inclusive = true
+            }
+        }
+    }
+
+    /**
+     * Test Code
+     * setting route 값 잘 가져오는 지 체크하기 위한 코드
+     */
+    LaunchedEffect(key1 = Unit, block = {
+        mainViewModel.effect.collect { it ->
+            when (it) {
+                is GlobalContract.Effect.SetSettingLastRoute -> {
+                    it.route?.let { route: String ->
+                        Timber.e("setRoute - $route")
+                        settingRoute = route
+                    }
+                }
+
+                else -> {
+                }
+            }
+        }
+    })
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -41,24 +76,31 @@ fun Splash(navController: NavHostController) {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                TestNavButton(route = NavRoutes.Setting.route, navController = navController)
-                TestNavButton(route = NavRoutes.Home.route, navController = navController)
-                TestNavButton(route = NavRoutes.Spending.route, navController = navController)
-                TestNavButton(route = NavRoutes.Notification.route, navController = navController)
+                TestNavButton(
+                    route = settingRoute, onButtonClicked = onButtonClicked
+                )
+                TestNavButton(
+                    route = NavRoutes.Home.route, onButtonClicked = onButtonClicked
+                )
+                TestNavButton(
+                    route = NavRoutes.Spending.route + "/1/5000/식비",
+                    onButtonClicked = onButtonClicked
+                )
+                TestNavButton(
+                    route = NavRoutes.Notification.route, onButtonClicked = onButtonClicked
+                )
             }
         }
     }
 }
 
 @Composable
-fun TestNavButton(route: String, navController: NavHostController, modifier: Modifier = Modifier) {
+fun TestNavButton(
+    route: String, modifier: Modifier = Modifier, onButtonClicked: (String) -> Unit
+) {
     Button(
         onClick = {
-            navController.navigate(route) {
-                popUpTo(route) {
-                    inclusive = true
-                }
-            }
+            onButtonClicked.invoke(route)
         },
         modifier = modifier.wrapContentSize(),
     ) {

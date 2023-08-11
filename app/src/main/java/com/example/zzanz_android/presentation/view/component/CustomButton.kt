@@ -14,10 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
-import com.example.zzanz_android.presentation.contract.BudgetContract
+import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 
 
 @Composable
@@ -26,12 +27,12 @@ fun BottomGreenButton(
     onClick: () -> Unit,
     isButtonEnabled: Boolean,
     isKeyboardOpen: Boolean,
-    horizontalWidth: Int
+    horizontalWidth: Dp
 ) {
     GreenButton(
         modifier = Modifier
             .height(56.dp)
-            .padding(horizontal = horizontalWidth.dp),
+            .padding(horizontal = horizontalWidth),
         text = buttonText,
         onClick = {
             onClick()

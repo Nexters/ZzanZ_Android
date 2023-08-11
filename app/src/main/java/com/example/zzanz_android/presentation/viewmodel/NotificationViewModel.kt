@@ -5,8 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.domain.model.NotificationModel
 import com.example.zzanz_android.domain.usecase.PostNotificationUseCase
-import com.example.zzanz_android.presentation.contract.GlobalUiEvent
-import com.example.zzanz_android.presentation.contract.NotificationContract
+import com.example.zzanz_android.domain.usecase.preference.GetFcmTokenUseCase
+import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
+import com.example.zzanz_android.presentation.view.component.contract.NotificationContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NotificationViewModel @Inject constructor(
-    private val postNotificationUseCase: PostNotificationUseCase
+    private val postNotificationUseCase: PostNotificationUseCase,
+    private val getFcmTokenUseCase: GetFcmTokenUseCase
 ) : BaseViewModel<NotificationContract.Event, NotificationContract.State, NotificationContract.Effect>() {
     override fun createInitialState(): NotificationContract.State {
         return NotificationContract.State(
@@ -29,20 +31,44 @@ class NotificationViewModel @Inject constructor(
             }
 
             is NotificationContract.Event.OnNextButtonClicked -> {
-                callPostNotificationUseCase()
+                getFcmTokenUseCase()
             }
         }
     }
 
-    private fun callPostNotificationUseCase() {
+    private fun getFcmTokenUseCase() {
+        viewModelScope.launch {
+            getFcmTokenUseCase.invoke(null).collect { it ->
+                when (it) {
+                    is Resource.Success -> {
+                        it.data?.let { token: String ->
+                            GlobalUiEvent.showToast("getFcmTokenUseCase - Success")
+                            Timber.e("getFcmTokenUseCase - $token")
+                            callPostNotificationUseCase(token)
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        it.exception.message?.let { message: String ->
+                            Timber.e(message)
+                            GlobalUiEvent.showToast(message)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun callPostNotificationUseCase(token: String) {
         viewModelScope.launch {
             postNotificationUseCase.invoke(
                 NotificationModel(
-                    fcmToken = "fcmToken",
+                    fcmToken = token,
                     operatingSystem = "ANDROID",
                     notificationHour = uiState.value.hour.value,
                     notificationMinute = uiState.value.minute.value
                 )
+
             ).collect {
                 when (it) {
                     is Resource.Success -> {

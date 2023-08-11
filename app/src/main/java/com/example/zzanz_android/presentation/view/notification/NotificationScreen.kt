@@ -36,7 +36,7 @@ import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
-import com.example.zzanz_android.presentation.contract.NotificationContract
+import com.example.zzanz_android.presentation.view.component.contract.NotificationContract
 import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavigation
 import com.example.zzanz_android.presentation.view.component.GreenRoundButton
 import com.example.zzanz_android.presentation.view.component.TitleText
@@ -146,7 +146,7 @@ fun CircularNumber(
                 isHour = isHour, num = hour
             )
         )
-        Timber.e("FocusedHour ${hour}")
+        // Timber.e("FocusedHour ${hour}")
     }
 
     LaunchedEffect(Unit) {

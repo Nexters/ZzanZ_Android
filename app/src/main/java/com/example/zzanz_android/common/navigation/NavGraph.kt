@@ -5,8 +5,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.zzanz_android.presentation.view.Setting
 import com.example.zzanz_android.presentation.view.Splash
@@ -31,8 +33,24 @@ fun NavHost(
         composable(NavRoutes.Home.route) {
             HomeScreen(navController)
         }
-        composable(NavRoutes.Spending.route) {
-            AddSpendingScreen(navController)
+        composable(
+            route = NavRoutes.Spending.route + "/{${ArgumentKey.planIn}}/{${ArgumentKey.remainAmount}}/{${ArgumentKey.categoryName}}",
+            arguments = listOf(
+                navArgument(ArgumentKey.planIn) {
+                    type = NavType.IntType
+                },
+                navArgument(ArgumentKey.remainAmount) {
+                    type = NavType.IntType
+                },
+                navArgument(ArgumentKey.categoryName) {
+                    type = NavType.StringType
+                },
+            )
+        ) {
+            AddSpendingScreen(navController = navController)
+        }
+        composable(NavRoutes.Notification.route) {
+            NotificationSetting(navController)
         }
         composable(NavRoutes.Notification.route) {
             NotificationSetting(navController)

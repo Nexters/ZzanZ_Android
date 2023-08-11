@@ -16,13 +16,13 @@ class PutBudgetUseCase @Inject constructor(
     @IoDispatcher  val dispatcher: CoroutineDispatcher
 ) : BaseUseCase<Boolean, Int>() {
 
-    override suspend fun buildRequest(budget: Int?): Flow<Resource<Boolean>> {
-        if (budget == null) {
+    override suspend fun buildRequest(params: Int?): Flow<Resource<Boolean>> {
+        if (params == null) {
             return flow {
                 emit(Resource.Error(Exception("budget can not be null")))
             }.flowOn(dispatcher)
         }
-        val budgetModel = BudgetModel(budget = budget)
+        val budgetModel = BudgetModel(budget = params)
         return repository.putGoalAmount(goalAmountDto = budgetModel.toDto()).flowOn(dispatcher)
     }
 }

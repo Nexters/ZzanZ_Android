@@ -35,6 +35,8 @@ class MainViewModel @Inject constructor(
                             GlobalUiEvent.showToast(message)
                         }
                     }
+
+                    else -> {}
                 }
             }
         }

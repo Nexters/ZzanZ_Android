@@ -52,6 +52,9 @@ fun NavHost(
         composable(NavRoutes.Notification.route) {
             NotificationSetting(navController)
         }
+        composable(NavRoutes.Notification.route) {
+            NotificationSetting(navController)
+        }
         settingGraph(navController = navController)
     }
 }

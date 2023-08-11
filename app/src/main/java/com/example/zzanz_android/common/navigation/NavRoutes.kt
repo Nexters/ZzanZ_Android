@@ -12,7 +12,6 @@ sealed class SettingNavRoutes {
     object  Budget : NavRoutes("BudgetSetting")
     object BudgetCategory: NavRoutes("BudgetCategorySetting")
     object BudgetByCategory : NavRoutes("BudgetByCategory")
-    object AlarmSetting : NavRoutes("AlarmSetting")
 }
 
 object ArgumentKey{

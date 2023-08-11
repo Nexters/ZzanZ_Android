@@ -25,11 +25,11 @@ class UserPreferenceRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUserPref():Flow<Resource<UserPref?>>{
+    override suspend fun getUserPref(): Flow<Resource<UserPref?>> {
         return flow {
             try {
                 emit(Resource.Success(userPrefSource.getUserPreference()?.toModel()))
-            } catch (exception : Exception) {
+            } catch (exception: Exception) {
                 emit(Resource.Error(exception))
             }
         }

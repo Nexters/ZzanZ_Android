@@ -1,7 +1,6 @@
 package com.example.zzanz_android.data.remote.api
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -34,20 +33,26 @@ class UserPreferenceServiceImpl @Inject constructor(
     private object PreferenceKeys {
         val KEY_USER_FCM_TOKEN = stringPreferencesKey("KEY_FCM_TOKEN")
         val KEY_LAST_ROUTE = stringPreferencesKey("KEY_LAST_ROUTE")
+        val KEY_NOTI_HOUR = stringPreferencesKey("KEY_NOTI_HOUR")
+        val KEY_NOTI_MINUTE = stringPreferencesKey("KEY_NOTI_MINUTE")
     }
 
     val userPrefFlow: Flow<UserPrefDto?> = context.userDataStore.data
-        .catch {exception ->
+        .catch { exception ->
             if (exception is IOException)
                 emit(emptyPreferences())
             else
                 throw exception
-        }.map {preferences ->
+        }.map { preferences ->
             val fcmToken = preferences[PreferenceKeys.KEY_USER_FCM_TOKEN]
             val route = preferences[PreferenceKeys.KEY_LAST_ROUTE]
+            val hour = preferences[PreferenceKeys.KEY_NOTI_HOUR]
+            val minute = preferences[PreferenceKeys.KEY_NOTI_MINUTE]
             UserPrefDto(
                 fcmToken = fcmToken ?: return@map null,
-                route = route ?: return@map null
+                route = route ?: return@map null,
+                notificationHour = hour ?: return@map null,
+                notificationMinute = minute ?: return@map null
             )
         }
 
@@ -61,9 +66,13 @@ class UserPreferenceServiceImpl @Inject constructor(
             context.userDataStore.data.first { preferences ->
                 val route = preferences[PreferenceKeys.KEY_LAST_ROUTE]
                 val fcmToken = preferences[PreferenceKeys.KEY_USER_FCM_TOKEN]
+                val hour = preferences[PreferenceKeys.KEY_NOTI_HOUR]
+                val minute = preferences[PreferenceKeys.KEY_NOTI_MINUTE]
                 userPref = UserPrefDto(
                     route = route,
-                    fcmToken = fcmToken
+                    fcmToken = fcmToken,
+                    notificationHour = hour,
+                    notificationMinute = minute
                 )
                 true
             }
@@ -82,7 +91,7 @@ class UserPreferenceServiceImpl @Inject constructor(
 
     override suspend fun setFcmToken(fcmToken: String): Resource<Boolean> {
         try {
-            context.userDataStore.edit {preference ->
+            context.userDataStore.edit { preference ->
                 preference[PreferenceKeys.KEY_USER_FCM_TOKEN] = fcmToken
             }
         } catch (exception: Exception) {
@@ -97,9 +106,13 @@ class UserPreferenceServiceImpl @Inject constructor(
             context.userDataStore.data.first { preferences ->
                 val route = preferences[PreferenceKeys.KEY_LAST_ROUTE]
                 val fcmToken = preferences[PreferenceKeys.KEY_USER_FCM_TOKEN]
+                val hour = preferences[PreferenceKeys.KEY_NOTI_HOUR]
+                val minute = preferences[PreferenceKeys.KEY_NOTI_MINUTE]
                 userPref = UserPrefDto(
                     route = route,
-                    fcmToken = fcmToken
+                    fcmToken = fcmToken,
+                    notificationHour = hour,
+                    notificationMinute = minute
                 )
                 true
             }
@@ -110,7 +123,7 @@ class UserPreferenceServiceImpl @Inject constructor(
 
     override suspend fun setLastRoute(route: String): Resource<Boolean> {
         try {
-            context.userDataStore.edit {preference ->
+            context.userDataStore.edit { preference ->
                 preference[PreferenceKeys.KEY_LAST_ROUTE] = route
             }
         } catch (exception: Exception) {
@@ -125,14 +138,56 @@ class UserPreferenceServiceImpl @Inject constructor(
             context.userDataStore.data.first { preferences ->
                 val route = preferences[PreferenceKeys.KEY_LAST_ROUTE]
                 val fcmToken = preferences[PreferenceKeys.KEY_USER_FCM_TOKEN]
+                val hour = preferences[PreferenceKeys.KEY_NOTI_HOUR]
+                val minute = preferences[PreferenceKeys.KEY_NOTI_MINUTE]
                 userPref = UserPrefDto(
                     route = route,
-                    fcmToken = fcmToken
+                    fcmToken = fcmToken,
+                    notificationHour = hour,
+                    notificationMinute = minute
                 )
                 true
             }
         }
         if (userPref == null) return Resource.Error(java.lang.Exception("userPrefData is Null"))
         return Resource.Success(userPref?.route)
+    }
+
+    override suspend fun setNotificationTime(hour: Int, minute: Int): Resource<Boolean> {
+        try {
+            context.userDataStore.edit { preference ->
+                preference[PreferenceKeys.KEY_NOTI_HOUR] = hour.toString()
+                preference[PreferenceKeys.KEY_NOTI_MINUTE] = minute.toString()
+            }
+        } catch (exception: Exception) {
+            return Resource.Error(exception)
+        }
+        return Resource.Success(true)
+    }
+
+    override suspend fun getNotificationTime(): Resource<List<Int?>> {
+        var userPref: UserPrefDto? = null
+        runBlocking {
+            context.userDataStore.data.first { preferences ->
+                val route = preferences[PreferenceKeys.KEY_LAST_ROUTE]
+                val fcmToken = preferences[PreferenceKeys.KEY_USER_FCM_TOKEN]
+                val hour = preferences[PreferenceKeys.KEY_NOTI_HOUR]
+                val minute = preferences[PreferenceKeys.KEY_NOTI_MINUTE]
+                userPref = UserPrefDto(
+                    route = route,
+                    fcmToken = fcmToken,
+                    notificationHour = hour,
+                    notificationMinute = minute
+                )
+                true
+            }
+        }
+        if (userPref == null) return Resource.Error(java.lang.Exception("userPrefData is Null"))
+        return Resource.Success(
+            listOf<Int?>(
+                userPref?.notificationHour?.toIntOrNull(),
+                userPref?.notificationMinute?.toIntOrNull()
+            )
+        )
     }
 }

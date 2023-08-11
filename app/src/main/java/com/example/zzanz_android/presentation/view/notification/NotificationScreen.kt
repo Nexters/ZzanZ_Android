@@ -51,7 +51,9 @@ fun NotificationSetting(
     val hour = notificationViewModel.uiState.collectAsState().value.hour.value
     val minute = notificationViewModel.uiState.collectAsState().value.minute.value
     var buttonTitle = stringResource(id = R.string.set_notification_time_btn_title)
-
+    LaunchedEffect(key1 = true, block = {
+        notificationViewModel.setEvent(NotificationContract.Event.GetNotificationTime)
+    })
     LaunchedEffect(key1 = Unit, block = {
         notificationViewModel.effect.collect {
             when (it) {
@@ -87,7 +89,7 @@ fun NotificationSetting(
         ) {
             CircularNumber(
                 hourSize = 24,
-                initialHour = 22,
+                initialHour = hour,
                 maxSize = 12,
                 isHour = true,
                 notificationViewModel = notificationViewModel,
@@ -102,7 +104,7 @@ fun NotificationSetting(
             Spacer(modifier = Modifier.width(32.dp))
             CircularNumber(
                 hourSize = 60,
-                initialHour = 0,
+                initialHour = minute,
                 maxSize = 59,
                 isHour = false,
                 numberPadding = 10

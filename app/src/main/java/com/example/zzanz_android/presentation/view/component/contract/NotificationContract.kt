@@ -10,6 +10,7 @@ class NotificationContract {
         data class SetNotificationTime(
             val isHour: Boolean = true, val num: Int
         ) : Event()
+        object GetNotificationTime : Event()
         object OnNextButtonClicked : Event()
     }
 

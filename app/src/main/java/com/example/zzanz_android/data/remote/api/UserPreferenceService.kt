@@ -17,4 +17,7 @@ interface UserPreferenceService {
     suspend fun setLastRoute(route: String): Resource<Boolean>
     suspend fun getLastRoute(): Resource<String?>
 
+    suspend fun setNotificationTime(hour: Int, minute: Int): Resource<Boolean>
+    suspend fun getNotificationTime(): Resource<List<Int?>>
+
 }

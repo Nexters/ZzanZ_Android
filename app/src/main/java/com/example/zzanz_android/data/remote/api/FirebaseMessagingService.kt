@@ -1,12 +1,10 @@
 package com.example.zzanz_android.data.remote.api
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.zzanz_android.MainActivity
 import com.example.zzanz_android.R
@@ -50,25 +48,12 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         )
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channelId = getString(R.string.app_name)
         val defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-
-        val channel = NotificationChannel(
-            "0",channelId, NotificationManager.IMPORTANCE_HIGH,
-        )
-        channel.setShowBadge(true)
-        channel.canShowBadge()
-        channel.enableLights(true)
-        channel.enableVibration(true)
-        notificationManager.createNotificationChannel(channel)
-
+        val channelId = getString(R.string.app_name)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle(notification.title)
-            .setContentText(notification.body)
-            .setSound(defaultSound)
-            .setContentIntent(pIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH).setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(notification.title).setContentText(notification.body)
+            .setSound(defaultSound).setContentIntent(pIntent)
 
         notificationManager.notify(0, notificationBuilder.build())
 

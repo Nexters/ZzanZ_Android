@@ -2,6 +2,7 @@ package com.example.zzanz_android
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -63,26 +64,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         askNotificationPermission()
-        // Create channel to show notifications.
-        // Create channel to show notifications.
-        val channelId = "0"
-        val channelName = getString(R.string.app_name)
-        val notificationManager = getSystemService(NotificationManager::class.java)
-        notificationManager?.createNotificationChannel(
-            NotificationChannel(
-                channelId,
-                channelName,
-                NotificationManager.IMPORTANCE_HIGH,
-            ),
-        )
-
-        intent.extras?.let {
-            for (key in it.keySet()) {
-                val value = intent.extras?.getString(key)
-                Timber.d("Key: $key Value: $value")
-            }
-        }
-
         setContent {
             val isKeyboardOpen by keyboardAsState()
             var toastState by remember { mutableStateOf("") }

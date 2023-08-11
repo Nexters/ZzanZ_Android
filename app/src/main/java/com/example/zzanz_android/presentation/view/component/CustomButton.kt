@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
-import com.example.zzanz_android.presentation.contract.BudgetContract
+import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 
 
 @Composable

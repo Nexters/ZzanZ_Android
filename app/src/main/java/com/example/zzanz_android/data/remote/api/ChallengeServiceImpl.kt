@@ -24,21 +24,25 @@ class ChallengeServiceImpl @Inject constructor(
     private val client: HttpClient
 ) : ChallengeService {
     private val TAG = this.javaClass.simpleName
-    override suspend fun getChallengeParticipate(cursor: Int?, page: Int): Resource<List<ChallengeDto>> {
+    override suspend fun getChallengeParticipate(
+        cursor: Int?,
+        page: Int
+    ): Resource<List<ChallengeDto>> {
         try {
             val response = client.get("challenge/participate") {
                 parameter("cursor", cursor ?: "")
                 parameter("size", page)
             }
-            when(response.status){
+            when (response.status) {
                 HttpStatusCode.OK -> {
                     return Resource.Success(response.body())
                 }
+
                 else -> {
                     throw Exception("Unknown Error")
                 }
             }
-        } catch (e: Exception){
+        } catch (e: Exception) {
             return Resource.Error(e)
         }
     }
@@ -71,7 +75,7 @@ class ChallengeServiceImpl @Inject constructor(
 
     override suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Resource<Boolean> {
         return try {
-            val response =  client.post("challenge/plan/category") {
+            val response = client.post("challenge/plan/category") {
                 contentType(ContentType.Application.Json)
                 setBody(goalAmountDtoList)
             }

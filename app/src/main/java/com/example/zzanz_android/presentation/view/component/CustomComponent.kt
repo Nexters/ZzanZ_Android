@@ -116,6 +116,10 @@ fun MoneyInputTextField(
     onTextChanged: (TextFieldValue) -> Unit,
     textSize: Int = 18,
     isShowUnit: Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(
+        keyboardType = KeyboardType.Number,
+        imeAction = ImeAction.Done
+    ),
     keyboardActions: KeyboardActions = KeyboardActions(onDone = { onClickAction() })
 ) {
     val colorSet = ZzanZColorPalette.current
@@ -127,10 +131,7 @@ fun MoneyInputTextField(
         onValueChange = onTextChanged,
         textStyle = ZzanZTypo.current.SubHeading.copy(fontSize = textSize.sp),
         singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Done
-        ),
+        keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         visualTransformation = MoneyCommaVisualTransformation(
             stringResource(id = R.string.money_unit),

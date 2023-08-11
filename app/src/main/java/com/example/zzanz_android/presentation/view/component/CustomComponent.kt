@@ -89,7 +89,10 @@ fun PlainInputTextField(
         keyboardActions = KeyboardActions(onDone = { onClickAction() }),
         decorationBox = { innerTextField ->
             InputTextFieldBox(
-                modifier = innerTextModifier, color = color.value, borderSize = 1.dp.dpToPx()
+                modifier = innerTextModifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(8.dp), color = color.value, borderSize = 1.dp.dpToPx()
             ) {
                 if (text.text.isEmpty()) {
                     Text(
@@ -159,10 +162,7 @@ fun MoneyInputTextField(
 
 @Composable
 fun InputTextFieldBox(
-    modifier: Modifier = Modifier
-        .fillMaxWidth()
-        .height(56.dp)
-        .padding(8.dp),
+    modifier: Modifier = Modifier,
     color: Color,
     borderSize: Float,
     content: @Composable () -> Unit
@@ -275,7 +275,8 @@ fun CategoryCardItem(
         ) {
             CategoryTitleText(modifier = Modifier.align(Alignment.TopStart), title = title)
             RemainAmountText(
-                modifier = Modifier.align(Alignment.BottomEnd), remainAmount = remainAmount + stringResource(id = R.string.money_unit)
+                modifier = Modifier.align(Alignment.BottomEnd),
+                remainAmount = remainAmount + stringResource(id = R.string.money_unit)
             )
         }
         ProgressIndicator(
@@ -366,9 +367,10 @@ fun AmountText(amount: String) {
 @Preview
 @Composable
 fun ComponentPreview() {
-    CategoryCardItem(154.dp,
+    CategoryCardItem(
+        154.dp,
         title = "식비", remainAmount = "50,000원", 0.7f, ZzanZColorPalette.current.Green04
-    ){
+    ) {
 
     }
 }

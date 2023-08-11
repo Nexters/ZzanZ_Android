@@ -1,8 +1,9 @@
 package com.example.zzanz_android.data.repository
 
 import com.example.zzanz_android.common.Resource
+import com.example.zzanz_android.data.mapper.SpendingMapper.toDto
 import com.example.zzanz_android.data.remote.api.ChallengeService
-import com.example.zzanz_android.data.remote.dto.request.SpendingDto
+import com.example.zzanz_android.domain.model.SpendingModel
 import com.example.zzanz_android.domain.repository.SpendingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -13,16 +14,13 @@ class SpendingRepositoryImpl @Inject constructor(
 ) : SpendingRepository {
     override suspend fun postSpending(
         planId: Int,
-        spendingDto: SpendingDto
+        spendingModel: SpendingModel
     ): Flow<Resource<Boolean>> {
-        return flow {
-            emit(
-                try {
-                    challengeService.postSpending(planId, spendingDto)
-                } catch (e: Exception) {
-                    Resource.Error(e)
-                }
-            )
+        return try {
+            val result = challengeService.postSpending(planId, spendingModel.toDto())
+            flow { emit(result) }
+        } catch (e: Exception){
+            flow { emit(Resource.Error(e)) }
         }
     }
 }

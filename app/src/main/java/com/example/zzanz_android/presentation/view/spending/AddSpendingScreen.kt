@@ -12,55 +12,90 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.zzanz_android.R
+import com.example.zzanz_android.common.navigation.ArgumentKey
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+import com.example.zzanz_android.common.ui.util.keyboardAsState
+import com.example.zzanz_android.domain.util.MoneyFormatter
 import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavigation
-import com.example.zzanz_android.presentation.view.component.GreenRoundButton
+import com.example.zzanz_android.presentation.view.component.BottomGreenButton
 import com.example.zzanz_android.presentation.view.component.InformationComponent
 import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
 import com.example.zzanz_android.presentation.view.component.PlainInputTextField
-
-enum class STEP {
-    AMOUNT, TITLE, MEMO, DONE
-}
+import com.example.zzanz_android.presentation.viewmodel.AddSpendingEvent
+import com.example.zzanz_android.presentation.viewmodel.AddSpendingViewModel
+import com.example.zzanz_android.presentation.viewmodel.STEP
+import timber.log.Timber
 
 @Composable
-fun AddSpendingScreen(navController: NavController) {
+fun AddSpendingScreen(
+    navController: NavController,
+    viewModel: AddSpendingViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+
     val focusManager = LocalFocusManager.current
+    val isKeyboardOpen by keyboardAsState()
+
     val titleFocusRequester = remember { FocusRequester() }
     val amountFocusRequester = remember { FocusRequester() }
     val memoFocusRequester = remember { FocusRequester() }
-    var currentStep by remember { mutableStateOf(STEP.AMOUNT) }
-
-    LaunchedEffect(currentStep){
-        when(currentStep){
-            STEP.AMOUNT -> amountFocusRequester.requestFocus()
-            STEP.TITLE -> titleFocusRequester.requestFocus()
-            else -> focusManager.clearFocus()
-        }
-    }
 
     val title = remember { mutableStateOf(TextFieldValue("")) }
     val amount = remember { mutableStateOf(TextFieldValue("")) }
-    val diffAmount = "10,000"
-    val isOver = true
-    val category = "식비"
     val memo = remember { mutableStateOf(TextFieldValue("")) }
-    val btnEnabled = amount.value.text.isNotEmpty() && title.value.text.isNotEmpty()
+
+    val addSpendingState by viewModel.uiState.collectAsState()
+    val category = remember {
+        mutableStateOf(
+            navController.currentBackStackEntry?.arguments?.getString(ArgumentKey.categoryName)
+                ?: ""
+        )
+    }
+    val btnEnabled = remember { mutableStateOf(false) }
+
+    LaunchedEffect(addSpendingState.spending.amount) {
+        btnEnabled.value = addSpendingState.spending.amount > 0
+    }
+
+    LaunchedEffect(addSpendingState.spending.title) {
+        btnEnabled.value = addSpendingState.spending.title.isNotEmpty()
+    }
+
+    LaunchedEffect(addSpendingState.currentStep) {
+        when (addSpendingState.currentStep) {
+            STEP.AMOUNT -> {
+                amountFocusRequester.requestFocus()
+                btnEnabled.value = false
+            }
+
+            STEP.TITLE -> {
+                titleFocusRequester.requestFocus()
+                btnEnabled.value = false
+            }
+
+            else -> {
+                focusManager.clearFocus()
+                btnEnabled.value = true
+            }
+        }
+    }
 
     Scaffold(topBar = {
         AppBarWithBackNavigation()
@@ -73,46 +108,78 @@ fun AddSpendingScreen(navController: NavController) {
         ) {
             AddSpendingContent(
                 modifier = Modifier.weight(1f),
-                currentStep = currentStep,
+                currentStep = addSpendingState.currentStep,
                 titleFocusRequester = titleFocusRequester,
                 amountFocusRequester = amountFocusRequester,
                 memoFocusRequester = memoFocusRequester,
                 titleValue = title.value,
-                onTitleChanged = { newText -> title.value = newText },
+                onTitleChanged = { newText ->
+                    title.value = newText
+                    viewModel.setEvent(AddSpendingEvent.UpdateTitleValue(newText.text))
+                },
                 amountValue = amount.value,
-                diffAmount = diffAmount,
-                isOver = isOver,
-                category = category,
-                onAmountChanged = { newText -> amount.value = newText },
+                diffAmount = addSpendingState.diffAmountState?.diffAmount?.let { diffAmount ->
+                    MoneyFormatter.format(
+                        diffAmount
+                    )
+                },
+                isOver = addSpendingState.diffAmountState?.isOver ?: false,
+                category = category.value,
+                onAmountChanged = { newText ->
+                    amount.value = newText
+                    viewModel.setEvent(
+                        AddSpendingEvent.UpdateAmountValue(
+                            MoneyFormatter.revert(
+                                newText.text, context.getString(R.string.money_unit)
+                            )
+                        )
+                    )
+                },
                 memoValue = memo.value,
-                onMemoChanged = { newText -> memo.value = newText },
+                onMemoChanged = { newText ->
+                    memo.value = newText
+                    viewModel.setEvent(AddSpendingEvent.UpdateMemoValue(newText.text))
+                },
                 onClickAction = {
-                    when(currentStep){
+                    when (addSpendingState.currentStep) {
                         STEP.AMOUNT -> {
-                            if(amount.value.text.isEmpty()){
+                            if (amount.value.text.isEmpty()) {
                                 focusManager.clearFocus()
-                            }else{
-                                currentStep = STEP.TITLE
+                            } else {
+                                viewModel.setEvent(AddSpendingEvent.OnClickNext)
                             }
                         }
+
                         STEP.TITLE -> {
-                            if(title.value.text.isEmpty()){
+                            if (title.value.text.isEmpty()) {
                                 focusManager.clearFocus()
-                            }else{
-                                currentStep = STEP.MEMO
+                            } else {
+                                viewModel.setEvent(AddSpendingEvent.OnClickNext)
                             }
                         }
+
                         else -> {
                             focusManager.clearFocus()
                         }
                     }
                 }
             )
-            GreenRoundButton(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 25.dp),
-                text = stringResource(id = R.string.spending_done_btn_title),
-                onClick = { /*TODO*/ },
-                enabled = btnEnabled
+            BottomGreenButton(
+                buttonText = if (addSpendingState.currentStep.ordinal >= STEP.MEMO.ordinal) {
+                    stringResource(id = R.string.spending_done_btn_title)
+                } else {
+                    stringResource(id = R.string.next)
+                },
+                onClick = {
+                    if (addSpendingState.currentStep.ordinal >= STEP.MEMO.ordinal) {
+                        viewModel.setEvent(AddSpendingEvent.OnClickDone)
+                    } else {
+                        viewModel.setEvent(AddSpendingEvent.OnClickNext)
+                    }
+                },
+                isButtonEnabled = btnEnabled.value,
+                isKeyboardOpen = isKeyboardOpen,
+                horizontalWidth = if (isKeyboardOpen) 0.dp else ZzanZDimen.current.defaultHorizontal
             )
         }
     }
@@ -128,7 +195,7 @@ fun AddSpendingContent(
     titleValue: TextFieldValue,
     onTitleChanged: (TextFieldValue) -> Unit,
     amountValue: TextFieldValue,
-    diffAmount: String,
+    diffAmount: String?,
     isOver: Boolean,
     category: String,
     onAmountChanged: (TextFieldValue) -> Unit,
@@ -143,7 +210,7 @@ fun AddSpendingContent(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item { TitleText(Modifier.padding(top = 8.dp, bottom = 4.dp)) }
-        if(currentStep.ordinal >= 1){
+        if (currentStep.ordinal >= STEP.TITLE.ordinal) {
             item {
                 SpendingTitle(
                     title = titleValue,
@@ -153,20 +220,18 @@ fun AddSpendingContent(
                 )
             }
         }
-        if(currentStep.ordinal >= 0){
-            item {
-                SpendingAmount(
-                    amount = amountValue,
-                    diffAmount = diffAmount,
-                    isOver = isOver,
-                    category = category,
-                    onTextChanged = onAmountChanged,
-                    onClickAction = onClickAction,
-                    focusRequester = amountFocusRequester
-                )
-            }
+        item {
+            SpendingAmount(
+                amount = amountValue,
+                diffAmount = diffAmount,
+                isOver = isOver,
+                category = category,
+                onTextChanged = onAmountChanged,
+                onClickAction = onClickAction,
+                focusRequester = amountFocusRequester
+            )
         }
-        if(currentStep.ordinal >= 2){
+        if (currentStep.ordinal >= STEP.MEMO.ordinal) {
             item {
                 SpendingMemo(
                     memo = memoValue,
@@ -193,14 +258,14 @@ fun SpendingTitle(
         onClickAction = onClickAction,
         onTextChanged = onTextChanged,
 
-    )
+        )
 }
 
 @Composable
 fun SpendingAmount(
     amount: TextFieldValue,
-    diffAmount: String,
-    isOver: Boolean,
+    diffAmount: String?,
+    isOver: Boolean = false,
     category: String,
     onTextChanged: (TextFieldValue) -> Unit,
     onClickAction: () -> Unit,
@@ -213,17 +278,24 @@ fun SpendingAmount(
         MoneyInputTextField(
             modifier = Modifier
                 .focusRequester(focusRequester)
-                .fillMaxWidth().height(56.dp),
+                .fillMaxWidth()
+                .height(56.dp),
             text = amount,
             onClickAction = onClickAction,
             onTextChanged = onTextChanged,
         )
         Spacer(modifier = Modifier.height(12.dp))
-        InformationComponent(
-            iconColor = color,
-            textColor = color,
-            message = stringResource(id = infoMsgId, category, diffAmount)
-        )
+
+        diffAmount?.let {
+            val amount = if (it.first() == '-') {
+                it.substring(1)
+            } else it
+            InformationComponent(
+                iconColor = color,
+                textColor = color,
+                message = stringResource(id = infoMsgId, category, amount)
+            )
+        }
     }
 }
 

@@ -13,3 +13,9 @@ sealed class SettingNavRoutes {
     object BudgetByCategory : NavRoutes("BudgetByCategory")
     object AlarmSetting : NavRoutes("AlarmSetting")
 }
+
+object ArgumentKey{
+    const val planIn = "planId"
+    const val categoryName = "categoryName"
+    const val remainAmount = "remainAmount"
+}

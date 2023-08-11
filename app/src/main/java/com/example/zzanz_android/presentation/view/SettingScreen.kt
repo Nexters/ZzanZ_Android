@@ -245,7 +245,7 @@ fun Setting(
                 },
                 isButtonEnabled = buttonState.value,
                 isKeyboardOpen = isKeyboardOpen,
-                horizontalWidth = if (isKeyboardOpen) 0 else 24
+                horizontalWidth = if (isKeyboardOpen) 0.dp else 24.dp
             )
 
             if (sheetState.isVisible) {

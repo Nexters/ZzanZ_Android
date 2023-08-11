@@ -151,6 +151,7 @@ class ChallengeServiceImpl @Inject constructor(
     override suspend fun postSpending(planId: Int, spendingDto: SpendingDto): Resource<Boolean>{
         try {
             val response = client.post("challenge/plan/${planId}/spending"){
+                contentType(ContentType.Application.Json)
                 setBody(spendingDto)
             }
             when(response.status){

@@ -1,8 +1,8 @@
 package com.example.zzanz_android.domain.util
 
-import java.lang.Exception
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.Exception
 
 object MoneyFormatter {
     fun format(target: String): String{
@@ -19,6 +19,18 @@ object MoneyFormatter {
             NumberFormat.getInstance(Locale.getDefault()).format(target)
         }catch (e: Exception){
             target.toString()
+        }
+    }
+
+    fun revert(target: String, unit: String? = null): Int{
+        return try {
+            var result = target.replace(",", "")
+            unit?.let {
+                result = result.replace(it, "")
+            }
+            result.toInt()
+        }catch (e: Exception){
+            -1
         }
     }
 }

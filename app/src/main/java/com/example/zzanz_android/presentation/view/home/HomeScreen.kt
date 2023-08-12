@@ -20,8 +20,10 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -47,6 +49,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.navigation.NavRoutes
+import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
@@ -59,13 +62,16 @@ import com.example.zzanz_android.domain.util.MoneyFormatter
 import com.example.zzanz_android.presentation.view.component.AppBarWithMoreAction
 import com.example.zzanz_android.presentation.view.component.CategoryCardItem
 import com.example.zzanz_android.presentation.view.component.GreenRoundButton
+import com.example.zzanz_android.presentation.view.component.MoreBottomSheet
 import com.example.zzanz_android.presentation.view.component.PagerFocusedItem
 import com.example.zzanz_android.presentation.view.component.PagerUnFocusedItem
-import com.example.zzanz_android.presentation.view.component.PopupSheetDialog
 import com.example.zzanz_android.presentation.view.component.ProgressIndicator
 import com.example.zzanz_android.presentation.viewmodel.ChallengeListState
 import com.example.zzanz_android.presentation.viewmodel.HomeEffect
 import com.example.zzanz_android.presentation.viewmodel.HomeViewModel
+import com.example.zzanz_android.presentation.viewmodel.PlanListLoadingState
+import com.example.zzanz_android.presentation.viewmodel.PlanListUiEvent
+import com.example.zzanz_android.presentation.viewmodel.PlanListViewModel
 import kotlinx.coroutines.launch
 import java.lang.Float.min
 
@@ -73,22 +79,26 @@ object HomeScreenValue {
     const val GRID_COUNT = 2
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    planListViewModel: PlanListViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val challengeListState by viewModel.uiState.collectAsState()
-    val effect by viewModel.effect.collectAsState(initial = null)
-    var showDialog by remember { mutableStateOf(false) }
+    val challengeListState by homeViewModel.uiState.collectAsState()
+    val planListState by planListViewModel.uiState.collectAsState()
+    val effect by homeViewModel.effect.collectAsState(initial = null)
+
+    val scope = rememberCoroutineScope()
+    val bottomSheetState = rememberModalBottomSheetState()
 
     Scaffold(
         modifier = Modifier,
         topBar = {
             AppBarWithMoreAction(ZzanZColorPalette.current.Gray01) {
-                showDialog = !showDialog
+                scope.launch { bottomSheetState.expand() }
             }
         },
         containerColor = ZzanZColorPalette.current.Gray01
@@ -121,7 +131,7 @@ fun HomeScreen(
                         }
 
                         is LoadState.Error -> {
-                            viewModel.setEffectToShowToast()
+                            homeViewModel.setEffectToShowToast()
                         }
 
                         else -> {
@@ -130,8 +140,18 @@ fun HomeScreen(
                                     modifier = Modifier.weight(1f),
                                     pagerState = pagerState,
                                     pagingItems = challengeList,
+                                    planList = if (planListState.planListLoadingState is PlanListLoadingState.Loaded) {
+                                        (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
+                                    } else {
+                                        emptyList()
+                                    },
                                     setCurrentChallenge = { challenge ->
                                         challengeStatus.value = challenge.state
+                                        planListViewModel.setEvent(
+                                            PlanListUiEvent.SetPlanList(
+                                                challenge.planList
+                                            )
+                                        )
                                     },
                                     onClickItem = { planId ->
                                         navController.navigate(NavRoutes.Category.route + "/${planId}/${challengeStatus.value.name}")
@@ -145,7 +165,7 @@ fun HomeScreen(
                                             .height(56.dp),
                                         text = stringResource(id = R.string.home_edit_plan_btn_title),
                                         onClick = {
-                                            // TODO : gowoon - navigate to modify budget ( 유나한테 route, bundle 정보 받아서 연결 )
+                                            navController.navigate(NavRoutes.Notification.route + "/${SettingType.home}")
                                         },
                                         enabled = true
                                     )
@@ -157,15 +177,17 @@ fun HomeScreen(
 
                 else -> {}
             }
-            if (showDialog) {
-                PopupSheetDialog(
-                    onDismiss = { showDialog = false },
-                    onClickChangeAlarm = { /* TODO */  },
-                    onClickSendFeedback = { /* TODO */  },
-                    onClickJoinCommunity = { /* TODO */  },
+            if (bottomSheetState.isVisible) {
+                MoreBottomSheet(
+                    scope = scope,
+                    state = bottomSheetState,
+                    onClickChangeAlarm = {
+                        navController.navigate(NavRoutes.Notification.route + "/${SettingType.home}")
+                    },
+                    onClickSendFeedback = { /*TODO*/ },
+                    onClickJoinCommunity = { /* TODO */ },
                 )
             }
-
             if (effect is HomeEffect.ShowToast) {
                 Toast.makeText(context, (effect as HomeEffect.ShowToast).message, Toast.LENGTH_LONG)
                     .show()
@@ -180,6 +202,7 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     pagerState: PagerState,
     pagingItems: LazyPagingItems<ChallengeModel>,
+    planList: List<PlanModel>,
     setCurrentChallenge: (ChallengeModel) -> Unit,
     onClickItem: (Int) -> Unit
 ) {
@@ -187,7 +210,7 @@ fun HomeContent(
     var title by remember { mutableStateOf("") }
     var dday by remember { mutableStateOf<Int?>(null) }
     var subTitle by remember { mutableStateOf("") }
-    val planList = remember { mutableStateOf(emptyList<PlanModel>()) }
+    val planList = remember { mutableStateOf(planList) }
     val challengeStatus = remember { mutableStateOf(ChallengeStatus.OPENED) }
     val goalAmount = remember { mutableStateOf(0) }
     val remainAmount = remember { mutableStateOf(0) }

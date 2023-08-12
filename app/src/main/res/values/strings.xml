@@ -61,6 +61,7 @@
     <string name="change_noti_time">알림 시간 바꾸기</string>
     <string name="send_feedback">피드백 남기기</string>
     <string name="join_community">짠지 거지방 참여하기</string>
+    <string name="terms_menu">개인정보처리방침</string>
     <!--common-->
     <string name="add_category">카테고리 추가</string>
     <string name="category_food">식비</string>

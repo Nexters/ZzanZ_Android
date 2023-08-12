@@ -57,6 +57,11 @@ fun CommunityIcon() {
 }
 
 @Composable
+fun TermsIcon(){
+    ImageViewWithXml(modifier = Modifier.size(32.dp), resId = R.drawable.ic_terms)
+}
+
+@Composable
 fun PlusIcon() {
     Column(
         modifier = Modifier

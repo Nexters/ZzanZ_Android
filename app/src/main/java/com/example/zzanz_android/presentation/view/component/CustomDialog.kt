@@ -37,7 +37,7 @@ fun MoreBottomSheet(
     state: SheetState,
     onClickChangeAlarm: () -> Unit,
     onClickSendFeedback: () -> Unit,
-    onClickJoinCommunity: () -> Unit
+    onClickTerms: () -> Unit
 ) {
     if (state.isVisible) {
         ModalBottomSheet(modifier = Modifier.wrapContentHeight(),
@@ -52,7 +52,7 @@ fun MoreBottomSheet(
             SheetContent(
                 onClickChangeAlarm,
                 onClickSendFeedback,
-                onClickJoinCommunity
+                onClickTerms
             )
         }
     }
@@ -62,7 +62,7 @@ fun MoreBottomSheet(
 fun SheetContent(
     onClickChangeAlarm: () -> Unit,
     onClickSendFeedback: () -> Unit,
-    onClickJoinCommunity: () -> Unit
+    onClickTerms: () -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -79,7 +79,7 @@ fun SheetContent(
             DialogTitle(title = stringResource(id = R.string.more_dialog_title))
             DialogComponent(icon = { AlarmIcon() }, title = stringResource(id = R.string.change_noti_time), onClickChangeAlarm)
             DialogComponent(icon = { FeedbackIcon() }, title = stringResource(id = R.string.send_feedback), onClickSendFeedback)
-            DialogComponent(icon = { CommunityIcon() }, title = stringResource(id = R.string.join_community), onClickJoinCommunity)
+            DialogComponent(icon = { TermsIcon() }, title = stringResource(id = R.string.terms_menu), onClickTerms)
             Spacer(modifier = Modifier.height(ZzanZDimen.current.defaultHorizontal))
             Spacer(modifier = Modifier.height(ZzanZDimen.current.defaultHorizontal))
         }

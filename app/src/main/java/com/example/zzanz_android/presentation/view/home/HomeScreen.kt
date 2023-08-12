@@ -53,6 +53,7 @@ import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+import com.example.zzanz_android.common.util.EmailManager
 import com.example.zzanz_android.domain.model.Category
 import com.example.zzanz_android.domain.model.ChallengeModel
 import com.example.zzanz_android.domain.model.ChallengeStatus
@@ -184,8 +185,8 @@ fun HomeScreen(
                     onClickChangeAlarm = {
                         navController.navigate(NavRoutes.Notification.route + "/${SettingType.home}")
                     },
-                    onClickSendFeedback = { /*TODO*/ },
-                    onClickJoinCommunity = { /* TODO */ },
+                    onClickSendFeedback = { EmailManager.sendEmail(context) },
+                    onClickTerms = { /* TODO */ },
                 )
             }
             if (effect is HomeEffect.ShowToast) {

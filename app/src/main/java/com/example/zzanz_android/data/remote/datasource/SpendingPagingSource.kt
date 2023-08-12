@@ -28,7 +28,7 @@ class SpendingPagingSource @Inject constructor(
                     ))
                     LoadResult.Page(
                         data = response.data.spendingList,
-                        nextKey = response.data.spendingList.last().spendingId,
+                        nextKey = if(response.data.spendingList.isEmpty()) null else response.data.spendingList.last().spendingId,
                         prevKey = null,
                     )
                 }

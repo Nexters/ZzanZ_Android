@@ -409,16 +409,11 @@ fun CategoryList(
         maxItemsInEachRow = HomeScreenValue.GRID_COUNT
     ) {
         planList.forEach {
-            val (amount, color) = if (it.remainAmount < 0) Pair(
-                it.goalAmount,
-                ZzanZColorPalette.current.Red04
-            ) else Pair(it.remainAmount, ZzanZColorPalette.current.Green04)
             CategoryCardItem(
                 itemWidth = itemWidth,
                 title = stringResource(id = Category.valueOf(it.category).stringResId),
-                remainAmount = MoneyFormatter.format(amount),
+                remainAmount = it.remainAmount,
                 ratio = if(it.remainAmount < 0) 0f else (it.remainAmount.toFloat() / it.goalAmount.toFloat()),
-                indicatorColor = color,
                 onClickItem = { onClickItem(it.id) }
             )
         }

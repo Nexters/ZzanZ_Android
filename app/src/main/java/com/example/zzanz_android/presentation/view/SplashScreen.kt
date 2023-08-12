@@ -1,25 +1,19 @@
 package com.example.zzanz_android.presentation.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,14 +22,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.zzanz_android.R
 import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.navigation.SplashNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
-import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.common.ui.util.ImageViewWithXml
 import com.example.zzanz_android.presentation.view.component.BottomGreenButton
-import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 import com.example.zzanz_android.presentation.view.component.contract.SplashContract
 import com.example.zzanz_android.presentation.viewmodel.SplashViewModel
 
@@ -70,7 +63,7 @@ fun Splash(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(90.dp))
-        uiData.explainContent?.let{
+        uiData.explainContent?.let {
             Text(
                 text = stringResource(id = it),
                 style = ZzanZTypo.current.Body01.copy(color = ZzanZColorPalette.current.Gray06),
@@ -84,8 +77,8 @@ fun Splash(
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.weight(1f))
-        uiData.contentImage?.let{
-            ImageViewWithXml (
+        uiData.contentImage?.let {
+            ImageViewWithXml(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.TopCenter,
                 resId = it
@@ -101,7 +94,9 @@ fun Splash(
             },
             isButtonEnabled = true,
             isKeyboardOpen = false,
-            horizontalWidth =  24.dp
+            horizontalWidth = 24.dp,
+            buttonIcon = if (route == SplashNavRoutes.ChallengeStart.route)
+                R.drawable.icon_fighting else null
         )
     }
 }

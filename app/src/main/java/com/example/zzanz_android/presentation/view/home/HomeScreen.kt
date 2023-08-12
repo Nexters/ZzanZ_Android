@@ -53,6 +53,7 @@ import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
+import com.example.zzanz_android.common.util.EmailManager
 import com.example.zzanz_android.domain.model.Category
 import com.example.zzanz_android.domain.model.ChallengeModel
 import com.example.zzanz_android.domain.model.ChallengeStatus
@@ -184,8 +185,8 @@ fun HomeScreen(
                     onClickChangeAlarm = {
                         navController.navigate(NavRoutes.Notification.route + "/${SettingType.home}")
                     },
-                    onClickSendFeedback = { /*TODO*/ },
-                    onClickJoinCommunity = { /* TODO */ },
+                    onClickSendFeedback = { EmailManager.sendEmail(context) },
+                    onClickTerms = { /* TODO */ },
                 )
             }
             if (effect is HomeEffect.ShowToast) {
@@ -241,8 +242,7 @@ fun HomeContent(
                     challengeStatus.value = challenge.state
                     goalAmount.value = challenge.goalAmount
                     remainAmount.value = challenge.remainAmount
-                    ratio.value =
-                        (challenge.remainAmount.toFloat() / challenge.goalAmount.toFloat())
+                    ratio.value = if(challenge.remainAmount < 0) 0f else (challenge.remainAmount.toFloat() / challenge.goalAmount.toFloat())
                 }
             }
             Column(
@@ -262,21 +262,30 @@ fun HomeContent(
             when (challengeStatus.value) {
                 ChallengeStatus.OPENED -> {
                     ChallengeResult(messageContent = {
-                        ChallengeResultTitleWhenOpened(
-                            prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
-                            suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
-                            amount = MoneyFormatter.format(remainAmount.value),
-                            amountColor = if (ratio.value > 1f) ZzanZColorPalette.current.Red04 else ZzanZColorPalette.current.Green04
-                        )
-                    }, ratio = min(ratio.value, 1f))
+                        if(remainAmount.value < 0f){
+                            ChallengeResultTitleWhenOpened(
+                                prefix = stringResource(id = R.string.home_challenge_result_title_opened_over_prefix),
+                                suffix = stringResource(id = R.string.home_challenge_result_title_opened_over_suffix),
+                                amount = MoneyFormatter.format(remainAmount.value * -1),
+                                amountColor = ZzanZColorPalette.current.Red04
+                            )
+                        } else {
+                            ChallengeResultTitleWhenOpened(
+                                prefix = stringResource(id = R.string.home_challenge_result_title_opened_remain_prefix),
+                                suffix = stringResource(id = R.string.home_challenge_result_title_opened_remain_suffix),
+                                amount = MoneyFormatter.format(remainAmount.value),
+                                amountColor = ZzanZColorPalette.current.Green04
+                            )
+                        }
+                    }, ratio = ratio.value)
                 }
 
                 ChallengeStatus.CLOSED -> {
                     ChallengeResult(messageContent = {
                         ChallengeResultTitleWhenClosed(
-                            message = stringResource(id = R.string.home_challenge_result_title_closed_success)
+                            message = if(remainAmount.value < 0f) stringResource(id = R.string.home_challenge_result_title_closed_fail) else stringResource(id = R.string.home_challenge_result_title_closed_success)
                         )
-                    }, ratio = min(ratio.value, 1f))
+                    }, ratio = ratio.value)
                 }
 
                 else -> {}
@@ -402,7 +411,7 @@ fun CategoryList(
                 itemWidth = itemWidth,
                 title = stringResource(id = Category.valueOf(it.category).stringResId),
                 remainAmount = MoneyFormatter.format(amount),
-                ratio = (it.remainAmount.toFloat() / it.goalAmount.toFloat()),
+                ratio = if(it.remainAmount < 0) 0f else (it.remainAmount.toFloat() / it.goalAmount.toFloat()),
                 indicatorColor = color,
                 onClickItem = { onClickItem(it.id) }
             )

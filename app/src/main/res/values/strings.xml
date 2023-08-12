@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">ZzanZ_Android</string>
+    <!--splash view-->
+    <string name="explain_service_title">효율적으로 예산을\n모아보세요</string>
+    <string name="explain_service_sub_title">주 단위 나의 소비습관을 기록해</string>
+    <string name="challenge_start_title">도전을 시작해볼까요?</string>
+    <string name="challenge_start_sub_title">내 소비습관을 파악하기 위해</string>
     <!--budget view-->
     <string name="edit_week_budget_title">다음 주 예산을 수정할까요?</string>
     <string name="next_week_budget_title">다음 주 예산을 얼마로 정할까요?</string>
@@ -73,4 +78,5 @@
     <string name="complete">완료</string>
     <string name="delete">삭제</string>
     <string name="edit_complete">수정 완료</string>
+    <string name="challenge_start">도전하기</string>
 </resources>

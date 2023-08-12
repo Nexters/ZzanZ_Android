@@ -9,16 +9,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
-import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 
 
 @Composable
@@ -27,7 +28,8 @@ fun BottomGreenButton(
     onClick: () -> Unit,
     isButtonEnabled: Boolean,
     isKeyboardOpen: Boolean,
-    horizontalWidth: Dp
+    horizontalWidth: Dp,
+    buttonIcon: Int? = null
 ) {
     GreenButton(
         modifier = Modifier
@@ -38,7 +40,8 @@ fun BottomGreenButton(
             onClick()
         },
         enabled = isButtonEnabled,
-        isKeyboardOpen = isKeyboardOpen
+        isKeyboardOpen = isKeyboardOpen,
+        buttonIcon = buttonIcon
     )
     if (!isKeyboardOpen) {
         Spacer(modifier = Modifier.height(24.dp))
@@ -48,7 +51,12 @@ fun BottomGreenButton(
 
 @Composable
 fun GreenButton(
-    modifier: Modifier, text: String, onClick: () -> Unit, enabled: Boolean, isKeyboardOpen: Boolean
+    modifier: Modifier,
+    text: String,
+    onClick: () -> Unit,
+    enabled: Boolean,
+    isKeyboardOpen: Boolean,
+    buttonIcon: Int? = null
 ) {
     Button(modifier = modifier
         .fillMaxWidth()
@@ -67,6 +75,9 @@ fun GreenButton(
         Text(
             text = text, style = ZzanZTypo.current.Heading
         )
+        buttonIcon?.let {
+          Icon(painterResource(id = it), contentDescription = "")
+        }
     }
 }
 
@@ -95,7 +106,9 @@ fun GreenRoundButton(
 }
 
 @Composable
-fun GreenRectButton(modifier: Modifier, text: String, onClick: () -> Unit, enabled: Boolean) {
+fun GreenRectButton(
+    modifier: Modifier, text: String, onClick: () -> Unit, enabled: Boolean
+) {
     Button(modifier = modifier
         .fillMaxWidth()
         .height(56.dp),
@@ -126,20 +139,17 @@ fun CustomCategoryButton(
             shape = RoundedCornerShape(size = 8.dp),
             color = if (isChecked) ZzanZColorPalette.current.Green04
             else ZzanZColorPalette.current.Gray03
-        ),
-        shape = RoundedCornerShape(size = 8.dp),
-        colors = ButtonDefaults.run {
-            buttonColors(
-                disabledContainerColor = ZzanZColorPalette.current.White,
-                disabledContentColor = ZzanZColorPalette.current.Gray08,
-                containerColor = if (isChecked) ZzanZColorPalette.current.Green01
-                else ZzanZColorPalette.current.White,
-                contentColor = ZzanZColorPalette.current.Gray08,
-            )
-        },
-        onClick = {
-            onClick()
-        }) {
+        ), shape = RoundedCornerShape(size = 8.dp), colors = ButtonDefaults.run {
+        buttonColors(
+            disabledContainerColor = ZzanZColorPalette.current.White,
+            disabledContentColor = ZzanZColorPalette.current.Gray08,
+            containerColor = if (isChecked) ZzanZColorPalette.current.Green01
+            else ZzanZColorPalette.current.White,
+            contentColor = ZzanZColorPalette.current.Gray08,
+        )
+    }, onClick = {
+        onClick()
+    }) {
         Text(
             text = text, style = ZzanZTypo.current.Body02
         )

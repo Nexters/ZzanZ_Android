@@ -8,8 +8,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 
 class GlobalContract {
     sealed class Event : UiEvent {
-        data class SetFcmToken(val token: String): Event()
-        object GetSettingLastRoute : Event()
+        data class SetFcmToken(val token: String) : Event()
     }
 
     data class State(
@@ -18,8 +17,6 @@ class GlobalContract {
 
     sealed class Effect : UiEffect {
         data class ShowToast(val message: String) : Effect()
-        data class NavigationInvoke(val route: String) : Effect()
-
     }
 }
 

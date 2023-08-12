@@ -28,7 +28,7 @@ object MoneyFormatter {
             unit?.let {
                 result = result.replace(it, "")
             }
-            result.toInt()
+            if(result.isEmpty()) 0 else result.toInt()
         }catch (e: Exception){
             -1
         }

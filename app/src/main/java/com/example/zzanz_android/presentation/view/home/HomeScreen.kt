@@ -67,6 +67,9 @@ import com.example.zzanz_android.presentation.view.component.ProgressIndicator
 import com.example.zzanz_android.presentation.viewmodel.ChallengeListState
 import com.example.zzanz_android.presentation.viewmodel.HomeEffect
 import com.example.zzanz_android.presentation.viewmodel.HomeViewModel
+import com.example.zzanz_android.presentation.viewmodel.PlanListLoadingState
+import com.example.zzanz_android.presentation.viewmodel.PlanListUiEvent
+import com.example.zzanz_android.presentation.viewmodel.PlanListViewModel
 import kotlinx.coroutines.launch
 import java.lang.Float.min
 
@@ -78,11 +81,13 @@ object HomeScreenValue {
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    planListViewModel: PlanListViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val challengeListState by viewModel.uiState.collectAsState()
-    val effect by viewModel.effect.collectAsState(initial = null)
+    val challengeListState by homeViewModel.uiState.collectAsState()
+    val planListState by planListViewModel.uiState.collectAsState()
+    val effect by homeViewModel.effect.collectAsState(initial = null)
     var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -122,7 +127,7 @@ fun HomeScreen(
                         }
 
                         is LoadState.Error -> {
-                            viewModel.setEffectToShowToast()
+                            homeViewModel.setEffectToShowToast()
                         }
 
                         else -> {
@@ -131,8 +136,14 @@ fun HomeScreen(
                                     modifier = Modifier.weight(1f),
                                     pagerState = pagerState,
                                     pagingItems = challengeList,
+                                    planList = if (planListState.planListLoadingState is PlanListLoadingState.Loaded) {
+                                        (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
+                                    } else {
+                                        emptyList()
+                                    },
                                     setCurrentChallenge = { challenge ->
                                         challengeStatus.value = challenge.state
+                                        planListViewModel.setEvent(PlanListUiEvent.SetPlanList(challenge.planList))
                                     },
                                     onClickItem = { planId ->
                                         navController.navigate(NavRoutes.Category.route + "/${planId}/${challengeStatus.value.name}")
@@ -183,6 +194,7 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     pagerState: PagerState,
     pagingItems: LazyPagingItems<ChallengeModel>,
+    planList: List<PlanModel>,
     setCurrentChallenge: (ChallengeModel) -> Unit,
     onClickItem: (Int) -> Unit
 ) {
@@ -190,7 +202,7 @@ fun HomeContent(
     var title by remember { mutableStateOf("") }
     var dday by remember { mutableStateOf<Int?>(null) }
     var subTitle by remember { mutableStateOf("") }
-    val planList = remember { mutableStateOf(emptyList<PlanModel>()) }
+    val planList = remember { mutableStateOf(planList) }
     val challengeStatus = remember { mutableStateOf(ChallengeStatus.OPENED) }
     val goalAmount = remember { mutableStateOf(0) }
     val remainAmount = remember { mutableStateOf(0) }

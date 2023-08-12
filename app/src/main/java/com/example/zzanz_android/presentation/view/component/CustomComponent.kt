@@ -282,7 +282,7 @@ fun CategoryCardItem(
             )
         }
         ProgressIndicator(
-            modifier = Modifier.padding(top = 8.dp), color = indicatorColor, ratio = min(ratio, 1f)
+            modifier = Modifier.padding(top = 8.dp), color = indicatorColor, ratio = ratio
         )
     }
 }

@@ -27,8 +27,10 @@
     <string name="set_notification_time_title">소비 기록을 잊지 않도록\n매일 알림을 보내드릴게요</string>
     <string name="set_notification_time_btn_title">%s에 알림받기</string>
     <!-- category view -->
-    <string name="category_remain_amount_title_prefix">이번 주 식비가</string>
-    <string name="category_remain_amount_title_suffix"> 남았어요</string>
+    <string name="category_remain_amount_remain_title_prefix">이번 주 %s가</string>
+    <string name="category_remain_amount_over_title_prefix">이번 주 %s를</string>
+    <string name="category_remain_amount_remain_title_suffix"> 남았어요</string>
+    <string name="category_remain_amount_over_title_suffix"> 넘겼어요</string>
     <string name="category_goal_amount_subtitle">%1$s 예산은 %2$s원이에요</string>
     <string name="category_add_spending_btn_title">소비 기록 추가</string>
     <!-- spending -->

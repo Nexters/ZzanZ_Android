@@ -2,6 +2,7 @@ package com.example.zzanz_android.presentation.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.domain.model.ChallengeModel
 import com.example.zzanz_android.domain.usecase.home.GetChallengeListUseCase
@@ -38,7 +39,7 @@ class HomeViewModel @Inject constructor(
                     is Resource.Success -> {
                         setState(
                             currentState.copy(
-                                challengeList = ChallengeListState.Success(flow { emit(result.data) })
+                                challengeList = ChallengeListState.Success(flow { emit(result.data) }.cachedIn(viewModelScope) )
                             )
                         )
                     }

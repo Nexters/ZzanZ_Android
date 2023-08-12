@@ -14,9 +14,9 @@ import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBarWithBackNavigation(
-    onBackButtonAction: () -> Unit = {},
+    modifier: Modifier = Modifier,
     isBackIconVisible: Boolean = true,
-    modifier: Modifier = Modifier) {
+    onBackButtonAction: () -> Unit = {}) {
     TopAppBar(
         modifier = modifier.background(ZzanZColorPalette.current.White),
         title = {},

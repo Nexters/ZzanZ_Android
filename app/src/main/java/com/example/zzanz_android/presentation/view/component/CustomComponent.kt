@@ -250,9 +250,8 @@ fun PagerUnFocusedItem(
 fun CategoryCardItem(
     itemWidth: Dp,
     title: String,
-    remainAmount: String,
+    remainAmount: Int,
     ratio: Float,
-    indicatorColor: Color,
     onClickItem: () -> Unit
 ) {
     Column(
@@ -275,14 +274,20 @@ fun CategoryCardItem(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
+            val (amount, color) = if(remainAmount < 0){
+                Pair(remainAmount * -1, ZzanZColorPalette.current.Red04)
+            } else {
+                Pair(remainAmount, ZzanZColorPalette.current.Gray08)
+            }
             CategoryTitleText(modifier = Modifier.align(Alignment.TopStart), title = title)
             RemainAmountText(
                 modifier = Modifier.align(Alignment.BottomEnd),
-                remainAmount = remainAmount + stringResource(id = R.string.money_unit)
+                remainAmount = MoneyFormatter.format(amount) + stringResource(id = R.string.money_unit),
+                color = color
             )
         }
         ProgressIndicator(
-            modifier = Modifier.padding(top = 8.dp), color = indicatorColor, ratio = ratio
+            modifier = Modifier.padding(top = 8.dp), color = ZzanZColorPalette.current.Green04, ratio = ratio
         )
     }
 }
@@ -301,13 +306,13 @@ fun CategoryTitleText(
 
 @Composable
 fun RemainAmountText(
-    modifier: Modifier = Modifier, remainAmount: String
+    modifier: Modifier = Modifier, remainAmount: String, color: Color
 ) {
     Text(
         modifier = modifier,
         text = remainAmount,
         style = ZzanZTypo.current.Body01.copy(fontWeight = FontWeight.SemiBold),
-        color = ZzanZColorPalette.current.Gray08
+        color = color
     )
 }
 
@@ -351,7 +356,7 @@ fun SpendingItemComponent(category: String, title: String, memo: String, amount:
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 TitleText(title = title)
-                MemoText(memo = memo)
+                if(memo.isNotEmpty()) MemoText(memo = memo)
             }
             AmountText(amount = amount + stringResource(id = R.string.money_unit))
         }
@@ -371,15 +376,4 @@ fun MemoText(memo: String) {
 @Composable
 fun AmountText(amount: String) {
     Text(text = amount, style = ZzanZTypo.current.Body01, color = ZzanZColorPalette.current.Gray08)
-}
-
-@Preview
-@Composable
-fun ComponentPreview() {
-    CategoryCardItem(
-        154.dp,
-        title = "식비", remainAmount = "50,000원", 0.7f, ZzanZColorPalette.current.Green04
-    ) {
-
-    }
 }

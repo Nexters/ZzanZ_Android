@@ -16,7 +16,6 @@ import com.example.zzanz_android.domain.usecase.category.SpendingListWithPlan
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 import javax.inject.Inject
 
 class SpendingRepositoryImpl @Inject constructor(
@@ -48,7 +47,6 @@ class SpendingRepositoryImpl @Inject constructor(
                                 pagingSourceFactory = { pagingSource }
                             ).flow.map { pagingData ->
                                 pagingData.map { dto ->
-                                    Timber.d("gowoon ${dto}")
                                     dto.toModel()
                                 }
                             }

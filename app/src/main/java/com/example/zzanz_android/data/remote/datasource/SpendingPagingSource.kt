@@ -16,18 +16,11 @@ class SpendingPagingSource @Inject constructor(
     private val challengeApi: ChallengeService,
     private val planId: Int
 ) : PagingSource<Int, SpendingDto>() {
-    val t = MutableSharedFlow<ChallengeDto.Plan>()
     val planInfo = MutableStateFlow(ChallengeDto.Plan(-1, "", 0, 0))
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, SpendingDto> {
         return try {
             when (val response = challengeApi.getSpending(planId, params.key, params.loadSize)) {
                 is Resource.Success -> {
-                    t.emit(ChallengeDto.Plan(
-                        planId,
-                        "FOOD", // TODO 카테고리 내려오면 그 값으로 교체
-                        response.data.goalAmount,
-                        response.data.spendAmount
-                    ))
                     planInfo.emit(ChallengeDto.Plan(
                         planId,
                         "FOOD", // TODO 카테고리 내려오면 그 값으로 교체

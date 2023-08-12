@@ -57,7 +57,11 @@ fun CategoryScreen(
     Scaffold(
         topBar = {
             AppBarWithBackNavigation {
-                navController.popBackStack()
+                navController.navigate(NavRoutes.Home.route) {
+                    popUpTo(NavRoutes.Home.route) {
+                        inclusive = true
+                    }
+                }
             }
         }
     ) {

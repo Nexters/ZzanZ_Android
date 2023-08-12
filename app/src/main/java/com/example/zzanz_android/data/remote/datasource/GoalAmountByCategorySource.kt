@@ -8,9 +8,19 @@ import javax.inject.Inject
 class GoalAmountByCategorySource @Inject constructor(
     private val challengeApi: ChallengeService
 ) {
-    suspend fun load(goalAmountDtoList: List<GoalAmountByCategoryDto>): Resource<Boolean> {
+
+
+    suspend fun postGoalAmountByCategory(goalAmountDtoList: List<GoalAmountByCategoryDto>): Resource<Boolean> {
         return try {
             challengeApi.postCategoryGoalAmount(goalAmountDtoList = goalAmountDtoList)
+        } catch (e: Exception) {
+            Resource.Error(e)
+        }
+    }
+
+    suspend fun putGoalAmountByCategory(goalAmountDtoList: List<GoalAmountByCategoryDto>): Resource<Boolean> {
+        return try {
+            challengeApi.putCategoryGoalAmount(goalAmountDtoList = goalAmountDtoList)
         } catch (e: Exception) {
             Resource.Error(e)
         }

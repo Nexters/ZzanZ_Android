@@ -12,15 +12,15 @@ class GoalAmountSource @Inject constructor(
         return try {
             challengeApi.postGoalAmount(goalAmountDto = goalAmountDto)
         } catch (e: Exception) {
-            return Resource.Error(e)
+            Resource.Error(e)
         }
     }
 
     suspend fun putGoalAmount(goalAmountDto: GoalAmountDto): Resource<Boolean> {
         return try {
-            return challengeApi.putGoalAmount(goalAmountDto = goalAmountDto)
+            challengeApi.putGoalAmount(goalAmountDto = goalAmountDto)
         } catch (e: Exception) {
-            return Resource.Error(e)
+            Resource.Error(e)
         }
     }
 

@@ -49,6 +49,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.navigation.NavRoutes
+import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
@@ -166,7 +167,7 @@ fun HomeScreen(
                                             .height(56.dp),
                                         text = stringResource(id = R.string.home_edit_plan_btn_title),
                                         onClick = {
-                                            navController.navigate(NavRoutes.Notification.route + "/${SettingType.home}")
+                                            navController.navigate(SettingNavRoutes.Budget.route + "/${SettingType.home}")
                                         },
                                         enabled = true
                                     )

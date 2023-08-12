@@ -11,8 +11,9 @@ import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.domain.model.BudgetCategoryData
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.domain.model.Category
-import com.example.zzanz_android.domain.usecase.BudgetByCategoryUseCase
+import com.example.zzanz_android.domain.usecase.PostBudgetByCategoryUseCase
 import com.example.zzanz_android.domain.usecase.PostBudgetUseCase
+import com.example.zzanz_android.domain.usecase.PutBudgetByCategoryUseCase
 import com.example.zzanz_android.domain.usecase.PutBudgetUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetLastSettingRouteUseCase
 import com.example.zzanz_android.presentation.view.component.SettingUiData
@@ -30,7 +31,8 @@ import javax.inject.Inject
 class BudgetViewModel @Inject constructor(
     private val postBudgetUseCase: PostBudgetUseCase,
     private val putBudgetUseCase: PutBudgetUseCase,
-    private val postBudgetByCategoryUseCase: BudgetByCategoryUseCase,
+    private val postBudgetByCategoryUseCase: PostBudgetByCategoryUseCase,
+    private val putBudgetByCategoryUseCase: PutBudgetByCategoryUseCase,
     private val setLastSettingRouteUseCase: SetLastSettingRouteUseCase
 ) : BaseViewModel<BudgetContract.Event, BudgetContract.State, BudgetContract.Effect>() {
     private val _screenType = MutableStateFlow("")
@@ -73,6 +75,13 @@ class BudgetViewModel @Inject constructor(
 
             is BudgetContract.Event.GetSettingUiData -> {
                 getSettingUiData(event.route, event.argument)
+            }
+
+            is BudgetContract.Event.ClearBudgetCategoryItem -> {
+                _budgetData.value.category.value.map {
+                    it.isChecked = false
+                    setBudgetCategoryItem(it)
+                }
             }
 
         }
@@ -306,6 +315,34 @@ class BudgetViewModel @Inject constructor(
         }
     }
 
+    private fun putBudgetByCategoryUseCase() {
+        viewModelScope.launch {
+            val budgetByCategoryList = _budgetData.value.category.value.filter {
+                it.isChecked
+            }
+            putBudgetByCategoryUseCase.invoke(budgetByCategoryList).onStart {
+                setState(currentState.copy(budgetByCategoryState = NetworkState.Loading))
+            }.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        if (it.data) {
+                            setLastSettingRoute()
+                            GlobalUiEvent.showToast("putBudgetCategoryUseCase - Success")
+                            setState(currentState.copy(budgetByCategoryState = NetworkState.Success))
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        it.exception.message?.let { message: String ->
+                            Timber.e(message)
+                            GlobalUiEvent.showToast(message)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun setLastSettingRoute() {
         viewModelScope.launch {
             setLastSettingRouteUseCase.invoke(NavRoutes.Notification.route).collect {
@@ -337,7 +374,11 @@ class BudgetViewModel @Inject constructor(
                     is Resource.Success -> {
                         if (it.data) {
                             setState(currentState.copy(budgetState = NetworkState.Success))
-                            postBudgetByCategoryUseCase()
+                            if (_settingType.value == SettingType.home) {
+                                putBudgetByCategoryUseCase()
+                            } else {
+                                postBudgetByCategoryUseCase()
+                            }
                         }
                     }
 

@@ -13,6 +13,7 @@ class BudgetContract {
         data class SetSettingScreenType(val route: String) : Event()
         data class SetScreenState(val route: String) : Event()
         data class OnFetchBudget(val budget: String) : Event()
+        object ClearBudgetCategoryItem : Event()
         data class OnFetchBudgetCategoryItem(val budgetCategory: BudgetCategoryModel) : Event()
         object OnNextButtonClicked : Event()
         data class GetSettingUiData(val route: String, val argument: String?) : Event()

@@ -97,6 +97,31 @@ class ChallengeServiceImpl @Inject constructor(
         }
     }
 
+    override suspend fun putCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Resource<Boolean> {
+        return try {
+            val response = client.put("challenge/plan/category") {
+                contentType(ContentType.Application.Json)
+                setBody(goalAmountDtoList)
+            }
+            when (response.status) {
+                HttpStatusCode.OK -> {
+                    Resource.Success(true)
+                }
+
+                HttpStatusCode.BadRequest -> {
+                    // 4xx - 아직 챌린지에 참여하지 않았습니다.
+                    throw Exception(response.body<BaseResponseDto>().message)
+                }
+
+                else -> {
+                    throw Exception("Unknown Error")
+                }
+            }
+        } catch (e: Exception) {
+            Resource.Error(e)
+        }
+    }
+
     override suspend fun putGoalAmount(goalAmountDto: GoalAmountDto): Resource<Boolean> {
         return try {
             val response = client.put("challenge/participate/goalAmount") {

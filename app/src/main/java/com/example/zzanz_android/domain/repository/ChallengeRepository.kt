@@ -17,4 +17,8 @@ interface ChallengeRepository {
     suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Flow<Resource<Boolean>>
 
     suspend fun putGoalAmount(goalAmountDto: GoalAmountDto): Flow<Resource<Boolean>>
+
+    suspend fun putCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Flow<Resource<Boolean>>
+
+
 }

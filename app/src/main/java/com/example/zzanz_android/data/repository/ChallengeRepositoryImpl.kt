@@ -43,15 +43,23 @@ class ChallengeRepositoryImpl @Inject constructor(
 
     override suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Flow<Resource<Boolean>> {
         return flow {
-            val result = goalAmountByCategorySource.load(goalAmountDtoList = goalAmountDtoList)
+            val result =
+                goalAmountByCategorySource.postGoalAmountByCategory(goalAmountDtoList = goalAmountDtoList)
             emit(result)
         }
-
     }
 
     override suspend fun putGoalAmount(goalAmountDto: GoalAmountDto): Flow<Resource<Boolean>> {
         return flow {
             val result = goalAmountSource.putGoalAmount(goalAmountDto = goalAmountDto)
+            emit(result)
+        }
+    }
+
+    override suspend fun putCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Flow<Resource<Boolean>> {
+        return flow {
+            val result =
+                goalAmountByCategorySource.putGoalAmountByCategory(goalAmountDtoList = goalAmountDtoList)
             emit(result)
         }
     }

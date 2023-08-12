@@ -351,7 +351,7 @@ fun SpendingItemComponent(category: String, title: String, memo: String, amount:
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 TitleText(title = title)
-                MemoText(memo = memo)
+                if(memo.isNotEmpty()) MemoText(memo = memo)
             }
             AmountText(amount = amount + stringResource(id = R.string.money_unit))
         }

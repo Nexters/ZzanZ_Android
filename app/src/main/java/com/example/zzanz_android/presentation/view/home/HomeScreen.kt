@@ -256,7 +256,12 @@ fun HomeContent(
             }
         }
         item {
-            CategoryList(planList.value, onClickItem)
+            CategoryList(
+                planList.value,
+                if(challengeStatus.value == ChallengeStatus.PRE_OPENED){
+                    {  }
+                } else { onClickItem }
+            )
         }
         item {
             Spacer(modifier = Modifier.height(10.dp))

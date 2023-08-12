@@ -99,7 +99,9 @@ fun AddSpendingScreen(
     }
 
     Scaffold(topBar = {
-        AppBarWithBackNavigation()
+        AppBarWithBackNavigation{
+            navController.popBackStack()
+        }
     }) {
         Column(
             modifier = Modifier
@@ -174,6 +176,7 @@ fun AddSpendingScreen(
                 onClick = {
                     if (addSpendingState.currentStep.ordinal >= STEP.MEMO.ordinal) {
                         viewModel.setEvent(AddSpendingEvent.OnClickDone)
+                        navController.popBackStack()
                     } else {
                         viewModel.setEvent(AddSpendingEvent.OnClickNext)
                     }

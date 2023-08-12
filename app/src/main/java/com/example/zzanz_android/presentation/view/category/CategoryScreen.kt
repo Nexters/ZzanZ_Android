@@ -44,7 +44,6 @@ import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavig
 import com.example.zzanz_android.presentation.view.component.SpendingItemComponent
 import com.example.zzanz_android.presentation.viewmodel.CategoryEffect
 import com.example.zzanz_android.presentation.viewmodel.CategoryViewModel
-import com.example.zzanz_android.presentation.viewmodel.HomeEffect
 import com.example.zzanz_android.presentation.viewmodel.SpendingListByPlanState
 
 @Composable
@@ -56,7 +55,11 @@ fun CategoryScreen(
     val categoryState by viewModel.uiState.collectAsState()
     val effect by viewModel.effect.collectAsState(null)
     Scaffold(
-        topBar = { AppBarWithBackNavigation() }
+        topBar = {
+            AppBarWithBackNavigation {
+                navController.popBackStack()
+            }
+        }
     ) {
         Box(
             modifier = Modifier
@@ -88,13 +91,15 @@ fun CategoryScreen(
 
                         else -> {
                             val planInfo by
-                            (categoryState.spendingListByPlanState as SpendingListByPlanState.Success).planInfo.collectAsState(null)
+                            (categoryState.spendingListByPlanState as SpendingListByPlanState.Success).planInfo.collectAsState(
+                                null
+                            )
                             planInfo?.let { plan ->
                                 LazyColumn(modifier = Modifier.padding(horizontal = ZzanZDimen.current.defaultHorizontal)) {
                                     item {
                                         Title(
-                                            MoneyFormatter.format(plan.remainAmount),
-                                            if (plan.remainAmount < 0) ZzanZColorPalette.current.Red04 else ZzanZColorPalette.current.Green04
+                                            plan.remainAmount,
+                                            plan.category
                                         )
                                         SubTitle(
                                             stringResource(id = Category.valueOf(plan.category).stringResId),
@@ -132,7 +137,11 @@ fun CategoryScreen(
             }
 
             if (effect is CategoryEffect.ShowErrorToast) {
-                Toast.makeText(context, (effect as HomeEffect.ShowToast).message, Toast.LENGTH_LONG)
+                Toast.makeText(
+                    context,
+                    (effect as CategoryEffect.ShowErrorToast).message,
+                    Toast.LENGTH_LONG
+                )
                     .show()
             }
         }
@@ -140,18 +149,35 @@ fun CategoryScreen(
 }
 
 @Composable
-fun Title(remainAmount: String, color: Color) {
+fun Title(remainAmount: Int, category: String) {
+    val isOver = remainAmount < 0
+    val titleComponent = if(isOver) {
+        TitleComponent(
+            stringResource(id = R.string.category_remain_amount_over_title_prefix, stringResource(id = Category.valueOf(category).stringResId)),
+            stringResource(id = R.string.category_remain_amount_over_title_suffix),
+            MoneyFormatter.format(remainAmount * -1),
+            ZzanZColorPalette.current.Red04
+
+        )
+    } else {
+        TitleComponent(
+            stringResource(id = R.string.category_remain_amount_remain_title_prefix, stringResource(id = Category.valueOf(category).stringResId)),
+            stringResource(id = R.string.category_remain_amount_remain_title_suffix),
+            MoneyFormatter.format(remainAmount),
+            ZzanZColorPalette.current.Green04
+        )
+    }
     Surface(modifier = Modifier.padding(top = 8.dp)) {
         Text(
             buildAnnotatedString {
                 withStyle(SpanStyle(color = ZzanZColorPalette.current.Black)) {
-                    append(stringResource(id = R.string.category_remain_amount_title_prefix))
+                    append(titleComponent.prefix)
                 }
-                withStyle(SpanStyle(color = color)) {
-                    append("\n$remainAmount${stringResource(id = R.string.money_unit)} ")
+                withStyle(SpanStyle(color = titleComponent.color)) {
+                    append("\n${titleComponent.remainAmount}${stringResource(id = R.string.money_unit)} ")
                 }
                 withStyle(SpanStyle(color = ZzanZColorPalette.current.Black)) {
-                    append(stringResource(id = R.string.category_remain_amount_title_suffix))
+                    append(titleComponent.suffix)
                 }
             },
             style = ZzanZTypo.current.H1
@@ -173,6 +199,13 @@ fun SubTitle(category: String, goalAmount: String) {
         )
     }
 }
+
+data class TitleComponent(
+    val prefix: String,
+    val suffix: String,
+    val remainAmount: String,
+    val color: Color
+)
 
 @Preview
 @Composable

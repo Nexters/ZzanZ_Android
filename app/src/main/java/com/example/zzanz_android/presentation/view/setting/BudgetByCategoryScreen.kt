@@ -37,8 +37,6 @@ import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
@@ -55,10 +53,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
-import com.example.zzanz_android.common.ui.util.keyboardAsState
-import com.example.zzanz_android.common.ui.util.keyboardHeightAsState
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.domain.model.Category
+import com.example.zzanz_android.domain.model.PlanModel
 import com.example.zzanz_android.presentation.view.component.CategoryIcon
 import com.example.zzanz_android.presentation.view.component.InfoIcon
 import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
@@ -66,14 +63,36 @@ import com.example.zzanz_android.presentation.view.component.PlusIcon
 import com.example.zzanz_android.presentation.view.component.TitleText
 import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
+import com.example.zzanz_android.presentation.viewmodel.PlanListLoadingState
+import com.example.zzanz_android.presentation.viewmodel.PlanListViewModel
 
 @Composable
 fun BudgetByCategory(
     titleText: String,
     budgetViewModel: BudgetViewModel = hiltViewModel(),
+    planListViewModel: PlanListViewModel = hiltViewModel(),
     onAddCategoryClicked: () -> Unit,
     modifier: Modifier
 ) {
+    val planListState by planListViewModel.uiState.collectAsState()
+    var planList: List<PlanModel>? = null
+
+    if (planListState.planListLoadingState is PlanListLoadingState.Loaded) {
+        budgetViewModel.setEvent(BudgetContract.Event.ClearBudgetCategoryItem)
+        planList = (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
+        LaunchedEffect(key1 = true, block = {
+            planList.map { plan: PlanModel ->
+                budgetViewModel.budgetData.value.category.value.map {
+                    if (it.categoryId.toString() == plan.category) {
+                        it.budget = plan.goalAmount.toString()
+                        it.isChecked = true
+                        budgetViewModel.setEvent(BudgetContract.Event.OnFetchBudgetCategoryItem(it))
+                    }
+                }
+            }
+        })
+    }
+
     val focusRequester = remember {
         FocusRequester()
     }
@@ -195,7 +214,8 @@ fun BudgetByCategoryItem(
     ) {
         CategoryIcon(
             modifier = Modifier.size(32.dp),
-            resId = budgetCategoryItem.categoryImage)
+            resId = budgetCategoryItem.categoryImage
+        )
         Spacer(modifier = Modifier.width(16.dp))
         Column {
             Text(

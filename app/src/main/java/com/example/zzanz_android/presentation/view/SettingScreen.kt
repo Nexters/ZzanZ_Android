@@ -30,6 +30,7 @@ import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.util.keyboardAsState
 import com.example.zzanz_android.domain.model.Category
+import com.example.zzanz_android.domain.model.PlanModel
 import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavigation
 import com.example.zzanz_android.presentation.view.component.BottomGreenButton
 import com.example.zzanz_android.presentation.view.component.CategoryBottomSheet
@@ -39,6 +40,9 @@ import com.example.zzanz_android.presentation.view.setting.BudgetCategory
 import com.example.zzanz_android.presentation.view.setting.NestEggExplainText
 import com.example.zzanz_android.presentation.view.setting.SetBudget
 import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
+import com.example.zzanz_android.presentation.viewmodel.PlanListLoadingState
+import com.example.zzanz_android.presentation.viewmodel.PlanListUiEvent
+import com.example.zzanz_android.presentation.viewmodel.PlanListViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,6 +51,7 @@ fun Setting(
     navController: NavHostController,
     route: String = SettingNavRoutes.Budget.route,
     budgetViewModel: BudgetViewModel = hiltViewModel(),
+    planListViewModel: PlanListViewModel = hiltViewModel(),
     settingType: String? = SettingType.onBoarding
 ) {
     val uiData = budgetViewModel.uiData.collectAsState().value
@@ -59,6 +64,7 @@ fun Setting(
     if (uiData == null) return
 
     val title = stringResource(id = uiData.titleText)
+    val planListState by planListViewModel.uiState.collectAsState()
 
     var buttonTitle: String = ""
     val coroutineScope = rememberCoroutineScope()
@@ -94,6 +100,24 @@ fun Setting(
         budgetViewModel.effect.collect {
             when (it) {
                 BudgetContract.Effect.NextRoutes -> {
+                    if (route == SettingNavRoutes.BudgetByCategory.route && settingType == SettingType.home) {
+                        var planList: List<PlanModel>? = null
+                        val newPlanList : MutableList<PlanModel> = mutableListOf()
+                        if (planListState.planListLoadingState is PlanListLoadingState.Loaded) {
+                            budgetViewModel.setEvent(BudgetContract.Event.ClearBudgetCategoryItem)
+                            planList = (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
+                        }
+                        budgetViewModel.budgetData.value.category.value.map {budget ->
+                            planList?.map {plan ->
+                                if (budget.categoryId.toString() == plan.category) {
+                                    newPlanList.add(
+                                        plan.copy(goalAmount = budget.budget.toInt())
+                                    )
+                                }
+                            }
+                        }
+                        planListViewModel.setEvent(PlanListUiEvent.SetPlanList(newPlanList))
+                    }
                     onNavRoutes.invoke()
                 }
             }
@@ -161,6 +185,7 @@ fun Setting(
                     BudgetByCategory(
                         titleText = title,
                         budgetViewModel = budgetViewModel,
+                        planListViewModel = planListViewModel,
                         onAddCategoryClicked = {
                             coroutineScope.launch {
                                 sheetState.show()

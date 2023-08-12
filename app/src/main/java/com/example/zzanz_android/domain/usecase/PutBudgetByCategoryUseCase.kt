@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-class BudgetByCategoryUseCase @Inject constructor(
+class PutBudgetByCategoryUseCase @Inject constructor(
     private val repository: ChallengeRepository,
     @IoDispatcher  val dispatcher: CoroutineDispatcher
 ) : BaseUseCase<Boolean, List<BudgetCategoryModel>>() {
@@ -26,7 +26,7 @@ class BudgetByCategoryUseCase @Inject constructor(
             it.toDto()
         }
         return repository
-            .postCategoryGoalAmount(goalAmountDtoList = goalAmountList)
+            .putCategoryGoalAmount(goalAmountDtoList = goalAmountList)
             .flowOn(dispatcher)
     }
 }

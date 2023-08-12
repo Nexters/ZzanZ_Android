@@ -13,6 +13,8 @@ interface ChallengeService {
     suspend fun postGoalAmount(goalAmountDto: GoalAmountDto): Resource<Boolean>
 
     suspend fun postCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Resource<Boolean>
+    suspend fun putCategoryGoalAmount(goalAmountDtoList: List<GoalAmountByCategoryDto>): Resource<Boolean>
+
 
     suspend fun putGoalAmount(goalAmountDto: GoalAmountDto): Resource<Boolean>
 

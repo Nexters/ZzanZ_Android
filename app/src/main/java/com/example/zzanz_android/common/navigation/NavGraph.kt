@@ -3,6 +3,7 @@ package com.example.zzanz_android.common.navigation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -16,12 +17,14 @@ import com.example.zzanz_android.presentation.view.category.CategoryScreen
 import com.example.zzanz_android.presentation.view.home.HomeScreen
 import com.example.zzanz_android.presentation.view.notification.NotificationSetting
 import com.example.zzanz_android.presentation.view.spending.AddSpendingScreen
+import com.example.zzanz_android.presentation.viewmodel.PlanListViewModel
 
 @Composable
 fun NavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = NavRoutes.Splash.route
+    startDestination: String = NavRoutes.Splash.route,
+    planListViewModel: PlanListViewModel = hiltViewModel()
 ) {
     androidx.navigation.compose.NavHost(
         modifier = modifier.fillMaxSize(),
@@ -32,7 +35,7 @@ fun NavHost(
             Splash(navController)
         }
         composable(NavRoutes.Home.route) {
-            HomeScreen(navController)
+            HomeScreen(navController, planListViewModel = planListViewModel)
         }
         composable(
             route = NavRoutes.Spending.route + "/{${ArgumentKey.planId}}/{${ArgumentKey.remainAmount}}/{${ArgumentKey.categoryName}}",
@@ -54,23 +57,26 @@ fun NavHost(
             val settingType = backStackEntry.arguments?.getString(ArgumentKey.settingType)
             NotificationSetting(navController, settingType)
         }
-        composable(route = NavRoutes.Category.route + "/{${ArgumentKey.planId}}/{${ArgumentKey.challengeStatus}}",
+        composable(
+            route = NavRoutes.Category.route + "/{${ArgumentKey.planId}}/{${ArgumentKey.challengeStatus}}",
             arguments = listOf(navArgument(ArgumentKey.planId) {
                 type = NavType.IntType
             }, navArgument(ArgumentKey.challengeStatus) {
                 type = NavType.StringType
-            })) {
+            })
+        ) {
             CategoryScreen(navController = navController)
         }
-        settingGraph(navController = navController)
+        settingGraph(navController = navController, planListViewModel = planListViewModel)
         splashGraph(navController = navController)
     }
 }
 
-fun NavGraphBuilder.splashGraph(navController: NavHostController) {
+fun NavGraphBuilder.splashGraph(
+    navController: NavHostController
+) {
     navigation(
-        startDestination = SplashNavRoutes.ExplainService.route,
-        route = NavRoutes.Splash.route
+        startDestination = SplashNavRoutes.ExplainService.route, route = NavRoutes.Splash.route
     ) {
         composable(SplashNavRoutes.ExplainService.route) {
             Splash(navController = navController, SplashNavRoutes.ExplainService.route)
@@ -81,7 +87,10 @@ fun NavGraphBuilder.splashGraph(navController: NavHostController) {
     }
 }
 
-fun NavGraphBuilder.settingGraph(navController: NavHostController) {
+fun NavGraphBuilder.settingGraph(
+    navController: NavHostController,
+    planListViewModel: PlanListViewModel
+) {
     navigation(
         startDestination = SettingNavRoutes.Budget.route, route = NavRoutes.Setting.route
     ) {
@@ -90,7 +99,8 @@ fun NavGraphBuilder.settingGraph(navController: NavHostController) {
             Setting(
                 navController = navController,
                 route = SettingNavRoutes.Budget.route,
-                settingType = settingType
+                settingType = settingType,
+                planListViewModel = planListViewModel
             )
         }
         composable(SettingNavRoutes.BudgetByCategory.route + "/{${ArgumentKey.settingType}}") { backStackEntry ->
@@ -98,7 +108,8 @@ fun NavGraphBuilder.settingGraph(navController: NavHostController) {
             Setting(
                 navController = navController,
                 route = SettingNavRoutes.BudgetByCategory.route,
-                settingType = settingType
+                settingType = settingType,
+                planListViewModel = planListViewModel
             )
         }
         composable(SettingNavRoutes.BudgetCategory.route + "/{${ArgumentKey.settingType}}") { backStackEntry ->
@@ -106,7 +117,8 @@ fun NavGraphBuilder.settingGraph(navController: NavHostController) {
             Setting(
                 navController = navController,
                 route = SettingNavRoutes.BudgetCategory.route,
-                settingType = settingType
+                settingType = settingType,
+                planListViewModel = planListViewModel
             )
         }
     }

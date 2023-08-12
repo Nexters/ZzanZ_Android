@@ -18,6 +18,7 @@
     <string name="budget_by_category_complete_btn_title">모두 입력했어요</string>
     <string name="edit_budget_by_category_title">카테고리 예산을 수정할까요?</string>
     <!--notification view-->
+    <string name="edit_notification_time_title">소비 기록 알림을\n받을 시간을 선택해주세요</string>
     <string name="set_notification_time_title">소비 기록을 잊지 않도록\n매일 알림을 보내드릴게요</string>
     <string name="set_notification_time_btn_title">%s에 알림받기</string>
     <!-- category view -->

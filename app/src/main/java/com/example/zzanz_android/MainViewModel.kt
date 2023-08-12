@@ -3,9 +3,10 @@ package com.example.zzanz_android
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.common.Resource
+import com.example.zzanz_android.common.navigation.SettingNavRoutes
+import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.domain.usecase.preference.GetLastSettingRouteUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetFcmTokenUseCase
-import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 import com.example.zzanz_android.presentation.view.component.contract.GlobalContract
 import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
 import com.example.zzanz_android.presentation.viewmodel.BaseViewModel
@@ -19,14 +20,34 @@ class MainViewModel @Inject constructor(
     private val setTokenUseCase: SetFcmTokenUseCase,
     private val getLastSettingRouteUseCase: GetLastSettingRouteUseCase
 ) : BaseViewModel<GlobalContract.Event, GlobalContract.State, GlobalContract.Effect>() {
-    init {
-        // TODO - splash 작업 후, 자동 이동 되도록 수정할 예정
+
+    override fun createInitialState(): GlobalContract.State {
+        return GlobalContract.State(isLoading = mutableStateOf(false))
+    }
+
+    override fun handleEvent(event: GlobalContract.Event) {
+        when (event) {
+            is GlobalContract.Event.SetFcmToken -> {
+                setTokenUseCase(event.token)
+            }
+
+            is GlobalContract.Event.GetSettingLastRoute -> {
+                getLastSettingRoute()
+            }
+        }
+    }
+
+    private fun getLastSettingRoute() {
         viewModelScope.launch {
             getLastSettingRouteUseCase.invoke(null).collect {
                 when (it) {
                     is Resource.Success -> {
+                        var route = SettingNavRoutes.Budget.route
                         Timber.e("### getLastSettingRoute - ${it.data}")
-                        setEffect(GlobalContract.Effect.SetSettingLastRoute(it.data))
+                        if (!it.data.isNullOrEmpty()) {
+                            route = it.data
+                        }
+                        setEffect(GlobalContract.Effect.NavigationInvoke(route + "/${SettingType.onBoarding}"))
                     }
 
                     is Resource.Error -> {
@@ -38,18 +59,6 @@ class MainViewModel @Inject constructor(
 
                     else -> {}
                 }
-            }
-        }
-    }
-
-    override fun createInitialState(): GlobalContract.State {
-        return GlobalContract.State(isLoading = mutableStateOf(false))
-    }
-
-    override fun handleEvent(event: GlobalContract.Event) {
-        when (event) {
-            is GlobalContract.Event.SetFcmToken -> {
-                setTokenUseCase(event.token)
             }
         }
     }

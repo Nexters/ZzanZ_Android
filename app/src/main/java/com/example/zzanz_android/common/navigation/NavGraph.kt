@@ -50,11 +50,9 @@ fun NavHost(
         ) {
             AddSpendingScreen(navController = navController)
         }
-        composable(NavRoutes.Notification.route) {
-            NotificationSetting(navController)
-        }
-        composable(NavRoutes.Notification.route) {
-            NotificationSetting(navController)
+        composable(NavRoutes.Notification.route + "/{${ArgumentKey.settingType}}") { backStackEntry ->
+            val settingType = backStackEntry.arguments?.getString(ArgumentKey.settingType)
+            NotificationSetting(navController, settingType)
         }
         composable(
             route = NavRoutes.Category.route + "/{${ArgumentKey.planId}}/{${ArgumentKey.challengeStatus}}",

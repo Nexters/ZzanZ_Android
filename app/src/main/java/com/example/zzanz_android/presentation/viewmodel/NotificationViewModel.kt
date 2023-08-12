@@ -2,6 +2,7 @@ package com.example.zzanz_android.presentation.viewmodel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
+import com.example.zzanz_android.R
 import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.domain.model.NotificationModel
 import com.example.zzanz_android.domain.usecase.PostNotificationUseCase
@@ -24,7 +25,9 @@ class NotificationViewModel @Inject constructor(
 ) : BaseViewModel<NotificationContract.Event, NotificationContract.State, NotificationContract.Effect>() {
     override fun createInitialState(): NotificationContract.State {
         return NotificationContract.State(
-            hour = mutableStateOf(22), minute = mutableStateOf(0)
+            hour = mutableStateOf(22),
+            minute = mutableStateOf(0),
+            title = mutableStateOf(R.string.set_notification_time_title)
         )
     }
 
@@ -41,6 +44,18 @@ class NotificationViewModel @Inject constructor(
             is NotificationContract.Event.OnNextButtonClicked -> {
                 setNotificationTimeUseCase()
             }
+
+            is NotificationContract.Event.SetSettingType -> {
+                setTitle(event.settingType)
+            }
+        }
+    }
+
+    private fun setTitle(settingType: String?) {
+        if (settingType == null) {
+            setState(currentState.copy(title = mutableStateOf(R.string.set_notification_time_title)))
+        } else {
+            setState(currentState.copy(title = mutableStateOf(R.string.edit_notification_time_title)))
         }
     }
 
@@ -74,8 +89,7 @@ class NotificationViewModel @Inject constructor(
             Timber.e("NotificationTimeUseCase  hour - $hour, minute - $minute")
             setState(
                 currentState.copy(
-                    hour = mutableStateOf(hour),
-                    minute = mutableStateOf(minute)
+                    hour = mutableStateOf(hour), minute = mutableStateOf(minute)
                 )
             )
 
@@ -86,8 +100,7 @@ class NotificationViewModel @Inject constructor(
         viewModelScope.launch {
             setNotifiCationTimeUseCase.invoke(
                 listOf<Int>(
-                    uiState.value.hour.value,
-                    uiState.value.minute.value
+                    uiState.value.hour.value, uiState.value.minute.value
                 )
             ).collect { it ->
                 when (it) {

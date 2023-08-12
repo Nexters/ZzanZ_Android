@@ -33,6 +33,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.navigation.NavRoutes
+import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
@@ -45,13 +46,16 @@ import com.example.zzanz_android.presentation.viewmodel.NotificationViewModel
 @Composable
 fun NotificationSetting(
     navController: NavHostController,
+    settingType: String? = SettingType.onBoarding,
     notificationViewModel: NotificationViewModel = hiltViewModel()
 ) {
     val hour = notificationViewModel.uiState.collectAsState().value.hour.value
     val minute = notificationViewModel.uiState.collectAsState().value.minute.value
+    val titleRes = notificationViewModel.uiState.collectAsState().value.title.value
     var buttonTitle = stringResource(id = R.string.set_notification_time_btn_title)
     LaunchedEffect(key1 = true, block = {
         notificationViewModel.setEvent(NotificationContract.Event.GetNotificationTime)
+        notificationViewModel.setEvent(NotificationContract.Event.SetSettingType(settingType))
     })
     LaunchedEffect(key1 = Unit, block = {
         notificationViewModel.effect.collect {
@@ -78,7 +82,7 @@ fun NotificationSetting(
         Spacer(modifier = Modifier.height(8.dp))
         TitleText(
             modifier = Modifier,
-            text = stringResource(id = R.string.set_notification_time_title)
+            text = stringResource(titleRes)
         )
         Spacer(modifier = Modifier.weight(1f))
         Row(
@@ -190,5 +194,5 @@ fun CircularNumber(
 @Preview
 @Composable
 fun NotificationSettingPreview() {
-    NotificationSetting(navController = rememberNavController())
+    NotificationSetting(navController = rememberNavController(), settingType = null)
 }

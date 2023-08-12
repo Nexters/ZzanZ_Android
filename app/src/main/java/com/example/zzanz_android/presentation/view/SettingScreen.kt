@@ -75,7 +75,7 @@ fun Setting(
     val enteredCategoryCnt = budgetCategoryState.value.enteredCategory.value
 
     val onNavRoutes = {
-        navController.navigate(uiData.nextRoute) {
+        navController.navigate(uiData.nextRoute + "/${settingType}") {
             popUpTo(NavRoutes.Setting.route) {
                 inclusive = true
             }

@@ -168,8 +168,12 @@ fun BudgetByCategory(
 fun ExplainRemainingBudget(
     isRemainingBudgetEmpty: Boolean = false, totalBudget: String
 ) {
+    var isRemainingBudgetMinus: Boolean = false
     val budgetTitle = if (totalBudget.isEmpty()) "0" else {
-        if (totalBudget.toInt() < 0) "0"
+        if (totalBudget.toInt() < 0) {
+            isRemainingBudgetMinus = true
+            (totalBudget.toInt() * -1).toString()
+        }
         else totalBudget
     }
     Row(
@@ -186,7 +190,10 @@ fun ExplainRemainingBudget(
         Spacer(modifier = Modifier.width(7.dp))
         Text(
             text = if (isRemainingBudgetEmpty) stringResource(id = R.string.week_budget_complete_title)
-            else stringResource(id = R.string.remaining_budget_title, budgetTitle),
+            else {
+                if (isRemainingBudgetMinus) stringResource(id = R.string.over_budget_title)
+                else stringResource(id = R.string.remaining_budget_title, budgetTitle)
+            },
             style = ZzanZTypo.current.Body03,
             color = ZzanZColorPalette.current.Gray08
         )

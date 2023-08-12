@@ -4,9 +4,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.Resource
-import com.example.zzanz_android.domain.model.NotificationModel
-import com.example.zzanz_android.domain.usecase.PostNotificationUseCase
-import com.example.zzanz_android.domain.usecase.preference.GetFcmTokenUseCase
+import com.example.zzanz_android.domain.model.NotificationTimeModel
+import com.example.zzanz_android.domain.usecase.PostNotificationTimeUseCase
 import com.example.zzanz_android.domain.usecase.preference.GetNotificationTimeUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetNotificationTimeUseCase
 import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
@@ -18,8 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NotificationViewModel @Inject constructor(
-    private val postNotificationUseCase: PostNotificationUseCase,
-    private val getFcmTokenUseCase: GetFcmTokenUseCase,
+    private val postNotificationTimeUseCase: PostNotificationTimeUseCase,
     private val getNotifiCationTimeUseCase: GetNotificationTimeUseCase,
     private val setNotifiCationTimeUseCase: SetNotificationTimeUseCase
 ) : BaseViewModel<NotificationContract.Event, NotificationContract.State, NotificationContract.Effect>() {
@@ -42,7 +40,7 @@ class NotificationViewModel @Inject constructor(
             }
 
             is NotificationContract.Event.OnNextButtonClicked -> {
-                setNotificationTimeUseCase()
+                callNotificationTimeUseCase()
             }
 
             is NotificationContract.Event.SetSettingType -> {
@@ -96,7 +94,7 @@ class NotificationViewModel @Inject constructor(
         }
     }
 
-    private fun setNotificationTimeUseCase() {
+    private fun setNotificationTimeUsePreferences() {
         viewModelScope.launch {
             setNotifiCationTimeUseCase.invoke(
                 listOf<Int>(
@@ -107,7 +105,7 @@ class NotificationViewModel @Inject constructor(
                     is Resource.Success -> {
                         if (it.data) {
                             Timber.e("setNotificationTimeUseCase Success")
-                            getFcmTokenUseCase()
+                            setEffect(NotificationContract.Effect.NextRoutes)
                         }
                     }
 
@@ -122,45 +120,41 @@ class NotificationViewModel @Inject constructor(
         }
     }
 
-    private fun getFcmTokenUseCase() {
-        viewModelScope.launch {
-            getFcmTokenUseCase.invoke(null).collect { it ->
-                when (it) {
-                    is Resource.Success -> {
-                        it.data?.let { token: String ->
-                            GlobalUiEvent.showToast("getFcmTokenUseCase - Success")
-                            Timber.e("getFcmTokenUseCase - $token")
-                            callPostNotificationUseCase(token)
-                        }
-                    }
+//    private fun getFcmTokenUseCase() {
+//        viewModelScope.launch {
+//            getFcmTokenUseCase.invoke(null).collect { it ->
+//                when (it) {
+//                    is Resource.Success -> {
+//                        it.data?.let { token: String ->
+//                            GlobalUiEvent.showToast("getFcmTokenUseCase - Success")
+//                            Timber.e("getFcmTokenUseCase - $token")
+//                        }
+//                    }
+//
+//                    is Resource.Error -> {
+//                        it.exception.message?.let { message: String ->
+//                            Timber.e(message)
+//                            GlobalUiEvent.showToast(message)
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
-                    is Resource.Error -> {
-                        it.exception.message?.let { message: String ->
-                            Timber.e(message)
-                            GlobalUiEvent.showToast(message)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun callPostNotificationUseCase(token: String) {
+    private fun callNotificationTimeUseCase() {
         viewModelScope.launch {
-            postNotificationUseCase.invoke(
-                NotificationModel(
-                    fcmToken = token,
-                    operatingSystem = "ANDROID",
+            postNotificationTimeUseCase.invoke(
+                NotificationTimeModel(
                     notificationHour = uiState.value.hour.value,
                     notificationMinute = uiState.value.minute.value
                 )
-
             ).collect {
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
                             GlobalUiEvent.showToast("postNotificationConfig - Success")
-                            setEffect(NotificationContract.Effect.NextRoutes)
+                            setNotificationTimeUsePreferences()
                         }
                     }
 

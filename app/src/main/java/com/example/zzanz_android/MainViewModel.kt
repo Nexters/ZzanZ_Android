@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.navigation.SettingType
+import com.example.zzanz_android.domain.model.FcmTokenModel
+import com.example.zzanz_android.domain.usecase.PostFcmTokenUseCase
 import com.example.zzanz_android.domain.usecase.preference.GetLastSettingRouteUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetFcmTokenUseCase
 import com.example.zzanz_android.presentation.view.component.contract.GlobalContract
@@ -18,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val setTokenUseCase: SetFcmTokenUseCase,
+    private val postFcmTokenUseCase: PostFcmTokenUseCase,
     private val getLastSettingRouteUseCase: GetLastSettingRouteUseCase
 ) : BaseViewModel<GlobalContract.Event, GlobalContract.State, GlobalContract.Effect>() {
 
@@ -28,11 +31,42 @@ class MainViewModel @Inject constructor(
     override fun handleEvent(event: GlobalContract.Event) {
         when (event) {
             is GlobalContract.Event.SetFcmToken -> {
-                setTokenUseCase(event.token)
+                postFcmTokenUseCase(event.token)
             }
 
             is GlobalContract.Event.GetSettingLastRoute -> {
                 getLastSettingRoute()
+            }
+
+            else -> {}
+        }
+    }
+
+    private fun postFcmTokenUseCase(token: String) {
+        viewModelScope.launch {
+            postFcmTokenUseCase.invoke(
+                FcmTokenModel(
+                    fcmToken = token,
+                    operatingSystem = "ANDROID"
+                )
+            ).collect {
+                when (it) {
+                    is Resource.Success -> {
+                        if (it.data) {
+                            Timber.e("postFcmTokenUseCase Success")
+                            setTokenUseCase(token)
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        it.exception.message?.let { message: String ->
+                            Timber.e("error - $message")
+                            GlobalUiEvent.showToast(message)
+                        }
+                    }
+
+                    else -> {}
+                }
             }
         }
     }

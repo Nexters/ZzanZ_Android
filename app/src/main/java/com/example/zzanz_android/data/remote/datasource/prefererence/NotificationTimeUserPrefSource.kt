@@ -4,7 +4,7 @@ import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.data.remote.api.UserPreferenceServiceImpl
 import javax.inject.Inject
 
-class NotificationTimeSource @Inject constructor(
+class NotificationTimeUserPrefSource @Inject constructor(
     private val userPreferenceService: UserPreferenceServiceImpl
 ) {
     suspend fun getNotificationTime(): Resource<List<Int?>> {

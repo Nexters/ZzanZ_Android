@@ -2,15 +2,15 @@ package com.example.zzanz_android.data.remote.datasource
 
 import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.data.remote.api.NotificationService
-import com.example.zzanz_android.data.remote.dto.NotificationDto
+import com.example.zzanz_android.data.remote.dto.FcmTokenDto
 import javax.inject.Inject
 
-class NotificationSource @Inject constructor(
+class FcmTokenDataSource @Inject constructor(
     private val notificationApi: NotificationService
 ) {
-    suspend fun load(notificationDto: NotificationDto): Resource<Boolean> {
+    suspend fun load(fcmTokenDto: FcmTokenDto): Resource<Boolean> {
         return try {
-            notificationApi.postNotificationConfig(notificationDto = notificationDto)
+            notificationApi.postFcmToken(fcmToken = fcmTokenDto)
         } catch (e: Exception) {
             Resource.Error(e)
         }

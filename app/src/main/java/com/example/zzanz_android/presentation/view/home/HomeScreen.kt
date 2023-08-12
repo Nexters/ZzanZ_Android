@@ -47,6 +47,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.navigation.NavRoutes
+import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
@@ -145,7 +146,7 @@ fun HomeScreen(
                                             .height(56.dp),
                                         text = stringResource(id = R.string.home_edit_plan_btn_title),
                                         onClick = {
-                                            // TODO : gowoon - navigate to modify budget ( 유나한테 route, bundle 정보 받아서 연결 )
+                                            navController.navigate(NavRoutes.Notification.route + "/${SettingType.home}")
                                         },
                                         enabled = true
                                     )
@@ -160,9 +161,11 @@ fun HomeScreen(
             if (showDialog) {
                 PopupSheetDialog(
                     onDismiss = { showDialog = false },
-                    onClickChangeAlarm = { /* TODO */  },
-                    onClickSendFeedback = { /* TODO */  },
-                    onClickJoinCommunity = { /* TODO */  },
+                    onClickChangeAlarm = {
+                        navController.navigate(NavRoutes.Notification.route + "/${SettingType.home}")
+                    },
+                    onClickSendFeedback = { /* TODO */ },
+                    onClickJoinCommunity = { /* TODO */ },
                 )
             }
 

@@ -120,28 +120,6 @@ class NotificationViewModel @Inject constructor(
         }
     }
 
-//    private fun getFcmTokenUseCase() {
-//        viewModelScope.launch {
-//            getFcmTokenUseCase.invoke(null).collect { it ->
-//                when (it) {
-//                    is Resource.Success -> {
-//                        it.data?.let { token: String ->
-//                            GlobalUiEvent.showToast("getFcmTokenUseCase - Success")
-//                            Timber.e("getFcmTokenUseCase - $token")
-//                        }
-//                    }
-//
-//                    is Resource.Error -> {
-//                        it.exception.message?.let { message: String ->
-//                            Timber.e(message)
-//                            GlobalUiEvent.showToast(message)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     private fun callNotificationTimeUseCase() {
         viewModelScope.launch {
             postNotificationTimeUseCase.invoke(

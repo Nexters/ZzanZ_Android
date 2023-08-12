@@ -3,8 +3,6 @@ package com.example.zzanz_android
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.common.Resource
-import com.example.zzanz_android.common.navigation.SettingNavRoutes
-import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.domain.model.FcmTokenModel
 import com.example.zzanz_android.domain.usecase.PostFcmTokenUseCase
 import com.example.zzanz_android.domain.usecase.preference.GetLastSettingRouteUseCase
@@ -33,12 +31,6 @@ class MainViewModel @Inject constructor(
             is GlobalContract.Event.SetFcmToken -> {
                 postFcmTokenUseCase(event.token)
             }
-
-            is GlobalContract.Event.GetSettingLastRoute -> {
-                getLastSettingRoute()
-            }
-
-            else -> {}
         }
     }
 
@@ -64,34 +56,6 @@ class MainViewModel @Inject constructor(
                             GlobalUiEvent.showToast(message)
                         }
                     }
-
-                    else -> {}
-                }
-            }
-        }
-    }
-
-    private fun getLastSettingRoute() {
-        viewModelScope.launch {
-            getLastSettingRouteUseCase.invoke(null).collect {
-                when (it) {
-                    is Resource.Success -> {
-                        var route = SettingNavRoutes.Budget.route
-                        Timber.e("### getLastSettingRoute - ${it.data}")
-                        if (!it.data.isNullOrEmpty()) {
-                            route = it.data
-                        }
-                        setEffect(GlobalContract.Effect.NavigationInvoke(route + "/${SettingType.onBoarding}"))
-                    }
-
-                    is Resource.Error -> {
-                        it.exception.message?.let { message: String ->
-                            Timber.e("error - $message")
-                            GlobalUiEvent.showToast(message)
-                        }
-                    }
-
-                    else -> {}
                 }
             }
         }

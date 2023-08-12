@@ -9,6 +9,11 @@ sealed class NavRoutes(val route: String) {
     object Spending : NavRoutes("spending")
 }
 
+sealed class SplashNavRoutes {
+    object ExplainService : NavRoutes("explainService")
+    object ChallengeStart : NavRoutes("challengeStart")
+}
+
 sealed class SettingNavRoutes {
     object Budget : NavRoutes("BudgetSetting")
     object BudgetCategory : NavRoutes("BudgetCategorySetting")

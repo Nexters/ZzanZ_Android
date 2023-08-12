@@ -54,20 +54,30 @@ fun NavHost(
             val settingType = backStackEntry.arguments?.getString(ArgumentKey.settingType)
             NotificationSetting(navController, settingType)
         }
-        composable(
-            route = NavRoutes.Category.route + "/{${ArgumentKey.planId}}/{${ArgumentKey.challengeStatus}}",
-            arguments = listOf(
-                navArgument(ArgumentKey.planId){
-                    type = NavType.IntType
-                },
-                navArgument(ArgumentKey.challengeStatus){
-                    type = NavType.StringType
-                }
-            )
-        ) {
+        composable(route = NavRoutes.Category.route + "/{${ArgumentKey.planId}}/{${ArgumentKey.challengeStatus}}",
+            arguments = listOf(navArgument(ArgumentKey.planId) {
+                type = NavType.IntType
+            }, navArgument(ArgumentKey.challengeStatus) {
+                type = NavType.StringType
+            })) {
             CategoryScreen(navController = navController)
         }
         settingGraph(navController = navController)
+        splashGraph(navController = navController)
+    }
+}
+
+fun NavGraphBuilder.splashGraph(navController: NavHostController) {
+    navigation(
+        startDestination = SplashNavRoutes.ExplainService.route,
+        route = NavRoutes.Splash.route
+    ) {
+        composable(SplashNavRoutes.ExplainService.route) {
+            Splash(navController = navController, SplashNavRoutes.ExplainService.route)
+        }
+        composable(SplashNavRoutes.ChallengeStart.route) {
+            Splash(navController = navController, SplashNavRoutes.ChallengeStart.route)
+        }
     }
 }
 
@@ -93,7 +103,11 @@ fun NavGraphBuilder.settingGraph(navController: NavHostController) {
         }
         composable(SettingNavRoutes.BudgetCategory.route + "/{${ArgumentKey.settingType}}") { backStackEntry ->
             val settingType = backStackEntry.arguments?.getString(ArgumentKey.settingType)
-            Setting(navController = navController, route = SettingNavRoutes.BudgetCategory.route, settingType = settingType)
+            Setting(
+                navController = navController,
+                route = SettingNavRoutes.BudgetCategory.route,
+                settingType = settingType
+            )
         }
     }
 }

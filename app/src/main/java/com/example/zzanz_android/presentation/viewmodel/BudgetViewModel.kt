@@ -1,6 +1,5 @@
 package com.example.zzanz_android.presentation.viewmodel
 
-import androidx.annotation.StringRes
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.R
@@ -16,6 +15,7 @@ import com.example.zzanz_android.domain.usecase.BudgetByCategoryUseCase
 import com.example.zzanz_android.domain.usecase.PostBudgetUseCase
 import com.example.zzanz_android.domain.usecase.PutBudgetUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetLastSettingRouteUseCase
+import com.example.zzanz_android.presentation.view.component.SettingUiData
 import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -404,13 +404,4 @@ class BudgetViewModel @Inject constructor(
         )
     }
 }
-
-data class SettingUiData(
-    val currentRoute: String,
-    @StringRes val titleText: Int,
-    @StringRes var buttonText: Int,
-    val nextRoute: String,
-    val backRoute: String,
-)
-
 

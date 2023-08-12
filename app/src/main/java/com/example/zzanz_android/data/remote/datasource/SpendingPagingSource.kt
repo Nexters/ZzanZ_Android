@@ -6,7 +6,6 @@ import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.data.remote.api.ChallengeService
 import com.example.zzanz_android.data.remote.dto.ChallengeDto
 import com.example.zzanz_android.data.remote.dto.SpendingDto
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,7 +22,7 @@ class SpendingPagingSource @Inject constructor(
                 is Resource.Success -> {
                     planInfo.emit(ChallengeDto.Plan(
                         planId,
-                        "FOOD", // TODO 카테고리 내려오면 그 값으로 교체
+                        response.data.category,
                         response.data.goalAmount,
                         response.data.spendAmount
                     ))

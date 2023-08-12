@@ -54,17 +54,21 @@ fun Setting(
     planListViewModel: PlanListViewModel = hiltViewModel(),
     settingType: String? = SettingType.onBoarding
 ) {
+    val planListState by planListViewModel.uiState.collectAsState()
     val uiData = budgetViewModel.uiData.collectAsState().value
     LaunchedEffect(key1 = true, block = {
         budgetViewModel.setEvent(BudgetContract.Event.GetSettingUiData(route, settingType))
+        var planList: List<PlanModel>? = null
+        if (planListState.planListLoadingState is PlanListLoadingState.Loaded) {
+            planList = (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
+            budgetViewModel.setEvent(BudgetContract.Event.SetBudgetCategoryList(planList))
+        }
+
     })
 
-    LaunchedEffect(key1 = uiData, block = {
-    })
     if (uiData == null) return
 
     val title = stringResource(id = uiData.titleText)
-    val planListState by planListViewModel.uiState.collectAsState()
 
     var buttonTitle: String = ""
     val coroutineScope = rememberCoroutineScope()
@@ -82,9 +86,6 @@ fun Setting(
 
     val onNavRoutes = {
         navController.navigate(uiData.nextRoute + "/${settingType}") {
-            popUpTo(NavRoutes.Setting.route) {
-                inclusive = true
-            }
         }
     }
 
@@ -123,12 +124,6 @@ fun Setting(
             }
         }
     }
-
-    LaunchedEffect(key1 = buttonState, block = {})
-    LaunchedEffect(key1 = isKeyboardOpen, block = {})
-    LaunchedEffect(key1 = budgetCategoryData, block = {})
-    LaunchedEffect(key1 = totalCategoryCnt, key2 = enteredCategoryCnt, block = {})
-
     if (route == SettingNavRoutes.BudgetByCategory.route) {
         if (isKeyboardOpen) {
             if (totalCategoryCnt != enteredCategoryCnt) {

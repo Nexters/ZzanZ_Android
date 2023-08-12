@@ -1,8 +1,5 @@
 package com.example.zzanz_android
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -77,7 +74,6 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
-                    LaunchedEffect(key1 = isKeyboardOpen, block = {})
                     LaunchedEffect(key1 = Unit) {
                         GlobalUiEvent.uiEffect.collect {
                             Timber.d("### Collected GlobalContract Effect - $it")

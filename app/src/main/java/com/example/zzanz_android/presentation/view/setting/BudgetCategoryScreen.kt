@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -18,9 +17,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.zzanz_android.R
 import com.example.zzanz_android.domain.model.Category
-import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 import com.example.zzanz_android.presentation.view.component.CustomCategoryButton
 import com.example.zzanz_android.presentation.view.component.TitleText
+import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
 
 @Composable
@@ -31,9 +30,6 @@ fun BudgetCategory(
     titleText: String,
 ) {
     val budgetCategoryData = budgetViewModel.budgetData.collectAsState().value.category
-
-    LaunchedEffect(key1 = budgetCategoryData, block = {})
-
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {

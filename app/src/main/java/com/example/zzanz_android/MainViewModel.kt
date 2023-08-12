@@ -3,9 +3,6 @@ package com.example.zzanz_android
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.common.Resource
-import com.example.zzanz_android.domain.model.FcmTokenModel
-import com.example.zzanz_android.domain.usecase.PostFcmTokenUseCase
-import com.example.zzanz_android.domain.usecase.preference.GetLastSettingRouteUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetFcmTokenUseCase
 import com.example.zzanz_android.presentation.view.component.contract.GlobalContract
 import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
@@ -17,9 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val setTokenUseCase: SetFcmTokenUseCase,
-    private val postFcmTokenUseCase: PostFcmTokenUseCase,
-    private val getLastSettingRouteUseCase: GetLastSettingRouteUseCase
+    private val setTokenUseCase: SetFcmTokenUseCase
 ) : BaseViewModel<GlobalContract.Event, GlobalContract.State, GlobalContract.Effect>() {
 
     override fun createInitialState(): GlobalContract.State {
@@ -29,34 +24,7 @@ class MainViewModel @Inject constructor(
     override fun handleEvent(event: GlobalContract.Event) {
         when (event) {
             is GlobalContract.Event.SetFcmToken -> {
-                postFcmTokenUseCase(event.token)
-            }
-        }
-    }
-
-    private fun postFcmTokenUseCase(token: String) {
-        viewModelScope.launch {
-            postFcmTokenUseCase.invoke(
-                FcmTokenModel(
-                    fcmToken = token,
-                    operatingSystem = "ANDROID"
-                )
-            ).collect {
-                when (it) {
-                    is Resource.Success -> {
-                        if (it.data) {
-                            Timber.e("postFcmTokenUseCase Success")
-                            setTokenUseCase(token)
-                        }
-                    }
-
-                    is Resource.Error -> {
-                        it.exception.message?.let { message: String ->
-                            Timber.e("error - $message")
-                            GlobalUiEvent.showToast(message)
-                        }
-                    }
-                }
+                setTokenUseCase(event.token)
             }
         }
     }
@@ -67,7 +35,7 @@ class MainViewModel @Inject constructor(
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
-//                            GlobalUiEvent.showToast("Success Fcm Token Save")
+                            GlobalUiEvent.showToast("Success Fcm Token Save")
                         }
                     }
 

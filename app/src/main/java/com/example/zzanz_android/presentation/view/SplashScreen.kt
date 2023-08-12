@@ -47,9 +47,7 @@ fun Splash(
         splashViewModel.effect.collect { it ->
             when (it) {
                 is SplashContract.Effect.NextRoutes -> {
-                    navController.navigate(it.route) {
-                        navController.popBackStack(NavRoutes.Splash.route, true)
-                    }
+                    navController.navigate(it.route)
                 }
             }
         }

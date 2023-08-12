@@ -15,6 +15,7 @@ import com.example.zzanz_android.domain.usecase.PostBudgetByCategoryUseCase
 import com.example.zzanz_android.domain.usecase.PostBudgetUseCase
 import com.example.zzanz_android.domain.usecase.PutBudgetByCategoryUseCase
 import com.example.zzanz_android.domain.usecase.PutBudgetUseCase
+import com.example.zzanz_android.domain.usecase.preference.GetFcmTokenUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetLastSettingRouteUseCase
 import com.example.zzanz_android.presentation.view.component.SettingUiData
 import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
@@ -22,6 +23,7 @@ import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEv
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -40,6 +42,7 @@ class BudgetViewModel @Inject constructor(
 
     private val _budgetData = MutableStateFlow(BudgetCategoryData)
     val budgetData = _budgetData.asStateFlow()
+    val currentBudgetData = _budgetData.value
 
     private val _uiData: MutableStateFlow<SettingUiData?> = MutableStateFlow(null)
     val uiData = _uiData.asStateFlow()
@@ -51,6 +54,21 @@ class BudgetViewModel @Inject constructor(
         when (event) {
             is BudgetContract.Event.SetSettingScreenType -> {
                 setScreenType(event.route)
+            }
+
+            is BudgetContract.Event.SetBudgetCategoryList -> {
+                clearBudgetByCategoryList()
+                _budgetData.value.category.value = _budgetData.value.category.value.map {budget ->
+                    event.category.forEach{plan ->
+                        if (plan.category == budget.categoryId.toString()) {
+                            budget.isChecked = true
+                            budget.budget = plan.goalAmount.toString()
+                            return@map budget
+                        }
+                    }
+                    return@map budget
+                }
+                setNestEggCategoryItem()
             }
 
             is BudgetContract.Event.SetScreenState -> {
@@ -78,12 +96,19 @@ class BudgetViewModel @Inject constructor(
             }
 
             is BudgetContract.Event.ClearBudgetCategoryItem -> {
-                _budgetData.value.category.value.map {
-                    it.isChecked = false
-                    setBudgetCategoryItem(it)
-                }
+                clearBudgetByCategoryList()
             }
 
+        }
+    }
+
+    private fun clearBudgetByCategoryList() {
+        _budgetData.value.category.value = _budgetData.value.category.value.map {
+            if (it.categoryId != Category.NESTEGG) {
+                it.isChecked = false
+                return@map it
+            }
+            return@map it
         }
     }
 
@@ -285,7 +310,6 @@ class BudgetViewModel @Inject constructor(
         if (_settingType.value == SettingType.onBoarding) return postBudgetUseCase()
         return putBudgetUseCase()
     }
-
 
     private fun postBudgetByCategoryUseCase() {
         viewModelScope.launch {

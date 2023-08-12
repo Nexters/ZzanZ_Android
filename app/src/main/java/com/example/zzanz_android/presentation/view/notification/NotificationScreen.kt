@@ -67,8 +67,6 @@ fun NotificationSetting(
         }
     })
 
-    LaunchedEffect(key1 = hour, key2 = minute, block = {
-    })
     val args = "${String.format("%02d", hour)}:${String.format("%02d", minute)}"
     buttonTitle = stringResource(id = R.string.set_notification_time_btn_title, args)
 
@@ -81,8 +79,7 @@ fun NotificationSetting(
         AppBarWithBackNavigation(isBackIconVisible = false)
         Spacer(modifier = Modifier.height(8.dp))
         TitleText(
-            modifier = Modifier,
-            text = stringResource(titleRes)
+            modifier = Modifier, text = stringResource(titleRes)
         )
         Spacer(modifier = Modifier.weight(1f))
         Row(
@@ -115,12 +112,9 @@ fun NotificationSetting(
         }
         Spacer(modifier = Modifier.weight(1f))
         GreenRoundButton(
-            modifier = Modifier.fillMaxWidth(),
-            text = buttonTitle,
-            onClick = {
+            modifier = Modifier.fillMaxWidth(), text = buttonTitle, onClick = {
                 notificationViewModel.setEvent(NotificationContract.Event.OnNextButtonClicked)
-            },
-            enabled = true
+            }, enabled = true
         )
         Spacer(modifier = Modifier.height(24.dp))
     }
@@ -178,7 +172,8 @@ fun CircularNumber(
                 Box(
                     modifier = Modifier
                         .height(cellSize)
-                        .width(46.dp), contentAlignment = Alignment.Center
+                        .width(46.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = if (isHour) num.toString() else String.format("%02d", num),

@@ -60,7 +60,7 @@ class MainViewModel @Inject constructor(
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
-                            GlobalUiEvent.showToast("Success Fcm Token Save")
+//                            GlobalUiEvent.showToast("Success Fcm Token Save")
                         }
                     }
 

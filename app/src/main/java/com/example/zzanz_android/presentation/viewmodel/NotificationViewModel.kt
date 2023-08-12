@@ -58,7 +58,7 @@ class NotificationViewModel @Inject constructor(
                             times[1]?.let {
                                 minute = it
                             }
-                            GlobalUiEvent.showToast("NotificationTimeUseCase Success")
+//                            GlobalUiEvent.showToast("NotificationTimeUseCase Success")
 
                         }
                     }

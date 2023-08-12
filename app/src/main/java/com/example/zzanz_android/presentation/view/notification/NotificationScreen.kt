@@ -36,12 +36,11 @@ import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
-import com.example.zzanz_android.presentation.view.component.contract.NotificationContract
 import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavigation
 import com.example.zzanz_android.presentation.view.component.GreenRoundButton
 import com.example.zzanz_android.presentation.view.component.TitleText
+import com.example.zzanz_android.presentation.view.component.contract.NotificationContract
 import com.example.zzanz_android.presentation.viewmodel.NotificationViewModel
-import timber.log.Timber
 
 @Composable
 fun NotificationSetting(
@@ -99,7 +98,7 @@ fun NotificationSetting(
             Text(
                 text = ":",
                 color = ZzanZColorPalette.current.Gray09,
-                style = ZzanZTypo.current.Heading
+                style = ZzanZTypo.current.Heading.copy(fontSize = 36.sp)
             )
             Spacer(modifier = Modifier.width(32.dp))
             CircularNumber(
@@ -160,7 +159,7 @@ fun CircularNumber(
     Box(
         modifier = Modifier
             .height(height)
-            .wrapContentWidth()
+            .width(46.dp),
     ) {
         LazyColumn(
             modifier = Modifier.wrapContentWidth(),
@@ -171,15 +170,16 @@ fun CircularNumber(
                 // if 12hr format, move 1 hour so instead of displaying 00 -> 11
                 // it will display 01 to 12
                 val num = (it % hourSize) + hourOffset
-                Timber.e(scrollState.firstVisibleItemIndex.toString())
-                Timber.e("## - $it")
+                val isFocusedNum = (scrollState.firstVisibleItemIndex + 1) == it
                 Box(
-                    modifier = Modifier.height(cellSize), contentAlignment = Alignment.Center
+                    modifier = Modifier
+                        .height(cellSize)
+                        .width(46.dp), contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = String.format("%02d", num),
-                        style = ZzanZTypo.current.Heading.copy(fontSize = 36.sp),
-                        color = ZzanZColorPalette.current.Gray09
+                        text = if (isHour) num.toString() else String.format("%02d", num),
+                        style = ZzanZTypo.current.Heading.copy(fontSize = if (isFocusedNum) 36.sp else 28.sp),
+                        color = if (isFocusedNum) ZzanZColorPalette.current.Gray09 else ZzanZColorPalette.current.Gray04
                     )
                 }
             })

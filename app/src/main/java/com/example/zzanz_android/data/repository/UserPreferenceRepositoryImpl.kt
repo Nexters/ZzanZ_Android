@@ -4,7 +4,7 @@ import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.data.mapper.UserPrefMapper.toModel
 import com.example.zzanz_android.data.remote.datasource.prefererence.FcmTokenUserPrefSource
 import com.example.zzanz_android.data.remote.datasource.prefererence.LastRoutePrefSource
-import com.example.zzanz_android.data.remote.datasource.prefererence.NotificationTimeSource
+import com.example.zzanz_android.data.remote.datasource.prefererence.NotificationTimeUserPrefSource
 import com.example.zzanz_android.data.remote.datasource.prefererence.UserPrefSource
 import com.example.zzanz_android.data.remote.dto.UserPrefDto
 import com.example.zzanz_android.domain.model.UserPref
@@ -18,7 +18,7 @@ class UserPreferenceRepositoryImpl @Inject constructor(
     private val userPrefSource: UserPrefSource,
     private val fcmTokenUserPrefSource: FcmTokenUserPrefSource,
     private val routePrefSource: LastRoutePrefSource,
-    private val notificationTimeSource: NotificationTimeSource
+    private val notificationTimeUserPrefSource: NotificationTimeUserPrefSource
 ) : UserPreferenceRepository {
     override suspend fun setUserPref(userPref: UserPrefDto): Flow<Resource<Boolean>> {
         return flow {
@@ -69,14 +69,14 @@ class UserPreferenceRepositoryImpl @Inject constructor(
         hour: Int, minute: Int
     ): Flow<Resource<Boolean>> {
         return flow {
-            val result = notificationTimeSource.setNotificationTime(hour, minute)
+            val result = notificationTimeUserPrefSource.setNotificationTime(hour, minute)
             emit(result)
         }
     }
 
     override suspend fun getNotificationTime(): Flow<Resource<List<Int?>>> {
         return flow {
-            val result = notificationTimeSource.getNotificationTime()
+            val result = notificationTimeUserPrefSource.getNotificationTime()
             emit(result)
         }
     }

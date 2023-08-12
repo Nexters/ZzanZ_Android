@@ -4,11 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NotificationDto (
-    @SerialName("fcmToken")
-    val fcmToken: String,
-    @SerialName("operatingSystem")
-    val operatingSystem: String,
+data class NotificationTimeDto(
     @SerialName("notificationHour")
     val notificationHour: Int,
     @SerialName("notificationMinute")

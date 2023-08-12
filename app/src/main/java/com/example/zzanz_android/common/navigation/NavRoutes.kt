@@ -5,6 +5,7 @@ sealed class NavRoutes(val route: String) {
     object Home : NavRoutes("home")
     object Setting : NavRoutes("setting")
     object Notification : NavRoutes("notification")
+    object Category : NavRoutes("category")
     object Spending : NavRoutes("spending")
 }
 
@@ -15,7 +16,8 @@ sealed class SettingNavRoutes {
 }
 
 object ArgumentKey{
-    const val planIn = "planId"
+    const val planId = "planId"
     const val categoryName = "categoryName"
     const val remainAmount = "remainAmount"
+    const val challengeStatus = "challengeStatus"
 }

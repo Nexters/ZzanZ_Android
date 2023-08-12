@@ -92,7 +92,7 @@ class AddSpendingViewModel @Inject constructor(
 
     private fun submitSpending() {
         viewModelScope.launch {
-            val planId: Int = checkNotNull(savedStateHandle[ArgumentKey.planIn])
+            val planId: Int = checkNotNull(savedStateHandle[ArgumentKey.planId])
             addSpendingUseCase(planId, currentState.spending)
         }
     }

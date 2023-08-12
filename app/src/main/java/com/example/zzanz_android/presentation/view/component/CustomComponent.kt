@@ -51,6 +51,7 @@ import com.example.zzanz_android.R
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.common.ui.util.dpToPx
+import com.example.zzanz_android.domain.model.Category
 import com.example.zzanz_android.domain.model.ChallengeStatus
 import com.example.zzanz_android.domain.util.MoneyFormatter
 import com.example.zzanz_android.presentation.view.component.util.MoneyCommaVisualTransformation
@@ -310,14 +311,18 @@ fun RemainAmountText(
 }
 
 @Composable
-fun AddSpendingComponent() {
+fun AddSpendingComponent(
+    onClick: () -> Unit
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
         Row(
-            modifier = Modifier.padding(vertical = 10.dp),
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+                .clickable { onClick() },
             verticalAlignment = Alignment.CenterVertically
         ) {
             AddIcon()
@@ -328,7 +333,7 @@ fun AddSpendingComponent() {
 }
 
 @Composable
-fun SpendingItemComponent(title: String, memo: String, amount: String) {
+fun SpendingItemComponent(category: String, title: String, memo: String, amount: String) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -338,13 +343,16 @@ fun SpendingItemComponent(title: String, memo: String, amount: String) {
             modifier = Modifier.padding(vertical = 17.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AddIcon() // TODO : gowoon - 임시 아무 아이콘
+            CategoryIcon(
+                modifier = Modifier.size(32.dp),
+                resId = Category.valueOf(category).imgResId
+            )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 TitleText(title = title)
                 MemoText(memo = memo)
             }
-            AmountText(amount = amount)
+            AmountText(amount = amount + stringResource(id = R.string.money_unit))
         }
     }
 }

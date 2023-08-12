@@ -32,6 +32,7 @@ import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.common.ui.util.keyboardAsState
+import com.example.zzanz_android.domain.model.Category
 import com.example.zzanz_android.domain.util.MoneyFormatter
 import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavigation
 import com.example.zzanz_android.presentation.view.component.BottomGreenButton
@@ -124,7 +125,7 @@ fun AddSpendingScreen(
                     )
                 },
                 isOver = addSpendingState.diffAmountState?.isOver ?: false,
-                category = category.value,
+                category = stringResource(id = Category.valueOf(category.value).stringResId),
                 onAmountChanged = { newText ->
                     amount.value = newText
                     viewModel.setEvent(

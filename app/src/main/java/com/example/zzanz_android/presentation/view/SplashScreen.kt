@@ -83,11 +83,15 @@ fun Splash(navController: NavHostController, mainViewModel: MainViewModel = hilt
                     route = NavRoutes.Home.route, onButtonClicked = onButtonClicked
                 )
                 TestNavButton(
-                    route = NavRoutes.Spending.route + "/1/5000/식비",
+                    route = NavRoutes.Spending.route + "/1/5000/FOOD",
                     onButtonClicked = onButtonClicked
                 )
                 TestNavButton(
                     route = NavRoutes.Notification.route, onButtonClicked = onButtonClicked
+                )
+                TestNavButton(
+                    route = NavRoutes.Category.route + "/1/OPENED",
+                    onButtonClicked = onButtonClicked
                 )
             }
         }

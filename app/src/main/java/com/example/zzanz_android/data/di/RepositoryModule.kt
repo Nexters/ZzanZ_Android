@@ -5,7 +5,7 @@ import com.example.zzanz_android.data.remote.datasource.ChallengePagingSource
 import com.example.zzanz_android.data.remote.datasource.GoalAmountByCategorySource
 import com.example.zzanz_android.data.remote.datasource.GoalAmountSource
 import com.example.zzanz_android.data.remote.datasource.NotificationSource
-import com.example.zzanz_android.data.remote.datasource.SpendingPagingSource
+import com.example.zzanz_android.data.remote.datasource.SpendingDatasource
 import com.example.zzanz_android.data.remote.datasource.prefererence.FcmTokenUserPrefSource
 import com.example.zzanz_android.data.remote.datasource.prefererence.LastRoutePrefSource
 import com.example.zzanz_android.data.remote.datasource.prefererence.UserPrefSource
@@ -33,13 +33,11 @@ object RepositoryModule {
         challengePagingSource: ChallengePagingSource,
         goalAmountSource: GoalAmountSource,
         goalAmountByCategorySource: GoalAmountByCategorySource,
-        spendingPagingSource: SpendingPagingSource
     ): ChallengeRepository {
         return ChallengeRepositoryImpl(
             challengePagingSource,
             goalAmountSource,
-            goalAmountByCategorySource,
-            spendingPagingSource
+            goalAmountByCategorySource
         )
     }
 
@@ -56,9 +54,13 @@ object RepositoryModule {
     @Provides
     @ViewModelScoped
     fun provideSpendingRepository(
-        challengeService: ChallengeService
+        challengeService: ChallengeService,
+        spendingDatasource: SpendingDatasource
     ): SpendingRepository {
-        return SpendingRepositoryImpl(challengeService)
+        return SpendingRepositoryImpl(
+            challengeService,
+            spendingDatasource
+        )
     }
 
     @Provides

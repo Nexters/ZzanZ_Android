@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SpendingListDto(
+    @SerialName("category")
+    val category: String,
     @SerialName("goalAmount")
     val goalAmount: Int,
     @SerialName("spendAmount")

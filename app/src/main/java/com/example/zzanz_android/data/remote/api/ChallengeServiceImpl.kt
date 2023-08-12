@@ -37,7 +37,6 @@ class ChallengeServiceImpl @Inject constructor(
                 HttpStatusCode.OK -> {
                     return Resource.Success(response.body())
                 }
-
                 else -> {
                     throw Exception("Unknown Error")
                 }
@@ -140,7 +139,7 @@ class ChallengeServiceImpl @Inject constructor(
 
                 HttpStatusCode.BadRequest -> {
                     // 400 : 카테고리 정보가 존재하지 않습니다.
-                    throw Exception(response.status.description)
+                    throw Exception(response.body<BaseResponseDto>().message)
                 }
 
                 else -> {

@@ -13,6 +13,7 @@ import androidx.navigation.navigation
 import com.example.zzanz_android.presentation.view.Setting
 import com.example.zzanz_android.presentation.view.Splash
 import com.example.zzanz_android.presentation.view.notification.NotificationSetting
+import com.example.zzanz_android.presentation.view.category.CategoryScreen
 import com.example.zzanz_android.presentation.view.home.HomeScreen
 import com.example.zzanz_android.presentation.view.spending.AddSpendingScreen
 
@@ -34,9 +35,9 @@ fun NavHost(
             HomeScreen(navController)
         }
         composable(
-            route = NavRoutes.Spending.route + "/{${ArgumentKey.planIn}}/{${ArgumentKey.remainAmount}}/{${ArgumentKey.categoryName}}",
+            route = NavRoutes.Spending.route + "/{${ArgumentKey.planId}}/{${ArgumentKey.remainAmount}}/{${ArgumentKey.categoryName}}",
             arguments = listOf(
-                navArgument(ArgumentKey.planIn) {
+                navArgument(ArgumentKey.planId) {
                     type = NavType.IntType
                 },
                 navArgument(ArgumentKey.remainAmount) {
@@ -54,6 +55,19 @@ fun NavHost(
         }
         composable(NavRoutes.Notification.route) {
             NotificationSetting(navController)
+        }
+        composable(
+            route = NavRoutes.Category.route + "/{${ArgumentKey.planId}}/{${ArgumentKey.challengeStatus}}",
+            arguments = listOf(
+                navArgument(ArgumentKey.planId){
+                    type = NavType.IntType
+                },
+                navArgument(ArgumentKey.challengeStatus){
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            CategoryScreen(navController = navController)
         }
         settingGraph(navController = navController)
     }

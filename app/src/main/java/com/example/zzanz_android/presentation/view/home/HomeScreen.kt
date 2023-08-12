@@ -46,6 +46,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.zzanz_android.R
+import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
@@ -133,7 +134,7 @@ fun HomeScreen(
                                         challengeStatus.value = challenge.state
                                     },
                                     onClickItem = { planId ->
-                                        // TODO : gowoon - navigate to Category Screen with planId
+                                        navController.navigate(NavRoutes.Category.route + "/${planId}/${challengeStatus.value.name}")
                                     }
                                 )
                                 if (challengeStatus.value == ChallengeStatus.PRE_OPENED) {

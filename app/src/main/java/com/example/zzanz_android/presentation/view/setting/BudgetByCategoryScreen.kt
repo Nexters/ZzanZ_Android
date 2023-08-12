@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -169,7 +170,9 @@ fun BudgetByCategoryItem(
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CategoryIcon(budgetCategoryItem.categoryImage)
+        CategoryIcon(
+            modifier = Modifier.size(32.dp),
+            resId = budgetCategoryItem.categoryImage)
         Spacer(modifier = Modifier.width(16.dp))
         Column {
             Text(

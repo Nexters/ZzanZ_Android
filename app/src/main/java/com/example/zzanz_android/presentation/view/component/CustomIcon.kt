@@ -73,9 +73,12 @@ fun PlusIcon() {
 }
 
 @Composable
-fun CategoryIcon(resId: Int) {
+fun CategoryIcon(
+    modifier: Modifier = Modifier,
+    resId: Int
+) {
     ImageViewWithXml(
-        modifier = Modifier.size(32.dp),
+        modifier = modifier,
         resId = resId
     )
 }

@@ -18,7 +18,6 @@ class GetChallengeListUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(): Flow<Resource<PagingData<ChallengeModel>>> {
         return try {
-            // TODO : gowoon - domain level error handling 있으면 처리, 지금은 없어 보임.
             challengeRepository.getChallengeList().flowOn(dispatcher)
         } catch (e: Exception) {
             flow { emit(Resource.Error(e)) }

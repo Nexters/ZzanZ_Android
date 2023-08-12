@@ -44,11 +44,10 @@ object NetworkModule {
                     path(apiVersion)
                 }
                 header("Authorization", AuthorizationManager.getDeviceId(applicationContext))
-                header("App-Version", AppVersionUtil.getVersionHeader())
+                header("os", AppVersionUtil.OsName)
+                header("AppVersion", AppVersionUtil.getVersionName())
             }
-            // TODO - Logging message Not Working
             install(HttpTimeout) {
-                // TODO - 타임아웃 지정해야 함
                 requestTimeoutMillis = 3000
             }
             install(ContentNegotiation) {

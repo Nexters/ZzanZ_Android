@@ -16,9 +16,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -125,27 +128,46 @@ fun Setting(
         stringResource(id = uiData.buttonText)
     }
 
-
-    Column(
+    ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
             .background(color = ZzanZColorPalette.current.White)
     ) {
-        TopBar(navController = navController, route = route, backRoute = uiData.backRoute)
+        val (topBarRef, contentRef, bottomRef) = createRefs()
+        TopBar(
+            navController = navController,
+            route = route,
+            backRoute = uiData.backRoute,
+            modifier = Modifier.constrainAs(topBarRef) {
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                width = Dimension.fillToConstraints
+            })
+        val contentModifier = Modifier
+            .constrainAs(contentRef) {
+                top.linkTo(topBarRef.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                bottom.linkTo(bottomRef.top)
+                width = Dimension.fillToConstraints
+                height = Dimension.fillToConstraints
+            }
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
+            modifier = contentModifier
         ) {
             when (route) {
                 SettingNavRoutes.BudgetByCategory.route -> {
-                    BudgetByCategory(titleText = title,
+                    BudgetByCategory(
+                        titleText = title,
                         budgetViewModel = budgetViewModel,
                         onAddCategoryClicked = {
                             coroutineScope.launch {
                                 sheetState.show()
                             }
-                        })
+                        },
+                        modifier = contentModifier
+                    )
                 }
 
                 SettingNavRoutes.Budget.route -> {
@@ -164,7 +186,16 @@ fun Setting(
                     )
                 }
             }
-            Spacer(modifier = Modifier.weight(1f))
+        }
+        Column (
+            modifier = Modifier.constrainAs(bottomRef){
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                width = Dimension.fillToConstraints
+                centerHorizontallyTo(parent)
+            }
+        ){
             if (route == SettingNavRoutes.BudgetByCategory.route && (enteredCategoryCnt == totalCategoryCnt)) {
                 if (!isKeyboardOpen) {
                     Column(
@@ -197,20 +228,19 @@ fun Setting(
                 isKeyboardOpen = isKeyboardOpen,
                 horizontalWidth = if (isKeyboardOpen) 0.dp else 24.dp
             )
-
-            if (sheetState.isVisible) {
-                CategoryBottomSheet(
-                    budgetViewModel = budgetViewModel,
-                    coroutineScope = coroutineScope,
-                    sheetState = sheetState
-                )
-            }
+        }
+        if (sheetState.isVisible) {
+            CategoryBottomSheet(
+                budgetViewModel = budgetViewModel,
+                coroutineScope = coroutineScope,
+                sheetState = sheetState
+            )
         }
     }
 }
 
 @Composable
-fun TopBar(navController: NavHostController, route: String, backRoute: String) {
+fun TopBar(navController: NavHostController, route: String, backRoute: String, modifier: Modifier) {
     AppBarWithBackNavigation(
         onBackButtonAction = {
             if (backRoute.isNotEmpty()) {
@@ -223,7 +253,8 @@ fun TopBar(navController: NavHostController, route: String, backRoute: String) {
                 navController.popBackStack()
             }
         },
-        isBackIconVisible = route != SettingNavRoutes.Budget.route
+        isBackIconVisible = route != SettingNavRoutes.Budget.route,
+        modifier = modifier
     )
 }
 

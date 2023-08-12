@@ -15,9 +15,10 @@ import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 @Composable
 fun AppBarWithBackNavigation(
     onBackButtonAction: () -> Unit = {},
-    isBackIconVisible: Boolean = true) {
+    isBackIconVisible: Boolean = true,
+    modifier: Modifier = Modifier) {
     TopAppBar(
-        modifier = Modifier.background(ZzanZColorPalette.current.White),
+        modifier = modifier.background(ZzanZColorPalette.current.White),
         title = {},
         navigationIcon = {
             if (isBackIconVisible) {

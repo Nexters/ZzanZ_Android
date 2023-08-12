@@ -6,15 +6,12 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.data.mapper.ChallengeMapper.toModel
-import com.example.zzanz_android.data.mapper.SpendingMapper.toModel
 import com.example.zzanz_android.data.remote.datasource.ChallengePagingSource
 import com.example.zzanz_android.data.remote.datasource.GoalAmountByCategorySource
 import com.example.zzanz_android.data.remote.datasource.GoalAmountSource
-import com.example.zzanz_android.data.remote.datasource.SpendingPagingSource
 import com.example.zzanz_android.data.remote.dto.GoalAmountByCategoryDto
 import com.example.zzanz_android.data.remote.dto.GoalAmountDto
 import com.example.zzanz_android.domain.model.ChallengeModel
-import com.example.zzanz_android.domain.model.SpendingModel
 import com.example.zzanz_android.domain.repository.ChallengeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -26,7 +23,6 @@ class ChallengeRepositoryImpl @Inject constructor(
     private val challengePagingSource: ChallengePagingSource,
     private val goalAmountSource: GoalAmountSource,
     private val goalAmountByCategorySource: GoalAmountByCategorySource,
-    private val spendingPagingSource: SpendingPagingSource
 ) : ChallengeRepository {
     override suspend fun getChallengeList(): Flow<Resource<PagingData<ChallengeModel>>> {
         return Pager(config = PagingConfig(pageSize = CHALLENGE_PAGE_SIZE), pagingSourceFactory = {
@@ -60,16 +56,7 @@ class ChallengeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getSpendingList(planId: Int): Flow<Resource<PagingData<SpendingModel>>> {
-        return Pager(
-            config = PagingConfig(SPENDING_PAGE_SIZE),
-            pagingSourceFactory = { spendingPagingSource }).flow.map { pagingData ->
-            Resource.Success(pagingData.map { it.toModel() })
-        }
-    }
-
     companion object {
         const val CHALLENGE_PAGE_SIZE = 5
-        const val SPENDING_PAGE_SIZE = 20
     }
 }

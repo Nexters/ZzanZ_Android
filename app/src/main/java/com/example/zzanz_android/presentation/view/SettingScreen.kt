@@ -2,8 +2,6 @@ package com.example.zzanz_android.presentation.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
+import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.util.keyboardAsState
@@ -48,11 +46,12 @@ import kotlinx.coroutines.launch
 fun Setting(
     navController: NavHostController,
     route: String = SettingNavRoutes.Budget.route,
-    budgetViewModel: BudgetViewModel = hiltViewModel()
+    budgetViewModel: BudgetViewModel = hiltViewModel(),
+    settingType: String? = SettingType.onBoarding
 ) {
     val uiData = budgetViewModel.uiData.collectAsState().value
     LaunchedEffect(key1 = true, block = {
-        budgetViewModel.setEvent(BudgetContract.Event.GetSettingUiData(route))
+        budgetViewModel.setEvent(BudgetContract.Event.GetSettingUiData(route, settingType))
     })
 
     LaunchedEffect(key1 = uiData, block = {
@@ -114,7 +113,8 @@ fun Setting(
                 uiData.buttonText = R.string.budget_by_category_complete_btn_title
             }
         } else {
-            uiData.buttonText = R.string.next
+            uiData.buttonText =
+                if (settingType == SettingType.home) R.string.edit_complete else R.string.next
         }
     }
 
@@ -187,15 +187,15 @@ fun Setting(
                 }
             }
         }
-        Column (
-            modifier = Modifier.constrainAs(bottomRef){
+        Column(
+            modifier = Modifier.constrainAs(bottomRef) {
                 bottom.linkTo(parent.bottom)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
                 width = Dimension.fillToConstraints
                 centerHorizontallyTo(parent)
             }
-        ){
+        ) {
             if (route == SettingNavRoutes.BudgetByCategory.route && (enteredCategoryCnt == totalCategoryCnt)) {
                 if (!isKeyboardOpen) {
                     Column(

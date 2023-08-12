@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.MainViewModel
 import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
+import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.presentation.view.component.contract.GlobalContract
 import timber.log.Timber
@@ -30,7 +31,7 @@ import timber.log.Timber
 @Composable
 fun Splash(navController: NavHostController, mainViewModel: MainViewModel = hiltViewModel()) {
     // TestCode
-    var settingRoute = SettingNavRoutes.Budget.route
+    var settingRoute = SettingNavRoutes.Budget.route + "/${SettingType.onBoarding}"
     val onButtonClicked = { route: String ->
         navController.navigate(route) {
             popUpTo(route) {

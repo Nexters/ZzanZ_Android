@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.zzanz_android.R
+import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
@@ -41,6 +42,7 @@ fun SetBudget(
         FocusRequester()
     }
     val budget = budgetViewModel.budgetData.collectAsState().value.totalBudget.value
+    val settingType = budgetViewModel.settingType.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -51,12 +53,14 @@ fun SetBudget(
         TitleText(
             modifier = Modifier, text = titleText
         )
-        Text(
-            modifier = Modifier,
-            text = stringResource(id = R.string.next_week_budget_explain),
-            style = ZzanZTypo.current.Body01,
-            color = ZzanZColorPalette.current.Gray06
-        )
+        if (settingType == SettingType.onBoarding) {
+            Text(
+                modifier = Modifier,
+                text = stringResource(id = R.string.next_week_budget_explain),
+                style = ZzanZTypo.current.Body01,
+                color = ZzanZColorPalette.current.Gray06
+            )
+        }
         Spacer(modifier = Modifier.height(24.dp))
 
         MoneyInputTextField(

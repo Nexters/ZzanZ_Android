@@ -8,6 +8,7 @@ import com.example.zzanz_android.common.NetworkState
 import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
+import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.domain.model.BudgetCategoryData
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.domain.model.Category
@@ -41,6 +42,9 @@ class BudgetViewModel @Inject constructor(
     private val _uiData: MutableStateFlow<SettingUiData?> = MutableStateFlow(null)
     val uiData = _uiData.asStateFlow()
 
+    private val _settingType = MutableStateFlow("")
+    val settingType = _settingType.asStateFlow()
+
     override fun handleEvent(event: BudgetContract.Event) {
         when (event) {
             is BudgetContract.Event.SetSettingScreenType -> {
@@ -68,7 +72,7 @@ class BudgetViewModel @Inject constructor(
             }
 
             is BudgetContract.Event.GetSettingUiData -> {
-                getSettingUiData(event.route)
+                getSettingUiData(event.route, event.argument)
             }
 
         }
@@ -89,10 +93,33 @@ class BudgetViewModel @Inject constructor(
         )
     }
 
-    private fun getSettingUiData(route: String) {
-        _uiData.value = SettingRoute.data.single {
+    private fun getSettingUiData(route: String, argument: String?) {
+        var settingUiData = SettingRoute.data.single {
             it.currentRoute == route
         }
+        if (route == SettingNavRoutes.Budget.route) {
+            settingUiData = if (argument == SettingType.home) {
+                settingUiData.copy(
+                    titleText = R.string.edit_week_budget_title,
+                    nextRoute = SettingNavRoutes.BudgetByCategory.route
+                )
+            } else {
+                settingUiData.copy(titleText = R.string.next_week_budget_title)
+            }
+        }
+
+        if (route == SettingNavRoutes.BudgetByCategory.route) {
+            settingUiData = if (argument == SettingType.home) {
+                settingUiData.copy(
+                    titleText = R.string.edit_budget_by_category_title,
+                    buttonText = R.string.edit_complete
+                )
+            } else {
+                settingUiData.copy(titleText = R.string.budget_by_category_title)
+            }
+        }
+        _settingType.value = if (argument.isNullOrEmpty()) SettingType.onBoarding else argument
+        _uiData.value = settingUiData
     }
 
     private fun setScreenType(route: String) {
@@ -246,7 +273,7 @@ class BudgetViewModel @Inject constructor(
     }
 
     private fun callBudgetUseCase() {
-        if (_budgetData.value.totalBudget.value.isEmpty()) return postBudgetUseCase()
+        if (_settingType.value == SettingType.onBoarding) return postBudgetUseCase()
         return putBudgetUseCase()
     }
 
@@ -257,25 +284,25 @@ class BudgetViewModel @Inject constructor(
                 it.isChecked
             }
             postBudgetByCategoryUseCase.invoke(budgetByCategoryList).onStart {
-                    setState(currentState.copy(budgetByCategoryState = NetworkState.Loading))
-                }.collect {
-                    when (it) {
-                        is Resource.Success -> {
-                            if (it.data) {
-                                setLastSettingRoute()
-                                GlobalUiEvent.showToast("postBudgetCategoryUseCase - Success")
-                                setState(currentState.copy(budgetByCategoryState = NetworkState.Success))
-                            }
+                setState(currentState.copy(budgetByCategoryState = NetworkState.Loading))
+            }.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        if (it.data) {
+                            setLastSettingRoute()
+                            GlobalUiEvent.showToast("postBudgetCategoryUseCase - Success")
+                            setState(currentState.copy(budgetByCategoryState = NetworkState.Success))
                         }
+                    }
 
-                        is Resource.Error -> {
-                            it.exception.message?.let { message: String ->
-                                Timber.e(message)
-                                GlobalUiEvent.showToast(message)
-                            }
+                    is Resource.Error -> {
+                        it.exception.message?.let { message: String ->
+                            Timber.e(message)
+                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
+            }
         }
     }
 

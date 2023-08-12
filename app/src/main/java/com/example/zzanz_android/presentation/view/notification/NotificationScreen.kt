@@ -33,25 +33,30 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.navigation.NavRoutes
+import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
-import com.example.zzanz_android.presentation.view.component.contract.NotificationContract
 import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavigation
 import com.example.zzanz_android.presentation.view.component.GreenRoundButton
 import com.example.zzanz_android.presentation.view.component.TitleText
+import com.example.zzanz_android.presentation.view.component.contract.NotificationContract
 import com.example.zzanz_android.presentation.viewmodel.NotificationViewModel
-import timber.log.Timber
 
 @Composable
 fun NotificationSetting(
     navController: NavHostController,
+    settingType: String? = SettingType.onBoarding,
     notificationViewModel: NotificationViewModel = hiltViewModel()
 ) {
     val hour = notificationViewModel.uiState.collectAsState().value.hour.value
     val minute = notificationViewModel.uiState.collectAsState().value.minute.value
+    val titleRes = notificationViewModel.uiState.collectAsState().value.title.value
     var buttonTitle = stringResource(id = R.string.set_notification_time_btn_title)
-
+    LaunchedEffect(key1 = true, block = {
+        notificationViewModel.setEvent(NotificationContract.Event.GetNotificationTime)
+        notificationViewModel.setEvent(NotificationContract.Event.SetSettingType(settingType))
+    })
     LaunchedEffect(key1 = Unit, block = {
         notificationViewModel.effect.collect {
             when (it) {
@@ -77,7 +82,7 @@ fun NotificationSetting(
         Spacer(modifier = Modifier.height(8.dp))
         TitleText(
             modifier = Modifier,
-            text = stringResource(id = R.string.set_notification_time_title)
+            text = stringResource(titleRes)
         )
         Spacer(modifier = Modifier.weight(1f))
         Row(
@@ -87,7 +92,7 @@ fun NotificationSetting(
         ) {
             CircularNumber(
                 hourSize = 24,
-                initialHour = 22,
+                initialHour = hour,
                 maxSize = 12,
                 isHour = true,
                 notificationViewModel = notificationViewModel,
@@ -97,12 +102,12 @@ fun NotificationSetting(
             Text(
                 text = ":",
                 color = ZzanZColorPalette.current.Gray09,
-                style = ZzanZTypo.current.Heading
+                style = ZzanZTypo.current.Heading.copy(fontSize = 36.sp)
             )
             Spacer(modifier = Modifier.width(32.dp))
             CircularNumber(
                 hourSize = 60,
-                initialHour = 0,
+                initialHour = minute,
                 maxSize = 59,
                 isHour = false,
                 numberPadding = 10
@@ -158,7 +163,7 @@ fun CircularNumber(
     Box(
         modifier = Modifier
             .height(height)
-            .wrapContentWidth()
+            .width(46.dp),
     ) {
         LazyColumn(
             modifier = Modifier.wrapContentWidth(),
@@ -169,15 +174,16 @@ fun CircularNumber(
                 // if 12hr format, move 1 hour so instead of displaying 00 -> 11
                 // it will display 01 to 12
                 val num = (it % hourSize) + hourOffset
-                Timber.e(scrollState.firstVisibleItemIndex.toString())
-                Timber.e("## - $it")
+                val isFocusedNum = (scrollState.firstVisibleItemIndex + 1) == it
                 Box(
-                    modifier = Modifier.height(cellSize), contentAlignment = Alignment.Center
+                    modifier = Modifier
+                        .height(cellSize)
+                        .width(46.dp), contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = String.format("%02d", num),
-                        style = ZzanZTypo.current.Heading.copy(fontSize = 36.sp),
-                        color = ZzanZColorPalette.current.Gray09
+                        text = if (isHour) num.toString() else String.format("%02d", num),
+                        style = ZzanZTypo.current.Heading.copy(fontSize = if (isFocusedNum) 36.sp else 28.sp),
+                        color = if (isFocusedNum) ZzanZColorPalette.current.Gray09 else ZzanZColorPalette.current.Gray04
                     )
                 }
             })
@@ -188,5 +194,5 @@ fun CircularNumber(
 @Preview
 @Composable
 fun NotificationSettingPreview() {
-    NotificationSetting(navController = rememberNavController())
+    NotificationSetting(navController = rememberNavController(), settingType = null)
 }

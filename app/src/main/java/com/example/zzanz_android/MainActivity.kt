@@ -70,8 +70,8 @@ class MainActivity : ComponentActivity() {
             var job: Job? = null
             val scope = rememberCoroutineScope()
             val mainViewModel: MainViewModel = hiltViewModel()
-
             SetFirebaseToken(mainViewModel)
+
             ZzanZ_AndroidTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(

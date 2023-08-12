@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,12 +24,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.NativeKeyEvent
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -38,6 +44,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -51,41 +59,42 @@ import com.example.zzanz_android.common.ui.util.keyboardAsState
 import com.example.zzanz_android.common.ui.util.keyboardHeightAsState
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.domain.model.Category
-import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 import com.example.zzanz_android.presentation.view.component.CategoryIcon
 import com.example.zzanz_android.presentation.view.component.InfoIcon
 import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
 import com.example.zzanz_android.presentation.view.component.PlusIcon
 import com.example.zzanz_android.presentation.view.component.TitleText
+import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
 
 @Composable
 fun BudgetByCategory(
     titleText: String,
     budgetViewModel: BudgetViewModel = hiltViewModel(),
-    onAddCategoryClicked: () -> Unit
+    onAddCategoryClicked: () -> Unit,
+    modifier: Modifier
 ) {
     val focusRequester = remember {
         FocusRequester()
     }
-    val windowInfo = LocalWindowInfo.current
-    val isKeyboardOpen by keyboardAsState()
-    val keyboardHeight by keyboardHeightAsState()
-    //TODO maxHeight 다시 계산해야함 (임시로 300 빼도록 함)
-    val maxHeight =
-        if (isKeyboardOpen) (LocalView.current.height - keyboardHeight - 56 - 56 - 300).dp else 560.dp
+    val focusManager = LocalFocusManager.current
+    val keyboardAction = KeyboardActions(onNext = {
+        focusManager.moveFocus(FocusDirection.Down)
+    })
+    val keyboardOptions = KeyboardOptions(
+        keyboardType = KeyboardType.Number,
+        imeAction = ImeAction.Next
+    )
     val budgetCategoryState =
         budgetViewModel.uiState.collectAsState().value.budgetByCategoryItemState.value
     val remainingBudget = budgetCategoryState.remainingBudget
     val budgetCategoryData = budgetViewModel.budgetData.collectAsState().value.category
 
     LaunchedEffect(key1 = remainingBudget, key2 = budgetCategoryData, block = {})
+    var focusEnabled = true
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(max = maxHeight)
-            .background(ZzanZColorPalette.current.White)
+        modifier = modifier
     ) {
         LazyColumn {
             item {
@@ -102,21 +111,31 @@ fun BudgetByCategory(
             }
             items(budgetCategoryData.value.size) { idx ->
                 val item = budgetCategoryData.value[idx]
+                val itemModifier = Modifier
                 if (item.isChecked && item.categoryId != Category.NESTEGG) {
+                    if (focusEnabled) {
+                        itemModifier.focusRequester(focusRequester)
+                        focusEnabled = false
+                    }
                     BudgetByCategoryItem(
                         budgetViewModel = budgetViewModel,
                         budgetCategoryItem = item,
-                        modifier = Modifier.focusRequester(focusRequester)
+                        modifier = itemModifier,
+                        keyboardAction = keyboardAction,
+                        keyboardOptions = keyboardOptions,
+                        focusManager = focusManager
                     )
                 }
                 if (item.categoryId == Category.NESTEGG) {
                     BudgetByCategoryItem(
                         budgetViewModel = budgetViewModel,
                         budgetCategoryItem = item,
-                        modifier = Modifier.focusRequester(focusRequester)
+                        modifier = itemModifier,
+                        focusManager = focusManager,
+                        keyboardOptions = keyboardOptions,
+                        keyboardAction = keyboardAction
                     )
                 }
-
             }
             item {
                 AddBudgetByCategoryItemBtn(onAddClicked = onAddCategoryClicked)
@@ -155,11 +174,15 @@ fun ExplainRemainingBudget(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BudgetByCategoryItem(
     budgetViewModel: BudgetViewModel = hiltViewModel(),
     budgetCategoryItem: BudgetCategoryModel,
     modifier: Modifier,
+    focusManager: FocusManager,
+    keyboardAction: KeyboardActions,
+    keyboardOptions: KeyboardOptions
 ) {
     Row(
         modifier = modifier
@@ -190,22 +213,25 @@ fun BudgetByCategoryItem(
                         color = ZzanZColorPalette.current.Gray03
                     )
                 } else {
-                    val focusManager = LocalFocusManager.current
-                    // TODO - 더 작성할 카테고리 budget이 없으면 keyboard 종료, focus clear 하도록 수정
-                    val keyboardAction = KeyboardActions(onDone = {
-                        focusManager.moveFocus(FocusDirection.Next)
-                    })
-
                     MoneyInputTextField(
-                        modifier = modifier
+                        modifier = Modifier
                             .wrapContentWidth()
-                            .height(24.dp),
+                            .height(24.dp)
+                            .onPreviewKeyEvent {
+                                if (it.key == Key.Enter &&
+                                    it.nativeKeyEvent.action == NativeKeyEvent.ACTION_DOWN
+                                ) {
+                                    focusManager.moveFocus(FocusDirection.Down)
+                                } else {
+                                    false
+                                }
+                            },
                         innerTextModifier = Modifier
                             .widthIn(max = 60.dp)
                             .height(24.dp),
                         text = TextFieldValue(
                             text = budgetCategoryItem.budget,
-                            selection = TextRange(0)
+                            selection = TextRange(budgetCategoryItem.budget.length)
                         ),
                         onClickAction = {},
                         onTextChanged = { text: TextFieldValue ->
@@ -217,7 +243,8 @@ fun BudgetByCategoryItem(
                         },
                         textSize = 16,
                         isShowUnit = false,
-                        keyboardActions = keyboardAction
+                        keyboardActions = keyboardAction,
+                        keyboardOptions = keyboardOptions
                     )
                 }
                 Text(
@@ -313,5 +340,5 @@ fun NestEggExplainText(
 @Preview
 @Composable
 fun BudgetByCategoryPreview() {
-    BudgetByCategory(titleText = "Text", onAddCategoryClicked = {})
+    BudgetByCategory(titleText = "Text", onAddCategoryClicked = {}, modifier = Modifier)
 }

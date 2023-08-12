@@ -23,33 +23,21 @@ import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.MainViewModel
 import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
+import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.presentation.view.component.contract.GlobalContract
 import timber.log.Timber
 
 @Composable
 fun Splash(navController: NavHostController, mainViewModel: MainViewModel = hiltViewModel()) {
-    // TestCode
-    var settingRoute = SettingNavRoutes.Budget.route
-    val onButtonClicked = { route: String ->
-        navController.navigate(route) {
-            popUpTo(route) {
-                inclusive = true
-            }
-        }
-    }
+    mainViewModel.setEvent(GlobalContract.Event.GetSettingLastRoute)
 
-    /**
-     * Test Code
-     * setting route 값 잘 가져오는 지 체크하기 위한 코드
-     */
     LaunchedEffect(key1 = Unit, block = {
         mainViewModel.effect.collect { it ->
             when (it) {
-                is GlobalContract.Effect.SetSettingLastRoute -> {
-                    it.route?.let { route: String ->
-                        Timber.e("setRoute - $route")
-                        settingRoute = route
+                is GlobalContract.Effect.NavigationInvoke -> {
+                    navController.navigate(it.route) {
+                        navController.popBackStack(NavRoutes.Splash.route, true)
                     }
                 }
 
@@ -58,6 +46,7 @@ fun Splash(navController: NavHostController, mainViewModel: MainViewModel = hilt
             }
         }
     })
+
 
     Surface(
         modifier = Modifier
@@ -76,23 +65,19 @@ fun Splash(navController: NavHostController, mainViewModel: MainViewModel = hilt
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                TestNavButton(
-                    route = settingRoute, onButtonClicked = onButtonClicked
-                )
-                TestNavButton(
-                    route = NavRoutes.Home.route, onButtonClicked = onButtonClicked
-                )
-                TestNavButton(
-                    route = NavRoutes.Spending.route + "/1/5000/FOOD",
-                    onButtonClicked = onButtonClicked
-                )
-                TestNavButton(
-                    route = NavRoutes.Notification.route, onButtonClicked = onButtonClicked
-                )
-                TestNavButton(
-                    route = NavRoutes.Category.route + "/1/OPENED",
-                    onButtonClicked = onButtonClicked
-                )
+//                TestNavButton(
+//                    route = settingRoute, onButtonClicked = onButtonClicked
+//                )
+//                TestNavButton(
+//                    route = NavRoutes.Home.route, onButtonClicked = onButtonClicked
+//                )
+//                TestNavButton(
+//                    route = NavRoutes.Spending.route + "/1/5000/식비",
+//                    onButtonClicked = onButtonClicked
+//                )
+//                TestNavButton(
+//                    route = NavRoutes.Notification.route, onButtonClicked = onButtonClicked
+//                )
             }
         }
     }

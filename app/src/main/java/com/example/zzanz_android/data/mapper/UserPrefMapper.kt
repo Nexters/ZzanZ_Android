@@ -5,10 +5,16 @@ import com.example.zzanz_android.domain.model.UserPref
 
 object UserPrefMapper : MapperToDto<UserPrefDto, UserPref>, MapperToModel<UserPrefDto, UserPref> {
     override fun UserPref.toDto() = UserPrefDto(
-        route = lastRoute, fcmToken = fcmToken
+        route = lastRoute,
+        fcmToken = fcmToken,
+        notificationMinute = notificationMinute,
+        notificationHour = notificationHour
     )
 
     override fun UserPrefDto.toModel() = UserPref(
-        lastRoute = route, fcmToken = fcmToken
+        lastRoute = route,
+        fcmToken = fcmToken,
+        notificationMinute = notificationMinute,
+        notificationHour = notificationHour
     )
 }

@@ -8,6 +8,7 @@ import com.example.zzanz_android.data.remote.datasource.NotificationSource
 import com.example.zzanz_android.data.remote.datasource.SpendingDatasource
 import com.example.zzanz_android.data.remote.datasource.prefererence.FcmTokenUserPrefSource
 import com.example.zzanz_android.data.remote.datasource.prefererence.LastRoutePrefSource
+import com.example.zzanz_android.data.remote.datasource.prefererence.NotificationTimeSource
 import com.example.zzanz_android.data.remote.datasource.prefererence.UserPrefSource
 import com.example.zzanz_android.data.repository.ChallengeRepositoryImpl
 import com.example.zzanz_android.data.repository.NotificationRepositoryImpl
@@ -68,10 +69,11 @@ object RepositoryModule {
     fun provideUserPreferenceRepository(
         userPrefSource: UserPrefSource,
         fcmTokenUserPrefSource: FcmTokenUserPrefSource,
-        lastRoutePrefSource: LastRoutePrefSource
+        lastRoutePrefSource: LastRoutePrefSource,
+        notificationTimeSource: NotificationTimeSource
     ): UserPreferenceRepository {
         return UserPreferenceRepositoryImpl(
-            userPrefSource, fcmTokenUserPrefSource, lastRoutePrefSource
+            userPrefSource, fcmTokenUserPrefSource, lastRoutePrefSource, notificationTimeSource
         )
     }
 }

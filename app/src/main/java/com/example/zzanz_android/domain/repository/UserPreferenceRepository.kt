@@ -17,5 +17,9 @@ interface UserPreferenceRepository {
     suspend fun setLastNavRoute(route: String): Flow<Resource<Boolean>>
     suspend fun getLastNavRoute(): Flow<Resource<String?>>
 
+    suspend fun setNotificationTime(hour: Int, minute: Int): Flow<Resource<Boolean>>
+
+    suspend fun getNotificationTime(): Flow<Resource<List<Int?>>>
+
 
 }

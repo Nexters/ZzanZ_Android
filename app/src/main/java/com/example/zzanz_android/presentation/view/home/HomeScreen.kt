@@ -20,8 +20,10 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -60,9 +62,9 @@ import com.example.zzanz_android.domain.util.MoneyFormatter
 import com.example.zzanz_android.presentation.view.component.AppBarWithMoreAction
 import com.example.zzanz_android.presentation.view.component.CategoryCardItem
 import com.example.zzanz_android.presentation.view.component.GreenRoundButton
+import com.example.zzanz_android.presentation.view.component.MoreBottomSheet
 import com.example.zzanz_android.presentation.view.component.PagerFocusedItem
 import com.example.zzanz_android.presentation.view.component.PagerUnFocusedItem
-import com.example.zzanz_android.presentation.view.component.PopupSheetDialog
 import com.example.zzanz_android.presentation.view.component.ProgressIndicator
 import com.example.zzanz_android.presentation.viewmodel.ChallengeListState
 import com.example.zzanz_android.presentation.viewmodel.HomeEffect
@@ -77,7 +79,7 @@ object HomeScreenValue {
     const val GRID_COUNT = 2
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
@@ -88,13 +90,15 @@ fun HomeScreen(
     val challengeListState by homeViewModel.uiState.collectAsState()
     val planListState by planListViewModel.uiState.collectAsState()
     val effect by homeViewModel.effect.collectAsState(initial = null)
-    var showDialog by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
+    val bottomSheetState = rememberModalBottomSheetState()
 
     Scaffold(
         modifier = Modifier,
         topBar = {
             AppBarWithMoreAction(ZzanZColorPalette.current.Gray01) {
-                showDialog = !showDialog
+                scope.launch { bottomSheetState.expand() }
             }
         },
         containerColor = ZzanZColorPalette.current.Gray01
@@ -143,7 +147,11 @@ fun HomeScreen(
                                     },
                                     setCurrentChallenge = { challenge ->
                                         challengeStatus.value = challenge.state
-                                        planListViewModel.setEvent(PlanListUiEvent.SetPlanList(challenge.planList))
+                                        planListViewModel.setEvent(
+                                            PlanListUiEvent.SetPlanList(
+                                                challenge.planList
+                                            )
+                                        )
                                     },
                                     onClickItem = { planId ->
                                         navController.navigate(NavRoutes.Category.route + "/${planId}/${challengeStatus.value.name}")
@@ -169,17 +177,17 @@ fun HomeScreen(
 
                 else -> {}
             }
-            if (showDialog) {
-                PopupSheetDialog(
-                    onDismiss = { showDialog = false },
+            if (bottomSheetState.isVisible) {
+                MoreBottomSheet(
+                    scope = scope,
+                    state = bottomSheetState,
                     onClickChangeAlarm = {
                         navController.navigate(NavRoutes.Notification.route + "/${SettingType.home}")
                     },
-                    onClickSendFeedback = { /* TODO */ },
+                    onClickSendFeedback = { /*TODO*/ },
                     onClickJoinCommunity = { /* TODO */ },
                 )
             }
-
             if (effect is HomeEffect.ShowToast) {
                 Toast.makeText(context, (effect as HomeEffect.ShowToast).message, Toast.LENGTH_LONG)
                     .show()

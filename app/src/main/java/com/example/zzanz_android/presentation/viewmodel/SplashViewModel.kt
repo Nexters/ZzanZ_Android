@@ -3,6 +3,7 @@ package com.example.zzanz_android.presentation.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.Resource
+import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.navigation.SplashNavRoutes
@@ -92,13 +93,18 @@ class SplashViewModel @Inject constructor(
                         if (!it.data.isNullOrEmpty()) {
                             route = it.data
                         }
-                        setEffect(SplashContract.Effect.NextRoutes(route + "/${SettingType.onBoarding}"))
+                        if (route.contains(NavRoutes.Home.route)) {
+                            setEffect(SplashContract.Effect.NextRoutes(route))
+                        } else {
+                            setEffect(SplashContract.Effect.NextRoutes(route + "/${SettingType.onBoarding}"))
+
+                        }
                     }
 
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e("error - $message")
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }

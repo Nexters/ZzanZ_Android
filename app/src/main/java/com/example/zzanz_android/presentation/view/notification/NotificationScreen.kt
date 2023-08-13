@@ -42,6 +42,7 @@ import com.example.zzanz_android.presentation.view.component.GreenRoundButton
 import com.example.zzanz_android.presentation.view.component.TitleText
 import com.example.zzanz_android.presentation.view.component.contract.NotificationContract
 import com.example.zzanz_android.presentation.viewmodel.NotificationViewModel
+import timber.log.Timber
 
 @Composable
 fun NotificationSetting(
@@ -49,8 +50,8 @@ fun NotificationSetting(
     settingType: String? = SettingType.onBoarding,
     notificationViewModel: NotificationViewModel = hiltViewModel()
 ) {
-    val hour = notificationViewModel.uiState.collectAsState().value.hour.value
-    val minute = notificationViewModel.uiState.collectAsState().value.minute.value
+    val hourState = notificationViewModel.uiState.collectAsState().value.hour
+    val minuteState = notificationViewModel.uiState.collectAsState().value.minute
     val titleRes = notificationViewModel.uiState.collectAsState().value.title.value
     var buttonTitle = stringResource(id = R.string.set_notification_time_btn_title)
     LaunchedEffect(key1 = true, block = {
@@ -66,10 +67,12 @@ fun NotificationSetting(
             }
         }
     })
-
-    val args = "${String.format("%02d", hour)}:${String.format("%02d", minute)}"
-    buttonTitle = stringResource(id = R.string.set_notification_time_btn_title, args)
-
+    
+    val hour = hourState.value
+    val minute = minuteState.value
+    val buttonFormat = "${String.format("%02d", hour)}:${String.format("%02d", minute)}"
+    buttonTitle = stringResource(id = R.string.set_notification_time_btn_title, buttonFormat)
+    Timber.e("333 - $hour : $minute")
     Column(
         modifier = Modifier
             .fillMaxWidth()

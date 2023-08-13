@@ -4,12 +4,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.Resource
+import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.domain.model.FcmTokenModel
 import com.example.zzanz_android.domain.model.NotificationTimeModel
 import com.example.zzanz_android.domain.usecase.PostFcmTokenUseCase
 import com.example.zzanz_android.domain.usecase.PostNotificationTimeUseCase
 import com.example.zzanz_android.domain.usecase.preference.GetFcmTokenUseCase
 import com.example.zzanz_android.domain.usecase.preference.GetNotificationTimeUseCase
+import com.example.zzanz_android.domain.usecase.preference.SetLastSettingRouteUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetNotificationTimeUseCase
 import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
 import com.example.zzanz_android.presentation.view.component.contract.NotificationContract
@@ -24,7 +26,8 @@ class NotificationViewModel @Inject constructor(
     private val getNotifiCationTimeUseCase: GetNotificationTimeUseCase,
     private val setNotifiCationTimeUseCase: SetNotificationTimeUseCase,
     private val getFcmTokenUseCase: GetFcmTokenUseCase,
-    private val postFcmTokenUseCase: PostFcmTokenUseCase
+    private val postFcmTokenUseCase: PostFcmTokenUseCase,
+    private val settingRouteUseCase: SetLastSettingRouteUseCase
 ) : BaseViewModel<NotificationContract.Event, NotificationContract.State, NotificationContract.Effect>() {
     override fun createInitialState(): NotificationContract.State {
         return NotificationContract.State(
@@ -78,7 +81,7 @@ class NotificationViewModel @Inject constructor(
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -93,7 +96,7 @@ class NotificationViewModel @Inject constructor(
                 when (it) {
                     is Resource.Success -> {
                         it.data?.let{
-                            GlobalUiEvent.showToast("Token - $it")
+//                            GlobalUiEvent.showToast("Token - $it")
                             postFcmTokenUseCase(it)
                         }
                     }
@@ -101,7 +104,7 @@ class NotificationViewModel @Inject constructor(
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -123,20 +126,15 @@ class NotificationViewModel @Inject constructor(
                             times[1]?.let {
                                 minute = it
                             }
+                            setState(currentState.copy(hour = mutableStateOf(hour), minute = mutableStateOf(minute)))
 //                            GlobalUiEvent.showToast("NotificationTimeUseCase Success")
-                            Timber.e("NotificationTimeUseCase  hour - $hour, minute - $minute")
-                            setState(
-                                currentState.copy(
-                                    hour = mutableStateOf(hour), minute = mutableStateOf(minute)
-                                )
-                            )
                         }
                     }
 
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -155,6 +153,7 @@ class NotificationViewModel @Inject constructor(
                     is Resource.Success -> {
                         if (it.data) {
                             Timber.e("setNotificationTimeUseCase Success")
+                            settingRouteUseCase()
                             setEffect(NotificationContract.Effect.NextRoutes)
                         }
                     }
@@ -162,7 +161,29 @@ class NotificationViewModel @Inject constructor(
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun settingRouteUseCase() {
+        viewModelScope.launch {
+            settingRouteUseCase.invoke(NavRoutes.Home.route).collect { it ->
+                when (it) {
+                    is Resource.Success -> {
+                        if (it.data) {
+                            Timber.e("setNotificationTimeUseCase Success")
+                            setEffect(NotificationContract.Effect.NextRoutes)
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        it.exception.message?.let { message: String ->
+                            Timber.e(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -181,7 +202,7 @@ class NotificationViewModel @Inject constructor(
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
-                            GlobalUiEvent.showToast("postNotificationConfig - Success")
+//                            GlobalUiEvent.showToast("postNotificationConfig - Success")
                             setNotificationTimeUsePreferences()
                         }
                     }
@@ -189,7 +210,7 @@ class NotificationViewModel @Inject constructor(
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }

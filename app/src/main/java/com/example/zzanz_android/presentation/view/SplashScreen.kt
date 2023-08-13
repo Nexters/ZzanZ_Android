@@ -1,5 +1,6 @@
 package com.example.zzanz_android.presentation.view
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -75,11 +78,14 @@ fun Splash(
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.weight(1f))
+        val contentScale = if(uiData.currentRoute == SplashNavRoutes.ExplainService.route)
+            ContentScale.FillWidth else ContentScale.None
         uiData.contentImage?.let {
-            ImageViewWithXml(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.TopCenter,
-                resId = it
+            Image(
+                modifier= Modifier.fillMaxWidth(),
+                painter = painterResource(it),
+                contentDescription = null,
+                contentScale = contentScale
             )
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -95,22 +101,6 @@ fun Splash(
             horizontalWidth = 24.dp,
             buttonIcon = if (route == SplashNavRoutes.ChallengeStart.route)
                 R.drawable.icon_fighting else null
-        )
-    }
-}
-
-@Composable
-fun TestNavButton(
-    route: String, modifier: Modifier = Modifier, onButtonClicked: (String) -> Unit
-) {
-    Button(
-        onClick = {
-            onButtonClicked.invoke(route)
-        },
-        modifier = modifier.wrapContentSize(),
-    ) {
-        Text(
-            text = "Go to ${route}"
         )
     }
 }

@@ -323,7 +323,7 @@ class BudgetViewModel @Inject constructor(
                     is Resource.Success -> {
                         if (it.data) {
                             setLastSettingRoute()
-                            GlobalUiEvent.showToast("postBudgetCategoryUseCase - Success")
+//                            GlobalUiEvent.showToast("postBudgetCategoryUseCase - Success")
                             setState(currentState.copy(budgetByCategoryState = NetworkState.Success))
                         }
                     }
@@ -331,7 +331,7 @@ class BudgetViewModel @Inject constructor(
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -351,7 +351,7 @@ class BudgetViewModel @Inject constructor(
                     is Resource.Success -> {
                         if (it.data) {
                             setLastSettingRoute()
-                            GlobalUiEvent.showToast("putBudgetCategoryUseCase - Success")
+//                            GlobalUiEvent.showToast("putBudgetCategoryUseCase - Success")
                             setState(currentState.copy(budgetByCategoryState = NetworkState.Success))
                         }
                     }
@@ -359,7 +359,7 @@ class BudgetViewModel @Inject constructor(
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -380,7 +380,7 @@ class BudgetViewModel @Inject constructor(
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -410,7 +410,7 @@ class BudgetViewModel @Inject constructor(
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
                             postBudgetUseCase()
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -436,7 +436,7 @@ class BudgetViewModel @Inject constructor(
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
                             putBudgetUseCase()
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }

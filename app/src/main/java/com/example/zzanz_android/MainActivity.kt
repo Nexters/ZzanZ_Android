@@ -93,7 +93,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     mainViewModel.uiState.collectAsState().value.startDestination.value?.let {
-                        Timber.e("### NavHost $it")
                         NavHost(startDestination = it)
                     }
                     Toast(

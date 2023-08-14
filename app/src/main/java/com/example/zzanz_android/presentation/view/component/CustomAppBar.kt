@@ -1,5 +1,6 @@
 package com.example.zzanz_android.presentation.view.component
 
+import android.view.WindowInsets
 import androidx.compose.foundation.background
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton

@@ -59,8 +59,7 @@ fun CategoryBottomSheet(
                 },
                 enabled = true
             )
-            Spacer(modifier = Modifier.height(25.dp))
-
+            Spacer(modifier = Modifier.height(56.dp))
         }
     }
 }

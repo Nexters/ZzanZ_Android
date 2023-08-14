@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,10 +25,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.navigation.NavRoutes
+import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.navigation.SplashNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
-import com.example.zzanz_android.common.ui.util.ImageViewWithXml
 import com.example.zzanz_android.presentation.view.component.BottomGreenButton
 import com.example.zzanz_android.presentation.view.component.contract.SplashContract
 import com.example.zzanz_android.presentation.viewmodel.SplashViewModel
@@ -50,7 +48,13 @@ fun Splash(
         splashViewModel.effect.collect { it ->
             when (it) {
                 is SplashContract.Effect.NextRoutes -> {
-                    navController.navigate(it.route)
+                    navController.navigate(it.route) {
+                        if (it.route != SplashNavRoutes.ChallengeStart.route) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -78,11 +82,11 @@ fun Splash(
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.weight(1f))
-        val contentScale = if(uiData.currentRoute == SplashNavRoutes.ExplainService.route)
-            ContentScale.FillWidth else ContentScale.None
+        val contentScale =
+            if (uiData.currentRoute == SplashNavRoutes.ExplainService.route) ContentScale.FillWidth else ContentScale.None
         uiData.contentImage?.let {
             Image(
-                modifier= Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 painter = painterResource(it),
                 contentDescription = null,
                 contentScale = contentScale
@@ -99,8 +103,7 @@ fun Splash(
             isButtonEnabled = true,
             isKeyboardOpen = false,
             horizontalWidth = 24.dp,
-            buttonIcon = if (route == SplashNavRoutes.ChallengeStart.route)
-                R.drawable.icon_fighting else null
+            buttonIcon = if (route == SplashNavRoutes.ChallengeStart.route) R.drawable.icon_fighting else null
         )
     }
 }

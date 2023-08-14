@@ -85,8 +85,7 @@ fun Setting(
     val enteredCategoryCnt = budgetCategoryState.value.enteredCategory.value
 
     val onNavRoutes = {
-        navController.navigate(uiData.nextRoute + "/${settingType}") {
-        }
+        navController.navigate(uiData.nextRoute + "/${settingType}")
     }
 
     LaunchedEffect(key1 = Unit, block = {
@@ -103,13 +102,14 @@ fun Setting(
                 BudgetContract.Effect.NextRoutes -> {
                     if (route == SettingNavRoutes.BudgetByCategory.route && settingType == SettingType.home) {
                         var planList: List<PlanModel>? = null
-                        val newPlanList : MutableList<PlanModel> = mutableListOf()
+                        val newPlanList: MutableList<PlanModel> = mutableListOf()
                         if (planListState.planListLoadingState is PlanListLoadingState.Loaded) {
                             budgetViewModel.setEvent(BudgetContract.Event.ClearBudgetCategoryItem)
-                            planList = (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
+                            planList =
+                                (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
                         }
-                        budgetViewModel.budgetData.value.category.value.map {budget ->
-                            planList?.map {plan ->
+                        budgetViewModel.budgetData.value.category.value.map { budget ->
+                            planList?.map { plan ->
                                 if (budget.categoryId.toString() == plan.category) {
                                     newPlanList.add(
                                         plan.copy(goalAmount = budget.budget.toInt())
@@ -156,7 +156,6 @@ fun Setting(
         TopBar(
             navController = navController,
             route = route,
-            backRoute = uiData.backRoute,
             modifier = Modifier.constrainAs(topBarRef) {
                 top.linkTo(parent.top)
                 start.linkTo(parent.start)
@@ -260,18 +259,10 @@ fun Setting(
 }
 
 @Composable
-fun TopBar(navController: NavHostController, route: String, backRoute: String, modifier: Modifier) {
+fun TopBar(navController: NavHostController, route: String, modifier: Modifier) {
     AppBarWithBackNavigation(
         onBackButtonAction = {
-            if (backRoute.isNotEmpty()) {
-                navController.navigate(backRoute) {
-                    popUpTo(NavRoutes.Setting.route) {
-                        inclusive = true
-                    }
-                }
-            } else {
-                navController.popBackStack()
-            }
+            navController.popBackStack()
         },
         isBackIconVisible = route != SettingNavRoutes.Budget.route,
         modifier = modifier

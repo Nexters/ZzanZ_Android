@@ -8,6 +8,7 @@ import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.navigation.SplashNavRoutes
 import com.example.zzanz_android.domain.usecase.preference.GetLastSettingRouteUseCase
+import com.example.zzanz_android.domain.usecase.preference.SetLastSettingRouteUseCase
 import com.example.zzanz_android.presentation.view.component.SettingUiData
 import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
 import com.example.zzanz_android.presentation.view.component.contract.SplashContract
@@ -18,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val getLastSettingRouteUseCase: GetLastSettingRouteUseCase
+    private val getLastSettingRouteUseCase: GetLastSettingRouteUseCase,
+    private val setLastSettingRouteUseCase: SetLastSettingRouteUseCase
 ) : BaseViewModel<SplashContract.Event, SplashContract.State, SplashContract.Effect>() {
 
     override fun createInitialState(): SplashContract.State {
@@ -27,7 +29,6 @@ class SplashViewModel @Inject constructor(
                 currentRoute = SplashNavRoutes.ExplainService.route,
                 titleText = R.string.explain_service_title,
                 nextRoute = SplashNavRoutes.ChallengeStart.route,
-                backRoute = "",
                 buttonText = R.string.next,
                 explainContent = R.string.explain_service_sub_title,
                 contentImage = R.drawable.icon_splash_img
@@ -59,7 +60,6 @@ class SplashViewModel @Inject constructor(
                         currentRoute = SplashNavRoutes.ExplainService.route,
                         titleText = R.string.explain_service_title,
                         nextRoute = SplashNavRoutes.ChallengeStart.route,
-                        backRoute = "",
                         buttonText = R.string.next,
                         explainContent = R.string.explain_service_sub_title,
                         contentImage = R.drawable.icon_splash_img
@@ -73,7 +73,6 @@ class SplashViewModel @Inject constructor(
                         currentRoute = SplashNavRoutes.ChallengeStart.route,
                         titleText = R.string.challenge_start_title,
                         nextRoute = SettingNavRoutes.Budget.route,
-                        backRoute = SplashNavRoutes.ExplainService.route,
                         buttonText = R.string.challenge_start,
                         explainContent = R.string.challenge_start_sub_title,
                         contentImage = R.drawable.icon_swip_money

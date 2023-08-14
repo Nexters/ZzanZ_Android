@@ -33,6 +33,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.navigation.NavRoutes
+import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
@@ -62,12 +63,18 @@ fun NotificationSetting(
         notificationViewModel.effect.collect {
             when (it) {
                 NotificationContract.Effect.NextRoutes -> {
-                    navController.navigate(NavRoutes.Home.route)
+                    navController.navigate(NavRoutes.Home.route) {
+                        if (settingType == SettingType.onBoarding) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    }
                 }
             }
         }
     })
-    
+
     val hour = hourState.value
     val minute = minuteState.value
     val buttonFormat = "${String.format("%02d", hour)}:${String.format("%02d", minute)}"

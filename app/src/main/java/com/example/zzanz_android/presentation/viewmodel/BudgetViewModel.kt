@@ -450,19 +450,16 @@ class BudgetViewModel @Inject constructor(
                 currentRoute = SettingNavRoutes.BudgetByCategory.route,
                 titleText = R.string.budget_by_category_title,
                 nextRoute = NavRoutes.Notification.route,
-                backRoute = SettingNavRoutes.BudgetCategory.route,
                 buttonText = R.string.next
             ), SettingUiData(
                 currentRoute = SettingNavRoutes.Budget.route,
                 titleText = R.string.next_week_budget_title,
                 nextRoute = SettingNavRoutes.BudgetCategory.route,
-                backRoute = NavRoutes.Splash.route,
                 buttonText = R.string.next
             ), SettingUiData(
                 currentRoute = SettingNavRoutes.BudgetCategory.route,
                 titleText = R.string.next_week_budget_category,
                 nextRoute = SettingNavRoutes.BudgetByCategory.route,
-                backRoute = SettingNavRoutes.Budget.route,
                 buttonText = R.string.next
 
             )

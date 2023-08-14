@@ -11,8 +11,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.example.zzanz_android.presentation.view.OnBoarding
 import com.example.zzanz_android.presentation.view.Setting
-import com.example.zzanz_android.presentation.view.Splash
 import com.example.zzanz_android.presentation.view.category.CategoryScreen
 import com.example.zzanz_android.presentation.view.home.HomeScreen
 import com.example.zzanz_android.presentation.view.notification.NotificationSetting
@@ -32,7 +32,7 @@ fun NavHost(
         startDestination = startDestination
     ) {
         composable(NavRoutes.Splash.route) {
-            Splash(navController)
+            OnBoarding(navController)
         }
         composable(NavRoutes.Home.route) {
             HomeScreen(navController, planListViewModel = planListViewModel)
@@ -53,10 +53,35 @@ fun NavHost(
         ) {
             AddSpendingScreen(navController = navController)
         }
-        composable(NavRoutes.Notification.route + "/{${ArgumentKey.settingType}}") { backStackEntry ->
-            val settingType = backStackEntry.arguments?.getString(ArgumentKey.settingType)
-            NotificationSetting(navController, settingType)
+        composable(
+            route = NavRoutes.Notification.route + "?{${ArgumentKey.settingType}}",
+            arguments = listOf(navArgument(ArgumentKey.settingType) {
+                type = NavType.StringType
+            })
+        ) {
+            NotificationSetting(
+                navController = navController
+            )
         }
+
+        composable(
+            route = SettingNavRoutes.Budget.route
+        ) {
+            Setting(
+                navController = navController,
+                route = SettingNavRoutes.Budget.route,
+                planListViewModel = planListViewModel
+            )
+        }
+
+        composable(
+            route = NavRoutes.Notification.route
+        ) {
+            NotificationSetting(
+                navController = navController
+            )
+        }
+
         composable(
             route = NavRoutes.Category.route + "/{${ArgumentKey.planId}}/{${ArgumentKey.challengeStatus}}",
             arguments = listOf(navArgument(ArgumentKey.planId) {
@@ -79,47 +104,57 @@ fun NavGraphBuilder.splashGraph(
         startDestination = SplashNavRoutes.ExplainService.route, route = NavRoutes.Splash.route
     ) {
         composable(SplashNavRoutes.ExplainService.route) {
-            Splash(navController = navController, SplashNavRoutes.ExplainService.route)
+            OnBoarding(navController = navController, SplashNavRoutes.ExplainService.route)
         }
         composable(SplashNavRoutes.ChallengeStart.route) {
-            Splash(navController = navController, SplashNavRoutes.ChallengeStart.route)
+            OnBoarding(navController = navController, SplashNavRoutes.ChallengeStart.route)
         }
     }
 }
 
 fun NavGraphBuilder.settingGraph(
-    navController: NavHostController,
-    planListViewModel: PlanListViewModel
+    navController: NavHostController, planListViewModel: PlanListViewModel
 ) {
     navigation(
         startDestination = SettingNavRoutes.Budget.route, route = NavRoutes.Setting.route
     ) {
-        composable(SettingNavRoutes.Budget.route + "/{${ArgumentKey.settingType}}") { backStackEntry ->
-            val settingType = backStackEntry.arguments?.getString(ArgumentKey.settingType)
+        composable(
+            route = SettingNavRoutes.Budget.route + "?{${ArgumentKey.settingType}}",
+            arguments = listOf(navArgument(ArgumentKey.settingType) {
+                type = NavType.StringType
+            })
+        ) {
             Setting(
                 navController = navController,
                 route = SettingNavRoutes.Budget.route,
-                settingType = settingType,
                 planListViewModel = planListViewModel
             )
         }
-        composable(SettingNavRoutes.BudgetByCategory.route + "/{${ArgumentKey.settingType}}") { backStackEntry ->
-            val settingType = backStackEntry.arguments?.getString(ArgumentKey.settingType)
+        composable(
+            SettingNavRoutes.BudgetByCategory.route + "?{${ArgumentKey.settingType}}",
+            arguments = listOf(navArgument(ArgumentKey.settingType) {
+                type = NavType.StringType
+            })
+        ) {
             Setting(
                 navController = navController,
                 route = SettingNavRoutes.BudgetByCategory.route,
-                settingType = settingType,
                 planListViewModel = planListViewModel
             )
+
         }
-        composable(SettingNavRoutes.BudgetCategory.route + "/{${ArgumentKey.settingType}}") { backStackEntry ->
-            val settingType = backStackEntry.arguments?.getString(ArgumentKey.settingType)
+        composable(
+            SettingNavRoutes.BudgetCategory.route + "?{${ArgumentKey.settingType}}",
+            arguments = listOf(navArgument(ArgumentKey.settingType) {
+                type = NavType.StringType
+            })
+        ) {
             Setting(
                 navController = navController,
                 route = SettingNavRoutes.BudgetCategory.route,
-                settingType = settingType,
                 planListViewModel = planListViewModel
             )
+
         }
     }
 }

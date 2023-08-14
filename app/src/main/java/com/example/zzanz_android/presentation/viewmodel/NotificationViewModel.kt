@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.Resource
 import com.example.zzanz_android.common.navigation.NavRoutes
+import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.domain.model.FcmTokenModel
 import com.example.zzanz_android.domain.model.NotificationTimeModel
 import com.example.zzanz_android.domain.usecase.PostFcmTokenUseCase
@@ -29,6 +30,7 @@ class NotificationViewModel @Inject constructor(
     private val postFcmTokenUseCase: PostFcmTokenUseCase,
     private val settingRouteUseCase: SetLastSettingRouteUseCase
 ) : BaseViewModel<NotificationContract.Event, NotificationContract.State, NotificationContract.Effect>() {
+
     override fun createInitialState(): NotificationContract.State {
         return NotificationContract.State(
             hour = mutableStateOf(22),
@@ -58,10 +60,10 @@ class NotificationViewModel @Inject constructor(
     }
 
     private fun setTitle(settingType: String?) {
-        if (settingType == null) {
-            setState(currentState.copy(title = mutableStateOf(R.string.set_notification_time_title)))
-        } else {
+        if (settingType == SettingType.home) {
             setState(currentState.copy(title = mutableStateOf(R.string.edit_notification_time_title)))
+        } else {
+            setState(currentState.copy(title = mutableStateOf(R.string.set_notification_time_title)))
         }
     }
 
@@ -152,9 +154,7 @@ class NotificationViewModel @Inject constructor(
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
-                            Timber.e("setNotificationTimeUseCase Success")
                             settingRouteUseCase()
-                            setEffect(NotificationContract.Effect.NextRoutes)
                         }
                     }
 
@@ -175,7 +175,6 @@ class NotificationViewModel @Inject constructor(
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
-                            Timber.e("setNotificationTimeUseCase Success")
                             setEffect(NotificationContract.Effect.NextRoutes)
                         }
                     }

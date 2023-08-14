@@ -3,14 +3,11 @@ package com.example.zzanz_android.presentation.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.Resource
-import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.navigation.SplashNavRoutes
-import com.example.zzanz_android.domain.usecase.preference.GetLastSettingRouteUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetLastSettingRouteUseCase
 import com.example.zzanz_android.presentation.view.component.SettingUiData
-import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
 import com.example.zzanz_android.presentation.view.component.contract.SplashContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -18,8 +15,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class SplashViewModel @Inject constructor(
-    private val getLastSettingRouteUseCase: GetLastSettingRouteUseCase,
+class OnBoardingViewModel @Inject constructor(
     private val setLastSettingRouteUseCase: SetLastSettingRouteUseCase
 ) : BaseViewModel<SplashContract.Event, SplashContract.State, SplashContract.Effect>() {
 
@@ -46,7 +42,7 @@ class SplashViewModel @Inject constructor(
                 if (uiState.value.uiData.currentRoute == SplashNavRoutes.ExplainService.route) {
                     setEffect(SplashContract.Effect.NextRoutes(uiState.value.uiData.nextRoute))
                 } else {
-                    getLastSettingRoute()
+                    setLastSettingRoute()
                 }
             }
         }
@@ -82,27 +78,24 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-    private fun getLastSettingRoute() {
+
+    private fun setLastSettingRoute() {
         viewModelScope.launch {
-            getLastSettingRouteUseCase.invoke(null).collect {
+            setLastSettingRouteUseCase.invoke(SettingNavRoutes.Budget.route).collect {
                 when (it) {
                     is Resource.Success -> {
-                        var route = SettingNavRoutes.Budget.route
-                        Timber.e("### getLastSettingRoute - ${it.data}")
-                        if (!it.data.isNullOrEmpty()) {
-                            route = it.data
-                        }
-                        if (route.contains(NavRoutes.Home.route)) {
-                            setEffect(SplashContract.Effect.NextRoutes(route))
-                        } else {
-                            setEffect(SplashContract.Effect.NextRoutes(route + "/${SettingType.onBoarding}"))
-
+                        if (it.data) {
+                            setEffect(
+                                SplashContract.Effect.NextRoutes(
+                                    SettingNavRoutes.Budget.route + "?${SettingType.onBoarding}"
+                                )
+                            )
                         }
                     }
 
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
-                            Timber.e("error - $message")
+                            Timber.e(message)
 //                            GlobalUiEvent.showToast(message)
                         }
                     }

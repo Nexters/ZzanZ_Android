@@ -75,7 +75,6 @@ import com.example.zzanz_android.presentation.viewmodel.PlanListLoadingState
 import com.example.zzanz_android.presentation.viewmodel.PlanListUiEvent
 import com.example.zzanz_android.presentation.viewmodel.PlanListViewModel
 import kotlinx.coroutines.launch
-import java.lang.Float.min
 
 object HomeScreenValue {
     const val GRID_COUNT = 2
@@ -167,7 +166,7 @@ fun HomeScreen(
                                             .height(56.dp),
                                         text = stringResource(id = R.string.home_edit_plan_btn_title),
                                         onClick = {
-                                            navController.navigate(SettingNavRoutes.Budget.route + "/${SettingType.home}")
+                                            navController.navigate(SettingNavRoutes.Budget.route + "?${SettingType.home}")
                                         },
                                         enabled = true
                                     )
@@ -184,7 +183,7 @@ fun HomeScreen(
                     scope = scope,
                     state = bottomSheetState,
                     onClickChangeAlarm = {
-                        navController.navigate(NavRoutes.Notification.route + "/${SettingType.home}")
+                        navController.navigate(NavRoutes.Notification.route + "?${SettingType.home}")
                     },
                     onClickSendFeedback = { EmailManager.sendEmail(context) },
                     onClickTerms = { /* TODO */ },
@@ -243,7 +242,8 @@ fun HomeContent(
                     challengeStatus.value = challenge.state
                     goalAmount.value = challenge.goalAmount
                     remainAmount.value = challenge.remainAmount
-                    ratio.value = if(challenge.remainAmount < 0) 0f else (challenge.remainAmount.toFloat() / challenge.goalAmount.toFloat())
+                    ratio.value =
+                        if (challenge.remainAmount < 0) 0f else (challenge.remainAmount.toFloat() / challenge.goalAmount.toFloat())
                 }
             }
             Column(
@@ -258,9 +258,11 @@ fun HomeContent(
         item {
             CategoryList(
                 planList.value,
-                if(challengeStatus.value == ChallengeStatus.PRE_OPENED){
-                    {  }
-                } else { onClickItem }
+                if (challengeStatus.value == ChallengeStatus.PRE_OPENED) {
+                    { }
+                } else {
+                    onClickItem
+                }
             )
         }
         item {
@@ -268,7 +270,7 @@ fun HomeContent(
             when (challengeStatus.value) {
                 ChallengeStatus.OPENED -> {
                     ChallengeResult(messageContent = {
-                        if(remainAmount.value < 0f){
+                        if (remainAmount.value < 0f) {
                             ChallengeResultTitleWhenOpened(
                                 prefix = stringResource(id = R.string.home_challenge_result_title_opened_over_prefix),
                                 suffix = stringResource(id = R.string.home_challenge_result_title_opened_over_suffix),
@@ -289,7 +291,9 @@ fun HomeContent(
                 ChallengeStatus.CLOSED -> {
                     ChallengeResult(messageContent = {
                         ChallengeResultTitleWhenClosed(
-                            message = if(remainAmount.value < 0f) stringResource(id = R.string.home_challenge_result_title_closed_fail) else stringResource(id = R.string.home_challenge_result_title_closed_success)
+                            message = if (remainAmount.value < 0f) stringResource(id = R.string.home_challenge_result_title_closed_fail) else stringResource(
+                                id = R.string.home_challenge_result_title_closed_success
+                            )
                         )
                     }, ratio = ratio.value)
                 }
@@ -413,7 +417,7 @@ fun CategoryList(
                 itemWidth = itemWidth,
                 title = stringResource(id = Category.valueOf(it.category).stringResId),
                 remainAmount = it.remainAmount,
-                ratio = if(it.remainAmount < 0) 0f else (it.remainAmount.toFloat() / it.goalAmount.toFloat()),
+                ratio = if (it.remainAmount <= 0) 0f else (it.remainAmount.toFloat() / it.goalAmount.toFloat()),
                 onClickItem = { onClickItem(it.id) }
             )
         }

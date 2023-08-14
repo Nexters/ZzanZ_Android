@@ -42,7 +42,6 @@ class BudgetViewModel @Inject constructor(
 
     private val _budgetData = MutableStateFlow(BudgetCategoryData)
     val budgetData = _budgetData.asStateFlow()
-    val currentBudgetData = _budgetData.value
 
     private val _uiData: MutableStateFlow<SettingUiData?> = MutableStateFlow(null)
     val uiData = _uiData.asStateFlow()
@@ -68,7 +67,16 @@ class BudgetViewModel @Inject constructor(
                     }
                     return@map budget
                 }
-                setNestEggCategoryItem()
+
+                _budgetData.value.category.value = _budgetData.value.category.value.map {
+                    if (it.categoryId == Category.NESTEGG) {
+                        return@map it.copy(
+                            isChecked = true,
+                            budget = getRemainingBudget().toString()
+                        )
+                    }
+                    return@map it
+                }
             }
 
             is BudgetContract.Event.SetScreenState -> {
@@ -203,11 +211,13 @@ class BudgetViewModel @Inject constructor(
     }
 
     private fun getRemainingBudget(): Int {
+        if (_budgetData.value.totalBudget.value.isEmpty()) {
+            return 0
+        }
         return (_budgetData.value.totalBudget.value.toInt() - getCategoryBudgetSum())
     }
 
     private fun setBudgetByCategoryState(): BudgetContract.BudgetByCategoryState {
-        Timber.e("setBudgetByCategoryState ${getEnteredBudgetCategoryCount()}")
         return BudgetContract.BudgetByCategoryState(
             remainingBudget = mutableStateOf(getRemainingBudget().toString()),
             totalCategory = mutableStateOf(getSelectedCategoryCount()),
@@ -255,11 +265,12 @@ class BudgetViewModel @Inject constructor(
     private fun setNestEggCategoryItem() {
         _budgetData.value.category.value = _budgetData.value.category.value.map {
             if (it.categoryId == Category.NESTEGG) {
-                if (setButtonState(_screenType.value)) it.copy(
-                    budget = getRemainingBudget().toString()
-                )
-                else it.copy(budget = "0")
-            } else it
+                if (setButtonState(_screenType.value)) {
+                    return@map it.copy(budget =  getRemainingBudget().toString())
+                } else {
+                    return@map it.copy(budget =  "0")
+                }
+            } else return@map it
         }
     }
 
@@ -350,9 +361,8 @@ class BudgetViewModel @Inject constructor(
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
-                            setLastSettingRoute()
-//                            GlobalUiEvent.showToast("putBudgetCategoryUseCase - Success")
                             setState(currentState.copy(budgetByCategoryState = NetworkState.Success))
+                            setEffect(BudgetContract.Effect.NextRoutes)
                         }
                     }
 
@@ -398,10 +408,10 @@ class BudgetViewModel @Inject constructor(
                     is Resource.Success -> {
                         if (it.data) {
                             setState(currentState.copy(budgetState = NetworkState.Success))
-                            if (_settingType.value == SettingType.home) {
-                                putBudgetByCategoryUseCase()
-                            } else {
+                            if (_settingType.value == SettingType.onBoarding) {
                                 postBudgetByCategoryUseCase()
+                            } else {
+                                putBudgetByCategoryUseCase()
                             }
                         }
                     }

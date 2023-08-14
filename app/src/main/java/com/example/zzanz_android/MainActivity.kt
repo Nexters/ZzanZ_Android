@@ -3,10 +3,10 @@ package com.example.zzanz_android
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,7 +27,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.zzanz_android.common.navigation.NavHost
 import com.example.zzanz_android.common.ui.theme.ZzanZ_AndroidTheme
 import com.example.zzanz_android.common.ui.util.keyboardAsState
@@ -47,28 +52,24 @@ class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { isGranted: Boolean ->
-        if (isGranted) {
-            Toast.makeText(this, "Notifications permission granted", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(
-                this,
-                "FCM can't post notifications without POST_NOTIFICATIONS permission",
-                Toast.LENGTH_LONG,
-            ).show()
-        }
+        // TODO Notification grant 성공/실패시 어떻게 보여줄 지 기획 필요
     }
+
+    private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        askNotificationPermission()
+
+        setupSplashScreen()
+
         setContent {
+            askNotificationPermission()
+            mainViewModel.setEvent(GlobalContract.Event.GetLastRoute)
             val isKeyboardOpen by keyboardAsState()
             var toastState by remember { mutableStateOf("") }
             var job: Job? = null
             val scope = rememberCoroutineScope()
-            val mainViewModel: MainViewModel = hiltViewModel()
             SetFirebaseToken(mainViewModel)
-
             ZzanZ_AndroidTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -88,12 +89,13 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 }
-
-                                else -> {}
                             }
                         }
                     }
-                    NavHost()
+                    mainViewModel.uiState.collectAsState().value.startDestination.value?.let {
+                        Timber.e("### NavHost $it")
+                        NavHost(startDestination = it)
+                    }
                     Toast(
                         modifier = Modifier,
                         message = toastState,
@@ -104,6 +106,21 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun setupSplashScreen() {
+        var keepSplashScreenOn = true
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainViewModel.uiState.collect {
+                    keepSplashScreenOn = it.isLoading.value
+                }
+            }
+        }
+
+        installSplashScreen().setKeepOnScreenCondition {
+            keepSplashScreenOn
         }
     }
 
@@ -137,7 +154,7 @@ class MainActivity : ComponentActivity() {
             mainViewModel.setEvent(GlobalContract.Event.SetFcmToken(token))
 
             // Log and toast
-            Timber.e("Token $token")
+            Timber.d("Token $token")
         })
     }
 }

@@ -24,28 +24,26 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
-import com.example.zzanz_android.common.navigation.NavRoutes
-import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.navigation.SplashNavRoutes
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.presentation.view.component.BottomGreenButton
 import com.example.zzanz_android.presentation.view.component.contract.SplashContract
-import com.example.zzanz_android.presentation.viewmodel.SplashViewModel
+import com.example.zzanz_android.presentation.viewmodel.OnBoardingViewModel
 
 @Composable
-fun Splash(
+fun OnBoarding(
     navController: NavHostController,
     route: String = SplashNavRoutes.ExplainService.route,
-    splashViewModel: SplashViewModel = hiltViewModel()
+    onBoardingViewModel: OnBoardingViewModel = hiltViewModel()
 ) {
 
-    val uiData = splashViewModel.uiState.collectAsState().value.uiData
+    val uiData = onBoardingViewModel.uiState.collectAsState().value.uiData
 
-    splashViewModel.setEvent(SplashContract.Event.SetSplashType(route))
+    onBoardingViewModel.setEvent(SplashContract.Event.SetSplashType(route))
 
     LaunchedEffect(key1 = Unit, block = {
-        splashViewModel.effect.collect { it ->
+        onBoardingViewModel.effect.collect { it ->
             when (it) {
                 is SplashContract.Effect.NextRoutes -> {
                     navController.navigate(it.route) {
@@ -96,7 +94,7 @@ fun Splash(
         BottomGreenButton(
             buttonText = stringResource(id = uiData.buttonText),
             onClick = {
-                splashViewModel.setEvent(
+                onBoardingViewModel.setEvent(
                     SplashContract.Event.OnNextButtonClicked
                 )
             },
@@ -110,6 +108,6 @@ fun Splash(
 
 @Preview
 @Composable
-fun SplashScreen() {
-    Splash(navController = rememberNavController())
+fun OnBoardingPreview() {
+    OnBoarding(navController = rememberNavController())
 }

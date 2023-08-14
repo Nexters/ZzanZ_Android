@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
+import com.example.zzanz_android.common.navigation.ArgumentKey
 import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.navigation.SettingType
@@ -52,10 +53,13 @@ fun Setting(
     route: String = SettingNavRoutes.Budget.route,
     budgetViewModel: BudgetViewModel = hiltViewModel(),
     planListViewModel: PlanListViewModel = hiltViewModel(),
-    settingType: String? = SettingType.onBoarding
 ) {
     val planListState by planListViewModel.uiState.collectAsState()
     val uiData = budgetViewModel.uiData.collectAsState().value
+    val settingType =
+        navController.currentBackStackEntry?.arguments?.getString(ArgumentKey.settingType)
+            ?: SettingType.onBoarding
+
     LaunchedEffect(key1 = true, block = {
         budgetViewModel.setEvent(BudgetContract.Event.GetSettingUiData(route, settingType))
         var planList: List<PlanModel>? = null
@@ -63,7 +67,6 @@ fun Setting(
             planList = (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
             budgetViewModel.setEvent(BudgetContract.Event.SetBudgetCategoryList(planList))
         }
-
     })
 
     if (uiData == null) return
@@ -85,7 +88,7 @@ fun Setting(
     val enteredCategoryCnt = budgetCategoryState.value.enteredCategory.value
 
     val onNavRoutes = {
-        navController.navigate(uiData.nextRoute + "/${settingType}")
+        navController.navigate(uiData.nextRoute + "?${settingType}")
     }
 
     LaunchedEffect(key1 = Unit, block = {
@@ -118,8 +121,14 @@ fun Setting(
                             }
                         }
                         planListViewModel.setEvent(PlanListUiEvent.SetPlanList(newPlanList))
+                        navController.navigate(NavRoutes.Home.route) {
+                            popUpTo(NavRoutes.Home.route) {
+                                inclusive = true
+                            }
+                        }
+                    } else {
+                        onNavRoutes.invoke()
                     }
-                    onNavRoutes.invoke()
                 }
             }
         }
@@ -139,9 +148,7 @@ fun Setting(
 
     buttonTitle = if (uiData.buttonText == R.string.budget_by_category_write_btn_title) {
         stringResource(
-            id = uiData.buttonText,
-            enteredCategoryCnt.toString(),
-            totalCategoryCnt.toString()
+            id = uiData.buttonText, enteredCategoryCnt.toString(), totalCategoryCnt.toString()
         )
     } else {
         stringResource(id = uiData.buttonText)
@@ -153,8 +160,7 @@ fun Setting(
             .background(color = ZzanZColorPalette.current.White)
     ) {
         val (topBarRef, contentRef, bottomRef) = createRefs()
-        TopBar(
-            navController = navController,
+        TopBar(navController = navController,
             route = route,
             modifier = Modifier.constrainAs(topBarRef) {
                 top.linkTo(parent.top)
@@ -162,15 +168,14 @@ fun Setting(
                 end.linkTo(parent.end)
                 width = Dimension.fillToConstraints
             })
-        val contentModifier = Modifier
-            .constrainAs(contentRef) {
-                top.linkTo(topBarRef.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(bottomRef.top)
-                width = Dimension.fillToConstraints
-                height = Dimension.fillToConstraints
-            }
+        val contentModifier = Modifier.constrainAs(contentRef) {
+            top.linkTo(topBarRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(bottomRef.top)
+            width = Dimension.fillToConstraints
+            height = Dimension.fillToConstraints
+        }
         Column(
             modifier = contentModifier
         ) {
@@ -206,15 +211,13 @@ fun Setting(
                 }
             }
         }
-        Column(
-            modifier = Modifier.constrainAs(bottomRef) {
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                width = Dimension.fillToConstraints
-                centerHorizontallyTo(parent)
-            }
-        ) {
+        Column(modifier = Modifier.constrainAs(bottomRef) {
+            bottom.linkTo(parent.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            width = Dimension.fillToConstraints
+            centerHorizontallyTo(parent)
+        }) {
             if (route == SettingNavRoutes.BudgetByCategory.route && (enteredCategoryCnt == totalCategoryCnt)) {
                 if (!isKeyboardOpen) {
                     Column(
@@ -263,9 +266,7 @@ fun TopBar(navController: NavHostController, route: String, modifier: Modifier) 
     AppBarWithBackNavigation(
         onBackButtonAction = {
             navController.popBackStack()
-        },
-        isBackIconVisible = route != SettingNavRoutes.Budget.route,
-        modifier = modifier
+        }, isBackIconVisible = route != SettingNavRoutes.Budget.route, modifier = modifier
     )
 }
 

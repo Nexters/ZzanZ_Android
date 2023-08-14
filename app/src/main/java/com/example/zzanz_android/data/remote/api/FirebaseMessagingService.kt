@@ -14,7 +14,7 @@ import timber.log.Timber
 
 
 class FirebaseMessagingService : FirebaseMessagingService() {
-    private val TAG = "Notification -"
+    private val TAG = "FirebaseMessagingService -"
     override fun onNewToken(token: String) {
         Timber.d("FirebaseMessagingService New token :: $token")
         suspend {

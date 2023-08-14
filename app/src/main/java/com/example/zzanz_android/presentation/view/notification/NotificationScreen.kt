@@ -32,8 +32,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
+import com.example.zzanz_android.common.navigation.ArgumentKey
 import com.example.zzanz_android.common.navigation.NavRoutes
-import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.navigation.SettingType
 import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZDimen
@@ -43,19 +43,20 @@ import com.example.zzanz_android.presentation.view.component.GreenRoundButton
 import com.example.zzanz_android.presentation.view.component.TitleText
 import com.example.zzanz_android.presentation.view.component.contract.NotificationContract
 import com.example.zzanz_android.presentation.viewmodel.NotificationViewModel
-import timber.log.Timber
 
 @Composable
 fun NotificationSetting(
-    navController: NavHostController,
-    settingType: String? = SettingType.onBoarding,
-    notificationViewModel: NotificationViewModel = hiltViewModel()
+    navController: NavHostController, notificationViewModel: NotificationViewModel = hiltViewModel()
 ) {
     val hourState = notificationViewModel.uiState.collectAsState().value.hour
     val minuteState = notificationViewModel.uiState.collectAsState().value.minute
     val titleRes = notificationViewModel.uiState.collectAsState().value.title.value
     var buttonTitle = stringResource(id = R.string.set_notification_time_btn_title)
+
     LaunchedEffect(key1 = true, block = {
+        val settingType =
+            navController.currentBackStackEntry?.arguments?.getString(ArgumentKey.settingType)
+                ?: SettingType.onBoarding
         notificationViewModel.setEvent(NotificationContract.Event.GetNotificationTime)
         notificationViewModel.setEvent(NotificationContract.Event.SetSettingType(settingType))
     })
@@ -64,10 +65,8 @@ fun NotificationSetting(
             when (it) {
                 NotificationContract.Effect.NextRoutes -> {
                     navController.navigate(NavRoutes.Home.route) {
-                        if (settingType == SettingType.onBoarding) {
-                            popUpTo(navController.graph.id) {
-                                inclusive = true
-                            }
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
                         }
                     }
                 }
@@ -79,7 +78,6 @@ fun NotificationSetting(
     val minute = minuteState.value
     val buttonFormat = "${String.format("%02d", hour)}:${String.format("%02d", minute)}"
     buttonTitle = stringResource(id = R.string.set_notification_time_btn_title, buttonFormat)
-    Timber.e("333 - $hour : $minute")
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -199,5 +197,5 @@ fun CircularNumber(
 @Preview
 @Composable
 fun NotificationSettingPreview() {
-    NotificationSetting(navController = rememberNavController(), settingType = null)
+    NotificationSetting(navController = rememberNavController())
 }

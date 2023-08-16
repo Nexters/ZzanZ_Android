@@ -113,6 +113,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mainViewModel.uiState.collect {
+                    delay(800)
                     keepSplashScreenOn = it.isLoading.value
                 }
             }

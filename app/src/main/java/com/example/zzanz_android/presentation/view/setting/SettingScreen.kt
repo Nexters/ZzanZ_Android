@@ -180,7 +180,6 @@ fun Setting(
                     BudgetByCategory(
                         titleText = title,
                         budgetViewModel = budgetViewModel,
-                        planListViewModel = planListViewModel,
                         onAddCategoryClicked = {
                             coroutineScope.launch {
                                 sheetState.show()

@@ -19,7 +19,7 @@ android {
         minSdk 29
         targetSdk 33
         versionCode 1
-        versionName "0.5.0"
+        versionName "1.0.0"
         compileSdkPreview = "UpsideDownCake"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -30,10 +30,21 @@ android {
         buildConfigField "String", "BASE_URL", secretStoreProperties["BASE_URL"]
     }
 
+    signingConfigs {
+        release {
+            storeFile file(secretStoreProperties["STORE_PATH"])
+            storePassword secretStoreProperties["STORE_PASSWORD"]
+            keyAlias secretStoreProperties["STORE_KEY_ALIAS"]
+            keyPassword secretStoreProperties["KEY_PASSWORD"]
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            multiDexEnabled false
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {

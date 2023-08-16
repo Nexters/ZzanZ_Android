@@ -320,46 +320,34 @@ fun RemainAmountText(
 fun AddSpendingComponent(
     onClick: () -> Unit
 ) {
-    Surface(
+    Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
+            .padding(vertical = 10.dp)
+            .clickable { onClick() },
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .padding(vertical = 10.dp)
-                .clickable { onClick() },
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AddIcon()
-            Spacer(modifier = Modifier.width(16.dp))
-            TitleText(stringResource(id = R.string.category_add_spending_btn_title))
-        }
+        AddIcon()
+        Spacer(modifier = Modifier.width(16.dp))
+        TitleText(stringResource(id = R.string.category_add_spending_btn_title))
     }
 }
 
 @Composable
 fun SpendingItemComponent(category: String, title: String, memo: String, amount: String) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
+    Row(
+        modifier = Modifier.padding(vertical = 17.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.padding(vertical = 17.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CategoryIcon(
-                modifier = Modifier.size(32.dp),
-                resId = Category.valueOf(category).imgResId
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                TitleText(title = title)
-                if(memo.isNotEmpty()) MemoText(memo = memo)
-            }
-            AmountText(amount = amount + stringResource(id = R.string.money_unit))
+        CategoryIcon(
+            modifier = Modifier.size(32.dp),
+            resId = Category.valueOf(category).imgResId
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            TitleText(title = title)
+            if(memo.isNotEmpty()) MemoText(memo = memo)
         }
+        AmountText(amount = amount + stringResource(id = R.string.money_unit))
     }
 }
 

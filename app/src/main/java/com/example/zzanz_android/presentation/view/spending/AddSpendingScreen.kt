@@ -98,7 +98,9 @@ fun AddSpendingScreen(
         }
     }
 
-    Scaffold(topBar = {
+    Scaffold(
+        containerColor = ZzanZColorPalette.current.White,
+        topBar = {
         AppBarWithBackNavigation(appbarColor = ZzanZColorPalette.current.White){
             navController.popBackStack()
         }

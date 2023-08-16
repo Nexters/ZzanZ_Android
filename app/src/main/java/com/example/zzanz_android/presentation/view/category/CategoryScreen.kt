@@ -53,7 +53,9 @@ fun CategoryScreen(
     val context = LocalContext.current
     val categoryState by viewModel.uiState.collectAsState()
     val effect by viewModel.effect.collectAsState(null)
-    Scaffold(topBar = {
+    Scaffold(
+        containerColor = ZzanZColorPalette.current.White,
+        topBar = {
         AppBarWithBackNavigation(
             appbarColor = ZzanZColorPalette.current.White,
         ) {
@@ -170,32 +172,30 @@ fun Title(remainAmount: Int, category: String) {
             ZzanZColorPalette.current.Green04
         )
     }
-    Surface(modifier = Modifier.padding(top = 8.dp)) {
-        Text(
-            buildAnnotatedString {
-                withStyle(SpanStyle(color = ZzanZColorPalette.current.Black)) {
-                    append(titleComponent.prefix)
-                }
-                withStyle(SpanStyle(color = titleComponent.color)) {
-                    append("\n${titleComponent.remainAmount}${stringResource(id = R.string.money_unit)} ")
-                }
-                withStyle(SpanStyle(color = ZzanZColorPalette.current.Black)) {
-                    append(titleComponent.suffix)
-                }
-            }, style = ZzanZTypo.current.H1
-        )
-    }
+    Text(
+        modifier = Modifier.padding(top = 8.dp),
+        text = buildAnnotatedString {
+            withStyle(SpanStyle(color = ZzanZColorPalette.current.Black)) {
+                append(titleComponent.prefix)
+            }
+            withStyle(SpanStyle(color = titleComponent.color)) {
+                append("\n${titleComponent.remainAmount}${stringResource(id = R.string.money_unit)} ")
+            }
+            withStyle(SpanStyle(color = ZzanZColorPalette.current.Black)) {
+                append(titleComponent.suffix)
+            }
+        }, style = ZzanZTypo.current.H1
+    )
 }
 
 @Composable
 fun SubTitle(category: String, goalAmount: String) {
-    Surface(modifier = Modifier.padding(top = 8.dp)) {
-        Text(
-            text = stringResource(
-                id = R.string.category_goal_amount_subtitle, category, goalAmount
-            ), style = ZzanZTypo.current.Body01, color = ZzanZColorPalette.current.Gray05
-        )
-    }
+    Text(
+        modifier = Modifier.padding(top = 8.dp),
+        text = stringResource(
+            id = R.string.category_goal_amount_subtitle, category, goalAmount
+        ), style = ZzanZTypo.current.Body01, color = ZzanZColorPalette.current.Gray05
+    )
 }
 
 data class TitleComponent(

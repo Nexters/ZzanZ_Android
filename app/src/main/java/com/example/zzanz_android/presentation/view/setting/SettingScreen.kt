@@ -259,9 +259,11 @@ fun Setting(
 @Composable
 fun TopBar(navController: NavHostController, route: String, modifier: Modifier) {
     AppBarWithBackNavigation(
+        modifier = modifier,
+        appbarColor = ZzanZColorPalette.current.White,
         onBackButtonAction = {
             navController.popBackStack()
-        }, isBackIconVisible = route != SettingNavRoutes.Budget.route, modifier = modifier
+        }, isBackIconVisible = route != SettingNavRoutes.Budget.route
     )
 }
 

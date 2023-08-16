@@ -48,23 +48,22 @@ import com.example.zzanz_android.presentation.viewmodel.SpendingListByPlanState
 
 @Composable
 fun CategoryScreen(
-    navController: NavController,
-    viewModel: CategoryViewModel = hiltViewModel()
+    navController: NavController, viewModel: CategoryViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val categoryState by viewModel.uiState.collectAsState()
     val effect by viewModel.effect.collectAsState(null)
-    Scaffold(
-        topBar = {
-            AppBarWithBackNavigation {
-                navController.navigate(NavRoutes.Home.route) {
-                    popUpTo(NavRoutes.Home.route) {
-                        inclusive = true
-                    }
+    Scaffold(topBar = {
+        AppBarWithBackNavigation(
+            appbarColor = ZzanZColorPalette.current.White,
+        ) {
+            navController.navigate(NavRoutes.Home.route) {
+                popUpTo(NavRoutes.Home.route) {
+                    inclusive = true
                 }
             }
         }
-    ) {
+    }) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -73,8 +72,7 @@ fun CategoryScreen(
             when (categoryState.spendingListByPlanState) {
                 is SpendingListByPlanState.Loading -> {
                     CircularProgressIndicator(
-                        Modifier.align(Alignment.Center),
-                        color = ZzanZColorPalette.current.Green04
+                        Modifier.align(Alignment.Center), color = ZzanZColorPalette.current.Green04
                     )
                 }
 
@@ -94,16 +92,14 @@ fun CategoryScreen(
                         }
 
                         else -> {
-                            val planInfo by
-                            (categoryState.spendingListByPlanState as SpendingListByPlanState.Success).planInfo.collectAsState(
+                            val planInfo by (categoryState.spendingListByPlanState as SpendingListByPlanState.Success).planInfo.collectAsState(
                                 null
                             )
                             planInfo?.let { plan ->
                                 LazyColumn(modifier = Modifier.padding(horizontal = ZzanZDimen.current.defaultHorizontal)) {
                                     item {
                                         Title(
-                                            plan.remainAmount,
-                                            plan.category
+                                            plan.remainAmount, plan.category
                                         )
                                         SubTitle(
                                             stringResource(id = Category.valueOf(plan.category).stringResId),
@@ -142,11 +138,8 @@ fun CategoryScreen(
 
             if (effect is CategoryEffect.ShowErrorToast) {
                 Toast.makeText(
-                    context,
-                    (effect as CategoryEffect.ShowErrorToast).message,
-                    Toast.LENGTH_LONG
-                )
-                    .show()
+                    context, (effect as CategoryEffect.ShowErrorToast).message, Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
@@ -155,9 +148,12 @@ fun CategoryScreen(
 @Composable
 fun Title(remainAmount: Int, category: String) {
     val isOver = remainAmount < 0
-    val titleComponent = if(isOver) {
+    val titleComponent = if (isOver) {
         TitleComponent(
-            stringResource(id = R.string.category_remain_amount_over_title_prefix, stringResource(id = Category.valueOf(category).stringResId)),
+            stringResource(
+                id = R.string.category_remain_amount_over_title_prefix,
+                stringResource(id = Category.valueOf(category).stringResId)
+            ),
             stringResource(id = R.string.category_remain_amount_over_title_suffix),
             MoneyFormatter.format(remainAmount * -1),
             ZzanZColorPalette.current.Red04
@@ -165,7 +161,10 @@ fun Title(remainAmount: Int, category: String) {
         )
     } else {
         TitleComponent(
-            stringResource(id = R.string.category_remain_amount_remain_title_prefix, stringResource(id = Category.valueOf(category).stringResId)),
+            stringResource(
+                id = R.string.category_remain_amount_remain_title_prefix,
+                stringResource(id = Category.valueOf(category).stringResId)
+            ),
             stringResource(id = R.string.category_remain_amount_remain_title_suffix),
             MoneyFormatter.format(remainAmount),
             ZzanZColorPalette.current.Green04
@@ -183,8 +182,7 @@ fun Title(remainAmount: Int, category: String) {
                 withStyle(SpanStyle(color = ZzanZColorPalette.current.Black)) {
                     append(titleComponent.suffix)
                 }
-            },
-            style = ZzanZTypo.current.H1
+            }, style = ZzanZTypo.current.H1
         )
     }
 }
@@ -194,21 +192,14 @@ fun SubTitle(category: String, goalAmount: String) {
     Surface(modifier = Modifier.padding(top = 8.dp)) {
         Text(
             text = stringResource(
-                id = R.string.category_goal_amount_subtitle,
-                category,
-                goalAmount
-            ),
-            style = ZzanZTypo.current.Body01,
-            color = ZzanZColorPalette.current.Gray05
+                id = R.string.category_goal_amount_subtitle, category, goalAmount
+            ), style = ZzanZTypo.current.Body01, color = ZzanZColorPalette.current.Gray05
         )
     }
 }
 
 data class TitleComponent(
-    val prefix: String,
-    val suffix: String,
-    val remainAmount: String,
-    val color: Color
+    val prefix: String, val suffix: String, val remainAmount: String, val color: Color
 )
 
 @Preview

@@ -85,7 +85,9 @@ fun NotificationSetting(
             .background(ZzanZColorPalette.current.White)
             .padding(horizontal = ZzanZDimen.current.defaultHorizontal)
     ) {
-        AppBarWithBackNavigation(isBackIconVisible = false)
+        AppBarWithBackNavigation(
+            appbarColor = ZzanZColorPalette.current.White,
+            isBackIconVisible = false)
         Spacer(modifier = Modifier.height(8.dp))
         TitleText(
             modifier = Modifier, text = stringResource(titleRes)

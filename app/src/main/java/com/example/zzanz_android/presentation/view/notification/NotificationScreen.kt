@@ -52,6 +52,7 @@ fun NotificationSetting(
     val minuteState = notificationViewModel.uiState.collectAsState().value.minute
     val titleRes = notificationViewModel.uiState.collectAsState().value.title.value
     var buttonTitle = stringResource(id = R.string.set_notification_time_btn_title)
+    val loadState = notificationViewModel.uiState.collectAsState().value.isLoading
 
     LaunchedEffect(key1 = true, block = {
         val settingType =
@@ -90,33 +91,35 @@ fun NotificationSetting(
             modifier = Modifier, text = stringResource(titleRes)
         )
         Spacer(modifier = Modifier.weight(1f))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CircularNumber(
-                hourSize = 24,
-                initialHour = hour,
-                maxSize = 12,
-                isHour = true,
-                notificationViewModel = notificationViewModel,
-                numberPadding = 1
-            )
-            Spacer(modifier = Modifier.width(32.dp))
-            Text(
-                text = ":",
-                color = ZzanZColorPalette.current.Gray09,
-                style = ZzanZTypo.current.Heading.copy(fontSize = 36.sp)
-            )
-            Spacer(modifier = Modifier.width(32.dp))
-            CircularNumber(
-                hourSize = 60,
-                initialHour = minute,
-                maxSize = 59,
-                isHour = false,
-                numberPadding = 10
-            )
+        if (!loadState.value) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CircularNumber(
+                    hourSize = 24,
+                    initialHour = hour,
+                    maxSize = 12,
+                    isHour = true,
+                    notificationViewModel = notificationViewModel,
+                    numberPadding = 1
+                )
+                Spacer(modifier = Modifier.width(32.dp))
+                Text(
+                    text = ":",
+                    color = ZzanZColorPalette.current.Gray09,
+                    style = ZzanZTypo.current.Heading.copy(fontSize = 36.sp)
+                )
+                Spacer(modifier = Modifier.width(32.dp))
+                CircularNumber(
+                    hourSize = 60,
+                    initialHour = minute,
+                    maxSize = 59,
+                    isHour = false,
+                    numberPadding = 10
+                )
+            }
         }
         Spacer(modifier = Modifier.weight(1f))
         GreenRoundButton(

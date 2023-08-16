@@ -1,4 +1,4 @@
-package com.example.zzanz_android.presentation.view
+package com.example.zzanz_android.presentation.view.onboarding
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

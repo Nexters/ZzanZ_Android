@@ -11,8 +11,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.example.zzanz_android.presentation.view.OnBoarding
-import com.example.zzanz_android.presentation.view.Setting
+import com.example.zzanz_android.presentation.view.onboarding.OnBoarding
+import com.example.zzanz_android.presentation.view.setting.Setting
 import com.example.zzanz_android.presentation.view.category.CategoryScreen
 import com.example.zzanz_android.presentation.view.home.HomeScreen
 import com.example.zzanz_android.presentation.view.notification.NotificationSetting

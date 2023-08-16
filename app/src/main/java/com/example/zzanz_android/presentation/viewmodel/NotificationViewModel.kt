@@ -14,7 +14,6 @@ import com.example.zzanz_android.domain.usecase.preference.GetFcmTokenUseCase
 import com.example.zzanz_android.domain.usecase.preference.GetNotificationTimeUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetLastSettingRouteUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetNotificationTimeUseCase
-import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
 import com.example.zzanz_android.presentation.view.component.contract.NotificationContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -33,6 +32,7 @@ class NotificationViewModel @Inject constructor(
 
     override fun createInitialState(): NotificationContract.State {
         return NotificationContract.State(
+            isLoading = mutableStateOf(true),
             hour = mutableStateOf(22),
             minute = mutableStateOf(0),
             title = mutableStateOf(R.string.set_notification_time_title)
@@ -69,15 +69,17 @@ class NotificationViewModel @Inject constructor(
 
     private fun postFcmTokenUseCase(token: String) {
         viewModelScope.launch {
-            postFcmTokenUseCase.invoke(FcmTokenModel(
-                fcmToken = token,
-                operatingSystem = "ANDROID"
-            )).collect{
+            postFcmTokenUseCase.invoke(
+                FcmTokenModel(
+                    fcmToken = token,
+                    operatingSystem = "ANDROID"
+                )
+            ).collect {
                 when (it) {
                     is Resource.Success -> {
-                       if(it.data) {
-                           callNotificationTimeUseCase()
-                       }
+                        if (it.data) {
+                            callNotificationTimeUseCase()
+                        }
                     }
 
                     is Resource.Error -> {
@@ -94,10 +96,10 @@ class NotificationViewModel @Inject constructor(
 
     private fun getFcmTokenUseCase() {
         viewModelScope.launch {
-            getFcmTokenUseCase.invoke(null).collect{
+            getFcmTokenUseCase.invoke(null).collect {
                 when (it) {
                     is Resource.Success -> {
-                        it.data?.let{
+                        it.data?.let {
 //                            GlobalUiEvent.showToast("Token - $it")
                             postFcmTokenUseCase(it)
                         }
@@ -128,7 +130,13 @@ class NotificationViewModel @Inject constructor(
                             times[1]?.let {
                                 minute = it
                             }
-                            setState(currentState.copy(hour = mutableStateOf(hour), minute = mutableStateOf(minute)))
+                            setState(
+                                currentState.copy(
+                                    isLoading = mutableStateOf(false),
+                                    hour = mutableStateOf(hour),
+                                    minute = mutableStateOf(minute)
+                                )
+                            )
 //                            GlobalUiEvent.showToast("NotificationTimeUseCase Success")
                         }
                     }

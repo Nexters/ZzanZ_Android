@@ -1,4 +1,4 @@
-package com.example.zzanz_android.presentation.view
+package com.example.zzanz_android.presentation.view.setting
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -36,10 +36,6 @@ import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavig
 import com.example.zzanz_android.presentation.view.component.BottomGreenButton
 import com.example.zzanz_android.presentation.view.component.CategoryBottomSheet
 import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
-import com.example.zzanz_android.presentation.view.setting.BudgetByCategory
-import com.example.zzanz_android.presentation.view.setting.BudgetCategory
-import com.example.zzanz_android.presentation.view.setting.NestEggExplainText
-import com.example.zzanz_android.presentation.view.setting.SetBudget
 import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
 import com.example.zzanz_android.presentation.viewmodel.PlanListLoadingState
 import com.example.zzanz_android.presentation.viewmodel.PlanListUiEvent
@@ -184,7 +180,6 @@ fun Setting(
                     BudgetByCategory(
                         titleText = title,
                         budgetViewModel = budgetViewModel,
-                        planListViewModel = planListViewModel,
                         onAddCategoryClicked = {
                             coroutineScope.launch {
                                 sheetState.show()
@@ -264,9 +259,11 @@ fun Setting(
 @Composable
 fun TopBar(navController: NavHostController, route: String, modifier: Modifier) {
     AppBarWithBackNavigation(
+        modifier = modifier,
+        appbarColor = ZzanZColorPalette.current.White,
         onBackButtonAction = {
             navController.popBackStack()
-        }, isBackIconVisible = route != SettingNavRoutes.Budget.route, modifier = modifier
+        }, isBackIconVisible = route != SettingNavRoutes.Budget.route
     )
 }
 

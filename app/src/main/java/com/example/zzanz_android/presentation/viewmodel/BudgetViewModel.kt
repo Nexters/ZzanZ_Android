@@ -15,15 +15,12 @@ import com.example.zzanz_android.domain.usecase.PostBudgetByCategoryUseCase
 import com.example.zzanz_android.domain.usecase.PostBudgetUseCase
 import com.example.zzanz_android.domain.usecase.PutBudgetByCategoryUseCase
 import com.example.zzanz_android.domain.usecase.PutBudgetUseCase
-import com.example.zzanz_android.domain.usecase.preference.GetFcmTokenUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetLastSettingRouteUseCase
 import com.example.zzanz_android.presentation.view.component.SettingUiData
 import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
-import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -57,8 +54,8 @@ class BudgetViewModel @Inject constructor(
 
             is BudgetContract.Event.SetBudgetCategoryList -> {
                 clearBudgetByCategoryList()
-                _budgetData.value.category.value = _budgetData.value.category.value.map {budget ->
-                    event.category.forEach{plan ->
+                _budgetData.value.category.value = _budgetData.value.category.value.map { budget ->
+                    event.category.forEach { plan ->
                         if (plan.category == budget.categoryId.toString()) {
                             budget.isChecked = true
                             budget.budget = plan.goalAmount.toString()
@@ -266,9 +263,9 @@ class BudgetViewModel @Inject constructor(
         _budgetData.value.category.value = _budgetData.value.category.value.map {
             if (it.categoryId == Category.NESTEGG) {
                 if (setButtonState(_screenType.value)) {
-                    return@map it.copy(budget =  getRemainingBudget().toString())
+                    return@map it.copy(budget = getRemainingBudget().toString())
                 } else {
-                    return@map it.copy(budget =  "0")
+                    return@map it.copy(budget = "0")
                 }
             } else return@map it
         }

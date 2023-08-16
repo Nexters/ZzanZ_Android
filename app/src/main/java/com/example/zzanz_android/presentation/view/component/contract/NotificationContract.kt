@@ -19,6 +19,7 @@ class NotificationContract {
     }
 
     data class State(
+        val isLoading: MutableState<Boolean>,
         val hour: MutableState<Int>,
         val minute: MutableState<Int>,
         val title: MutableState<Int>

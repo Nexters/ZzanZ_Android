@@ -19,9 +19,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -55,7 +53,6 @@ import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.domain.model.Category
-import com.example.zzanz_android.domain.model.PlanModel
 import com.example.zzanz_android.presentation.view.component.CategoryIcon
 import com.example.zzanz_android.presentation.view.component.InfoIcon
 import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
@@ -63,14 +60,12 @@ import com.example.zzanz_android.presentation.view.component.PlusIcon
 import com.example.zzanz_android.presentation.view.component.TitleText
 import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
-import com.example.zzanz_android.presentation.viewmodel.PlanListLoadingState
 import com.example.zzanz_android.presentation.viewmodel.PlanListViewModel
 
 @Composable
 fun BudgetByCategory(
     titleText: String,
     budgetViewModel: BudgetViewModel = hiltViewModel(),
-    planListViewModel: PlanListViewModel = hiltViewModel(),
     onAddCategoryClicked: () -> Unit,
     modifier: Modifier
 ) {

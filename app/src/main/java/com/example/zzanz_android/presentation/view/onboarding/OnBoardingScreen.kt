@@ -1,4 +1,4 @@
-package com.example.zzanz_android.presentation.view
+package com.example.zzanz_android.presentation.view.onboarding
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -76,7 +76,7 @@ fun OnBoarding(
         Spacer(modifier = Modifier.height(13.dp))
         Text(
             text = stringResource(id = uiData.titleText),
-            style = ZzanZTypo.current.H1.copy(fontSize = 28.sp, lineHeight = 40.sp),
+            style = ZzanZTypo.current.H1.copy(fontSize = 28.sp, lineHeight = 40.sp, color = ZzanZColorPalette.current.Gray08),
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.weight(1f))

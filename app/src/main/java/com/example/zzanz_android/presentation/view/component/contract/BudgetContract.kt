@@ -1,9 +1,9 @@
 package com.example.zzanz_android.presentation.view.component.contract
 
 import androidx.compose.runtime.MutableState
-import androidx.compose.ui.text.input.TextFieldValue
 import com.example.zzanz_android.common.NetworkState
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
+import com.example.zzanz_android.domain.model.PlanModel
 import com.example.zzanz_android.presentation.viewmodel.UiEffect
 import com.example.zzanz_android.presentation.viewmodel.UiEvent
 import com.example.zzanz_android.presentation.viewmodel.UiState
@@ -15,6 +15,8 @@ class BudgetContract {
         data class OnFetchBudget(val budget: String) : Event()
         object ClearBudgetCategoryItem : Event()
         data class OnFetchBudgetCategoryItem(val budgetCategory: BudgetCategoryModel) : Event()
+        data class SetBudgetCategoryList(val category: List<PlanModel>) : Event()
+
         object OnNextButtonClicked : Event()
         data class GetSettingUiData(val route: String, val argument: String?) : Event()
 
@@ -34,6 +36,6 @@ class BudgetContract {
     )
 
     sealed class Effect : UiEffect {
-        object NextRoutes: Effect()
+        object NextRoutes : Effect()
     }
 }

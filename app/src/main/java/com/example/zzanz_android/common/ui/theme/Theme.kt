@@ -31,15 +31,7 @@ fun ZzanZ_AndroidTheme(
 
         darkTheme -> darkColorScheme()
         else -> lightColorScheme()
-    }
 
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
-        }
     }
 
     CompositionLocalProvider(
@@ -47,6 +39,15 @@ fun ZzanZ_AndroidTheme(
         ZzanZTypo provides CustomTypography(),
         ZzanZDimen provides Dimen()
     ) {
+        val view = LocalView.current
+        if (!view.isInEditMode) {
+            SideEffect {
+                val window = (view.context as Activity).window
+                window.statusBarColor = colorScheme.primary.toArgb()
+//                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
+//                    darkTheme
+            }
+        }
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,

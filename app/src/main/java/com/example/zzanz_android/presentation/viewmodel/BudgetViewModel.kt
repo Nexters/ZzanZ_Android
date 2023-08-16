@@ -18,7 +18,6 @@ import com.example.zzanz_android.domain.usecase.PutBudgetUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetLastSettingRouteUseCase
 import com.example.zzanz_android.presentation.view.component.SettingUiData
 import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
-import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,6 +52,30 @@ class BudgetViewModel @Inject constructor(
                 setScreenType(event.route)
             }
 
+            is BudgetContract.Event.SetBudgetCategoryList -> {
+                clearBudgetByCategoryList()
+                _budgetData.value.category.value = _budgetData.value.category.value.map { budget ->
+                    event.category.forEach { plan ->
+                        if (plan.category == budget.categoryId.toString()) {
+                            budget.isChecked = true
+                            budget.budget = plan.goalAmount.toString()
+                            return@map budget
+                        }
+                    }
+                    return@map budget
+                }
+
+                _budgetData.value.category.value = _budgetData.value.category.value.map {
+                    if (it.categoryId == Category.NESTEGG) {
+                        return@map it.copy(
+                            isChecked = true,
+                            budget = getRemainingBudget().toString()
+                        )
+                    }
+                    return@map it
+                }
+            }
+
             is BudgetContract.Event.SetScreenState -> {
                 setScreenState(event.route)
             }
@@ -78,12 +101,19 @@ class BudgetViewModel @Inject constructor(
             }
 
             is BudgetContract.Event.ClearBudgetCategoryItem -> {
-                _budgetData.value.category.value.map {
-                    it.isChecked = false
-                    setBudgetCategoryItem(it)
-                }
+                clearBudgetByCategoryList()
             }
 
+        }
+    }
+
+    private fun clearBudgetByCategoryList() {
+        _budgetData.value.category.value = _budgetData.value.category.value.map {
+            if (it.categoryId != Category.NESTEGG) {
+                it.isChecked = false
+                return@map it
+            }
+            return@map it
         }
     }
 
@@ -178,11 +208,13 @@ class BudgetViewModel @Inject constructor(
     }
 
     private fun getRemainingBudget(): Int {
+        if (_budgetData.value.totalBudget.value.isEmpty()) {
+            return 0
+        }
         return (_budgetData.value.totalBudget.value.toInt() - getCategoryBudgetSum())
     }
 
     private fun setBudgetByCategoryState(): BudgetContract.BudgetByCategoryState {
-        Timber.e("setBudgetByCategoryState ${getEnteredBudgetCategoryCount()}")
         return BudgetContract.BudgetByCategoryState(
             remainingBudget = mutableStateOf(getRemainingBudget().toString()),
             totalCategory = mutableStateOf(getSelectedCategoryCount()),
@@ -230,11 +262,12 @@ class BudgetViewModel @Inject constructor(
     private fun setNestEggCategoryItem() {
         _budgetData.value.category.value = _budgetData.value.category.value.map {
             if (it.categoryId == Category.NESTEGG) {
-                if (setButtonState(_screenType.value)) it.copy(
-                    budget = getRemainingBudget().toString()
-                )
-                else it.copy(budget = "0")
-            } else it
+                if (setButtonState(_screenType.value)) {
+                    return@map it.copy(budget = getRemainingBudget().toString())
+                } else {
+                    return@map it.copy(budget = "0")
+                }
+            } else return@map it
         }
     }
 
@@ -286,7 +319,6 @@ class BudgetViewModel @Inject constructor(
         return putBudgetUseCase()
     }
 
-
     private fun postBudgetByCategoryUseCase() {
         viewModelScope.launch {
             val budgetByCategoryList = _budgetData.value.category.value.filter {
@@ -299,7 +331,7 @@ class BudgetViewModel @Inject constructor(
                     is Resource.Success -> {
                         if (it.data) {
                             setLastSettingRoute()
-                            GlobalUiEvent.showToast("postBudgetCategoryUseCase - Success")
+//                            GlobalUiEvent.showToast("postBudgetCategoryUseCase - Success")
                             setState(currentState.copy(budgetByCategoryState = NetworkState.Success))
                         }
                     }
@@ -307,7 +339,7 @@ class BudgetViewModel @Inject constructor(
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -326,16 +358,15 @@ class BudgetViewModel @Inject constructor(
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
-                            setLastSettingRoute()
-                            GlobalUiEvent.showToast("putBudgetCategoryUseCase - Success")
                             setState(currentState.copy(budgetByCategoryState = NetworkState.Success))
+                            setEffect(BudgetContract.Effect.NextRoutes)
                         }
                     }
 
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -356,7 +387,7 @@ class BudgetViewModel @Inject constructor(
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -374,10 +405,10 @@ class BudgetViewModel @Inject constructor(
                     is Resource.Success -> {
                         if (it.data) {
                             setState(currentState.copy(budgetState = NetworkState.Success))
-                            if (_settingType.value == SettingType.home) {
-                                putBudgetByCategoryUseCase()
-                            } else {
+                            if (_settingType.value == SettingType.onBoarding) {
                                 postBudgetByCategoryUseCase()
+                            } else {
+                                putBudgetByCategoryUseCase()
                             }
                         }
                     }
@@ -386,7 +417,7 @@ class BudgetViewModel @Inject constructor(
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
                             postBudgetUseCase()
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -412,7 +443,7 @@ class BudgetViewModel @Inject constructor(
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
                             putBudgetUseCase()
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -426,19 +457,16 @@ class BudgetViewModel @Inject constructor(
                 currentRoute = SettingNavRoutes.BudgetByCategory.route,
                 titleText = R.string.budget_by_category_title,
                 nextRoute = NavRoutes.Notification.route,
-                backRoute = SettingNavRoutes.BudgetCategory.route,
                 buttonText = R.string.next
             ), SettingUiData(
                 currentRoute = SettingNavRoutes.Budget.route,
                 titleText = R.string.next_week_budget_title,
                 nextRoute = SettingNavRoutes.BudgetCategory.route,
-                backRoute = NavRoutes.Splash.route,
                 buttonText = R.string.next
             ), SettingUiData(
                 currentRoute = SettingNavRoutes.BudgetCategory.route,
                 titleText = R.string.next_week_budget_category,
                 nextRoute = SettingNavRoutes.BudgetByCategory.route,
-                backRoute = SettingNavRoutes.Budget.route,
                 buttonText = R.string.next
 
             )

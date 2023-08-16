@@ -8,7 +8,6 @@ data class SettingUiData(
     @StringRes val titleText: Int,
     @StringRes var buttonText: Int,
     val nextRoute: String,
-    val backRoute: String,
     @DrawableRes val contentImage: Int? = null,
     @StringRes val explainContent: Int? = null
 )

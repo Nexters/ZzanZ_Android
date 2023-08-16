@@ -14,7 +14,7 @@ import timber.log.Timber
 
 
 class FirebaseMessagingService : FirebaseMessagingService() {
-    private val TAG = "Notification -"
+    private val TAG = "FirebaseMessagingService -"
     override fun onNewToken(token: String) {
         Timber.d("FirebaseMessagingService New token :: $token")
         suspend {
@@ -51,7 +51,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         val defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val channelId = getString(R.string.app_name)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setPriority(NotificationCompat.PRIORITY_HIGH).setSmallIcon(R.mipmap.ic_launcher)
+            .setPriority(NotificationCompat.PRIORITY_HIGH).setSmallIcon(R.mipmap.ic_logo)
             .setContentTitle(notification.title).setContentText(notification.body)
             .setSound(defaultSound).setContentIntent(pIntent)
 

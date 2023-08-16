@@ -1,5 +1,6 @@
 package com.example.zzanz_android.presentation.view.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -76,7 +77,7 @@ fun GreenButton(
             text = text, style = ZzanZTypo.current.Heading
         )
         buttonIcon?.let {
-          Icon(painterResource(id = it), contentDescription = "")
+          Image(painter = painterResource(id = it), contentDescription = "")
         }
     }
 }

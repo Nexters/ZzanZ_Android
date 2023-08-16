@@ -4,11 +4,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.example.zzanz_android.R
 import com.example.zzanz_android.common.Resource
+import com.example.zzanz_android.common.navigation.NavRoutes
+import com.example.zzanz_android.common.navigation.SettingType
+import com.example.zzanz_android.domain.model.FcmTokenModel
 import com.example.zzanz_android.domain.model.NotificationTimeModel
+import com.example.zzanz_android.domain.usecase.PostFcmTokenUseCase
 import com.example.zzanz_android.domain.usecase.PostNotificationTimeUseCase
+import com.example.zzanz_android.domain.usecase.preference.GetFcmTokenUseCase
 import com.example.zzanz_android.domain.usecase.preference.GetNotificationTimeUseCase
+import com.example.zzanz_android.domain.usecase.preference.SetLastSettingRouteUseCase
 import com.example.zzanz_android.domain.usecase.preference.SetNotificationTimeUseCase
-import com.example.zzanz_android.presentation.view.component.contract.GlobalUiEvent
 import com.example.zzanz_android.presentation.view.component.contract.NotificationContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -19,10 +24,15 @@ import javax.inject.Inject
 class NotificationViewModel @Inject constructor(
     private val postNotificationTimeUseCase: PostNotificationTimeUseCase,
     private val getNotifiCationTimeUseCase: GetNotificationTimeUseCase,
-    private val setNotifiCationTimeUseCase: SetNotificationTimeUseCase
+    private val setNotifiCationTimeUseCase: SetNotificationTimeUseCase,
+    private val getFcmTokenUseCase: GetFcmTokenUseCase,
+    private val postFcmTokenUseCase: PostFcmTokenUseCase,
+    private val settingRouteUseCase: SetLastSettingRouteUseCase
 ) : BaseViewModel<NotificationContract.Event, NotificationContract.State, NotificationContract.Effect>() {
+
     override fun createInitialState(): NotificationContract.State {
         return NotificationContract.State(
+            isLoading = mutableStateOf(true),
             hour = mutableStateOf(22),
             minute = mutableStateOf(0),
             title = mutableStateOf(R.string.set_notification_time_title)
@@ -40,7 +50,7 @@ class NotificationViewModel @Inject constructor(
             }
 
             is NotificationContract.Event.OnNextButtonClicked -> {
-                callNotificationTimeUseCase()
+                getFcmTokenUseCase()
             }
 
             is NotificationContract.Event.SetSettingType -> {
@@ -50,10 +60,59 @@ class NotificationViewModel @Inject constructor(
     }
 
     private fun setTitle(settingType: String?) {
-        if (settingType == null) {
-            setState(currentState.copy(title = mutableStateOf(R.string.set_notification_time_title)))
-        } else {
+        if (settingType == SettingType.home) {
             setState(currentState.copy(title = mutableStateOf(R.string.edit_notification_time_title)))
+        } else {
+            setState(currentState.copy(title = mutableStateOf(R.string.set_notification_time_title)))
+        }
+    }
+
+    private fun postFcmTokenUseCase(token: String) {
+        viewModelScope.launch {
+            postFcmTokenUseCase.invoke(
+                FcmTokenModel(
+                    fcmToken = token,
+                    operatingSystem = "ANDROID"
+                )
+            ).collect {
+                when (it) {
+                    is Resource.Success -> {
+                        if (it.data) {
+                            callNotificationTimeUseCase()
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        it.exception.message?.let { message: String ->
+                            Timber.e(message)
+//                            GlobalUiEvent.showToast(message)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private fun getFcmTokenUseCase() {
+        viewModelScope.launch {
+            getFcmTokenUseCase.invoke(null).collect {
+                when (it) {
+                    is Resource.Success -> {
+                        it.data?.let {
+//                            GlobalUiEvent.showToast("Token - $it")
+                            postFcmTokenUseCase(it)
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        it.exception.message?.let { message: String ->
+                            Timber.e(message)
+//                            GlobalUiEvent.showToast(message)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -71,26 +130,25 @@ class NotificationViewModel @Inject constructor(
                             times[1]?.let {
                                 minute = it
                             }
+                            setState(
+                                currentState.copy(
+                                    isLoading = mutableStateOf(false),
+                                    hour = mutableStateOf(hour),
+                                    minute = mutableStateOf(minute)
+                                )
+                            )
 //                            GlobalUiEvent.showToast("NotificationTimeUseCase Success")
-
                         }
                     }
 
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
             }
-            Timber.e("NotificationTimeUseCase  hour - $hour, minute - $minute")
-            setState(
-                currentState.copy(
-                    hour = mutableStateOf(hour), minute = mutableStateOf(minute)
-                )
-            )
-
         }
     }
 
@@ -104,7 +162,27 @@ class NotificationViewModel @Inject constructor(
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
-                            Timber.e("setNotificationTimeUseCase Success")
+                            settingRouteUseCase()
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        it.exception.message?.let { message: String ->
+                            Timber.e(message)
+//                            GlobalUiEvent.showToast(message)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun settingRouteUseCase() {
+        viewModelScope.launch {
+            settingRouteUseCase.invoke(NavRoutes.Home.route).collect { it ->
+                when (it) {
+                    is Resource.Success -> {
+                        if (it.data) {
                             setEffect(NotificationContract.Effect.NextRoutes)
                         }
                     }
@@ -112,7 +190,7 @@ class NotificationViewModel @Inject constructor(
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }
@@ -131,7 +209,7 @@ class NotificationViewModel @Inject constructor(
                 when (it) {
                     is Resource.Success -> {
                         if (it.data) {
-                            GlobalUiEvent.showToast("postNotificationConfig - Success")
+//                            GlobalUiEvent.showToast("postNotificationConfig - Success")
                             setNotificationTimeUsePreferences()
                         }
                     }
@@ -139,7 +217,7 @@ class NotificationViewModel @Inject constructor(
                     is Resource.Error -> {
                         it.exception.message?.let { message: String ->
                             Timber.e(message)
-                            GlobalUiEvent.showToast(message)
+//                            GlobalUiEvent.showToast(message)
                         }
                     }
                 }

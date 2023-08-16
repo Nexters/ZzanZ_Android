@@ -19,9 +19,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -55,7 +53,6 @@ import com.example.zzanz_android.common.ui.theme.ZzanZColorPalette
 import com.example.zzanz_android.common.ui.theme.ZzanZTypo
 import com.example.zzanz_android.domain.model.BudgetCategoryModel
 import com.example.zzanz_android.domain.model.Category
-import com.example.zzanz_android.domain.model.PlanModel
 import com.example.zzanz_android.presentation.view.component.CategoryIcon
 import com.example.zzanz_android.presentation.view.component.InfoIcon
 import com.example.zzanz_android.presentation.view.component.MoneyInputTextField
@@ -63,36 +60,15 @@ import com.example.zzanz_android.presentation.view.component.PlusIcon
 import com.example.zzanz_android.presentation.view.component.TitleText
 import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
 import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
-import com.example.zzanz_android.presentation.viewmodel.PlanListLoadingState
 import com.example.zzanz_android.presentation.viewmodel.PlanListViewModel
 
 @Composable
 fun BudgetByCategory(
     titleText: String,
     budgetViewModel: BudgetViewModel = hiltViewModel(),
-    planListViewModel: PlanListViewModel = hiltViewModel(),
     onAddCategoryClicked: () -> Unit,
     modifier: Modifier
 ) {
-    val planListState by planListViewModel.uiState.collectAsState()
-    var planList: List<PlanModel>? = null
-
-    if (planListState.planListLoadingState is PlanListLoadingState.Loaded) {
-        budgetViewModel.setEvent(BudgetContract.Event.ClearBudgetCategoryItem)
-        planList = (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
-        LaunchedEffect(key1 = true, block = {
-            planList.map { plan: PlanModel ->
-                budgetViewModel.budgetData.value.category.value.map {
-                    if (it.categoryId.toString() == plan.category) {
-                        it.budget = plan.goalAmount.toString()
-                        it.isChecked = true
-                        budgetViewModel.setEvent(BudgetContract.Event.OnFetchBudgetCategoryItem(it))
-                    }
-                }
-            }
-        })
-    }
-
     val focusRequester = remember {
         FocusRequester()
     }
@@ -101,15 +77,13 @@ fun BudgetByCategory(
         focusManager.moveFocus(FocusDirection.Down)
     })
     val keyboardOptions = KeyboardOptions(
-        keyboardType = KeyboardType.Number,
-        imeAction = ImeAction.Next
+        keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
     )
     val budgetCategoryState =
         budgetViewModel.uiState.collectAsState().value.budgetByCategoryItemState.value
     val remainingBudget = budgetCategoryState.remainingBudget
     val budgetCategoryData = budgetViewModel.budgetData.collectAsState().value.category
 
-    LaunchedEffect(key1 = remainingBudget, key2 = budgetCategoryData, block = {})
     var focusEnabled = true
 
     Column(
@@ -121,8 +95,8 @@ fun BudgetByCategory(
                     modifier = Modifier.padding(horizontal = 24.dp), text = titleText
                 )
                 Spacer(modifier = Modifier.height(28.dp))
-                val isRemainingBudgetEmpty = remainingBudget.value
-                    .isNotEmpty() && remainingBudget.value.toInt() == 0
+                val isRemainingBudgetEmpty =
+                    remainingBudget.value.isNotEmpty() && remainingBudget.value.toInt() == 0
                 ExplainRemainingBudget(
                     totalBudget = remainingBudget.value,
                     isRemainingBudgetEmpty = isRemainingBudgetEmpty
@@ -173,8 +147,7 @@ fun ExplainRemainingBudget(
         if (totalBudget.toInt() < 0) {
             isRemainingBudgetMinus = true
             (totalBudget.toInt() * -1).toString()
-        }
-        else totalBudget
+        } else totalBudget
     }
     Row(
         modifier = Modifier
@@ -191,11 +164,12 @@ fun ExplainRemainingBudget(
         Text(
             text = if (isRemainingBudgetEmpty) stringResource(id = R.string.week_budget_complete_title)
             else {
-                if (isRemainingBudgetMinus) stringResource(id = R.string.over_budget_title)
+                if (isRemainingBudgetMinus) stringResource(
+                    id = R.string.over_budget_title,
+                    budgetTitle
+                )
                 else stringResource(id = R.string.remaining_budget_title, budgetTitle)
-            },
-            style = ZzanZTypo.current.Body03,
-            color = ZzanZColorPalette.current.Gray08
+            }, style = ZzanZTypo.current.Body03, color = ZzanZColorPalette.current.Gray08
         )
     }
 }
@@ -220,8 +194,7 @@ fun BudgetByCategoryItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         CategoryIcon(
-            modifier = Modifier.size(32.dp),
-            resId = budgetCategoryItem.categoryImage
+            modifier = Modifier.size(32.dp), resId = budgetCategoryItem.categoryImage
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column {
@@ -233,11 +206,9 @@ fun BudgetByCategoryItem(
             Row {
                 if (budgetCategoryItem.categoryId == Category.NESTEGG) {
                     Text(
-                        text = budgetCategoryItem.budget,
-                        style = ZzanZTypo.current.Body01.copy(
+                        text = budgetCategoryItem.budget, style = ZzanZTypo.current.Body01.copy(
                             fontWeight = FontWeight.SemiBold
-                        ),
-                        color = ZzanZColorPalette.current.Gray03
+                        ), color = ZzanZColorPalette.current.Gray03
                     )
                 } else {
                     MoneyInputTextField(
@@ -245,9 +216,7 @@ fun BudgetByCategoryItem(
                             .wrapContentWidth()
                             .height(24.dp)
                             .onPreviewKeyEvent {
-                                if (it.key == Key.Enter &&
-                                    it.nativeKeyEvent.action == NativeKeyEvent.ACTION_DOWN
-                                ) {
+                                if (it.key == Key.Enter && it.nativeKeyEvent.action == NativeKeyEvent.ACTION_DOWN) {
                                     focusManager.moveFocus(FocusDirection.Down)
                                 } else {
                                     false
@@ -348,7 +317,6 @@ fun AddBudgetByCategoryItemBtn(onAddClicked: () -> Unit) {
 fun NestEggExplainText(
     prefix: String, suffix: String, amount: String
 ) {
-    // TODO 만약에 totalBudget보다 크게 할 경우 어떻게 처리할지?
     Text(
         buildAnnotatedString {
             withStyle(SpanStyle(color = ZzanZColorPalette.current.Gray06)) {

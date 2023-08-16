@@ -9,10 +9,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 class GlobalContract {
     sealed class Event : UiEvent {
         data class SetFcmToken(val token: String) : Event()
+        object GetLastRoute: Event()
     }
 
     data class State(
-        val isLoading: MutableState<Boolean>
+        val isLoading: MutableState<Boolean>,
+        val startDestination : MutableState<String?>
     ) : UiState
 
     sealed class Effect : UiEffect {

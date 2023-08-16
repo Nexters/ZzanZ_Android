@@ -1,4 +1,4 @@
-package com.example.zzanz_android.presentation.view
+package com.example.zzanz_android.presentation.view.setting
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.zzanz_android.R
+import com.example.zzanz_android.common.navigation.ArgumentKey
 import com.example.zzanz_android.common.navigation.NavRoutes
 import com.example.zzanz_android.common.navigation.SettingNavRoutes
 import com.example.zzanz_android.common.navigation.SettingType
@@ -35,10 +36,6 @@ import com.example.zzanz_android.presentation.view.component.AppBarWithBackNavig
 import com.example.zzanz_android.presentation.view.component.BottomGreenButton
 import com.example.zzanz_android.presentation.view.component.CategoryBottomSheet
 import com.example.zzanz_android.presentation.view.component.contract.BudgetContract
-import com.example.zzanz_android.presentation.view.setting.BudgetByCategory
-import com.example.zzanz_android.presentation.view.setting.BudgetCategory
-import com.example.zzanz_android.presentation.view.setting.NestEggExplainText
-import com.example.zzanz_android.presentation.view.setting.SetBudget
 import com.example.zzanz_android.presentation.viewmodel.BudgetViewModel
 import com.example.zzanz_android.presentation.viewmodel.PlanListLoadingState
 import com.example.zzanz_android.presentation.viewmodel.PlanListUiEvent
@@ -52,19 +49,25 @@ fun Setting(
     route: String = SettingNavRoutes.Budget.route,
     budgetViewModel: BudgetViewModel = hiltViewModel(),
     planListViewModel: PlanListViewModel = hiltViewModel(),
-    settingType: String? = SettingType.onBoarding
 ) {
+    val planListState by planListViewModel.uiState.collectAsState()
     val uiData = budgetViewModel.uiData.collectAsState().value
+    val settingType =
+        navController.currentBackStackEntry?.arguments?.getString(ArgumentKey.settingType)
+            ?: SettingType.onBoarding
+
     LaunchedEffect(key1 = true, block = {
         budgetViewModel.setEvent(BudgetContract.Event.GetSettingUiData(route, settingType))
+        var planList: List<PlanModel>? = null
+        if (planListState.planListLoadingState is PlanListLoadingState.Loaded) {
+            planList = (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
+            budgetViewModel.setEvent(BudgetContract.Event.SetBudgetCategoryList(planList))
+        }
     })
 
-    LaunchedEffect(key1 = uiData, block = {
-    })
     if (uiData == null) return
 
     val title = stringResource(id = uiData.titleText)
-    val planListState by planListViewModel.uiState.collectAsState()
 
     var buttonTitle: String = ""
     val coroutineScope = rememberCoroutineScope()
@@ -81,11 +84,7 @@ fun Setting(
     val enteredCategoryCnt = budgetCategoryState.value.enteredCategory.value
 
     val onNavRoutes = {
-        navController.navigate(uiData.nextRoute + "/${settingType}") {
-            popUpTo(NavRoutes.Setting.route) {
-                inclusive = true
-            }
-        }
+        navController.navigate(uiData.nextRoute + "?${settingType}")
     }
 
     LaunchedEffect(key1 = Unit, block = {
@@ -102,13 +101,14 @@ fun Setting(
                 BudgetContract.Effect.NextRoutes -> {
                     if (route == SettingNavRoutes.BudgetByCategory.route && settingType == SettingType.home) {
                         var planList: List<PlanModel>? = null
-                        val newPlanList : MutableList<PlanModel> = mutableListOf()
+                        val newPlanList: MutableList<PlanModel> = mutableListOf()
                         if (planListState.planListLoadingState is PlanListLoadingState.Loaded) {
                             budgetViewModel.setEvent(BudgetContract.Event.ClearBudgetCategoryItem)
-                            planList = (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
+                            planList =
+                                (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
                         }
-                        budgetViewModel.budgetData.value.category.value.map {budget ->
-                            planList?.map {plan ->
+                        budgetViewModel.budgetData.value.category.value.map { budget ->
+                            planList?.map { plan ->
                                 if (budget.categoryId.toString() == plan.category) {
                                     newPlanList.add(
                                         plan.copy(goalAmount = budget.budget.toInt())
@@ -117,18 +117,18 @@ fun Setting(
                             }
                         }
                         planListViewModel.setEvent(PlanListUiEvent.SetPlanList(newPlanList))
+                        navController.navigate(NavRoutes.Home.route) {
+                            popUpTo(NavRoutes.Home.route) {
+                                inclusive = true
+                            }
+                        }
+                    } else {
+                        onNavRoutes.invoke()
                     }
-                    onNavRoutes.invoke()
                 }
             }
         }
     }
-
-    LaunchedEffect(key1 = buttonState, block = {})
-    LaunchedEffect(key1 = isKeyboardOpen, block = {})
-    LaunchedEffect(key1 = budgetCategoryData, block = {})
-    LaunchedEffect(key1 = totalCategoryCnt, key2 = enteredCategoryCnt, block = {})
-
     if (route == SettingNavRoutes.BudgetByCategory.route) {
         if (isKeyboardOpen) {
             if (totalCategoryCnt != enteredCategoryCnt) {
@@ -144,9 +144,7 @@ fun Setting(
 
     buttonTitle = if (uiData.buttonText == R.string.budget_by_category_write_btn_title) {
         stringResource(
-            id = uiData.buttonText,
-            enteredCategoryCnt.toString(),
-            totalCategoryCnt.toString()
+            id = uiData.buttonText, enteredCategoryCnt.toString(), totalCategoryCnt.toString()
         )
     } else {
         stringResource(id = uiData.buttonText)
@@ -158,25 +156,22 @@ fun Setting(
             .background(color = ZzanZColorPalette.current.White)
     ) {
         val (topBarRef, contentRef, bottomRef) = createRefs()
-        TopBar(
-            navController = navController,
+        TopBar(navController = navController,
             route = route,
-            backRoute = uiData.backRoute,
             modifier = Modifier.constrainAs(topBarRef) {
                 top.linkTo(parent.top)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
                 width = Dimension.fillToConstraints
             })
-        val contentModifier = Modifier
-            .constrainAs(contentRef) {
-                top.linkTo(topBarRef.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(bottomRef.top)
-                width = Dimension.fillToConstraints
-                height = Dimension.fillToConstraints
-            }
+        val contentModifier = Modifier.constrainAs(contentRef) {
+            top.linkTo(topBarRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(bottomRef.top)
+            width = Dimension.fillToConstraints
+            height = Dimension.fillToConstraints
+        }
         Column(
             modifier = contentModifier
         ) {
@@ -185,7 +180,6 @@ fun Setting(
                     BudgetByCategory(
                         titleText = title,
                         budgetViewModel = budgetViewModel,
-                        planListViewModel = planListViewModel,
                         onAddCategoryClicked = {
                             coroutineScope.launch {
                                 sheetState.show()
@@ -212,15 +206,13 @@ fun Setting(
                 }
             }
         }
-        Column(
-            modifier = Modifier.constrainAs(bottomRef) {
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                width = Dimension.fillToConstraints
-                centerHorizontallyTo(parent)
-            }
-        ) {
+        Column(modifier = Modifier.constrainAs(bottomRef) {
+            bottom.linkTo(parent.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            width = Dimension.fillToConstraints
+            centerHorizontallyTo(parent)
+        }) {
             if (route == SettingNavRoutes.BudgetByCategory.route && (enteredCategoryCnt == totalCategoryCnt)) {
                 if (!isKeyboardOpen) {
                     Column(
@@ -265,21 +257,13 @@ fun Setting(
 }
 
 @Composable
-fun TopBar(navController: NavHostController, route: String, backRoute: String, modifier: Modifier) {
+fun TopBar(navController: NavHostController, route: String, modifier: Modifier) {
     AppBarWithBackNavigation(
+        modifier = modifier,
+        appbarColor = ZzanZColorPalette.current.White,
         onBackButtonAction = {
-            if (backRoute.isNotEmpty()) {
-                navController.navigate(backRoute) {
-                    popUpTo(NavRoutes.Setting.route) {
-                        inclusive = true
-                    }
-                }
-            } else {
-                navController.popBackStack()
-            }
-        },
-        isBackIconVisible = route != SettingNavRoutes.Budget.route,
-        modifier = modifier
+            navController.popBackStack()
+        }, isBackIconVisible = route != SettingNavRoutes.Budget.route
     )
 }
 

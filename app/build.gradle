@@ -8,14 +8,14 @@ plugins {
 }
 
 android {
-    namespace 'com.example.zzanz_android'
+    namespace 'com.zzanz.swip_android'
     compileSdk 33
 
     def secretStorePropertiesFile = rootProject.file("secretstore.properties")
     def secretStoreProperties = new Properties()
     secretStoreProperties.load(new FileInputStream(secretStorePropertiesFile))
     defaultConfig {
-        applicationId "com.example.zzanz_android"
+        applicationId "com.zzanz.swip_android"
         minSdk 29
         targetSdk 33
         versionCode 1

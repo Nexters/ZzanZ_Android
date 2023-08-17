@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">$W1P</string>
+    <string name="app_name">SW1P</string>
     <!--splash view-->
     <string name="explain_service_title">효율적으로 예산을\n모아보세요</string>
     <string name="explain_service_sub_title">주 단위 나의 소비습관을 기록해</string>

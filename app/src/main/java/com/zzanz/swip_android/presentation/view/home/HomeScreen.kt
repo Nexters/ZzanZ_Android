@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
@@ -47,6 +46,7 @@ import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.zzanz.swip_android.R
 import com.zzanz.swip_android.common.navigation.NavRoutes
 import com.zzanz.swip_android.common.navigation.SettingNavRoutes
@@ -54,7 +54,7 @@ import com.zzanz.swip_android.common.navigation.SettingType
 import com.zzanz.swip_android.common.ui.theme.ZzanZColorPalette
 import com.zzanz.swip_android.common.ui.theme.ZzanZDimen
 import com.zzanz.swip_android.common.ui.theme.ZzanZTypo
-import com.zzanz.swip_android.common.util.EmailManager
+import com.zzanz.swip_android.common.util.BrowserManager
 import com.zzanz.swip_android.domain.model.Category
 import com.zzanz.swip_android.domain.model.ChallengeModel
 import com.zzanz.swip_android.domain.model.ChallengeStatus
@@ -71,7 +71,6 @@ import com.zzanz.swip_android.presentation.view.component.ProgressIndicator
 import com.zzanz.swip_android.presentation.viewmodel.ChallengeListState
 import com.zzanz.swip_android.presentation.viewmodel.HomeEffect
 import com.zzanz.swip_android.presentation.viewmodel.HomeViewModel
-import com.zzanz.swip_android.presentation.viewmodel.PlanListLoadingState
 import com.zzanz.swip_android.presentation.viewmodel.PlanListUiEvent
 import com.zzanz.swip_android.presentation.viewmodel.PlanListViewModel
 import kotlinx.coroutines.launch
@@ -89,11 +88,13 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val challengeListState by homeViewModel.uiState.collectAsState()
-    val planListState by planListViewModel.uiState.collectAsState()
     val effect by homeViewModel.effect.collectAsState(initial = null)
 
     val scope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState()
+
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setStatusBarColor(ZzanZColorPalette.current.Gray01)
 
     Scaffold(
         modifier = Modifier,
@@ -118,11 +119,10 @@ fun HomeScreen(
                 }
 
                 is ChallengeListState.Success -> {
-                    val pagerState = rememberPagerState()
                     val challengeList =
                         (challengeListState.challengeList as ChallengeListState.Success).data.collectAsLazyPagingItems()
                     val challengeStatus = remember { mutableStateOf(ChallengeStatus.CLOSED) }
-
+                    val pagerState = rememberPagerState { challengeList.itemCount }
                     when (challengeList.loadState.refresh) {
                         is LoadState.Loading -> {
                             CircularProgressIndicator(
@@ -141,11 +141,6 @@ fun HomeScreen(
                                     modifier = Modifier.weight(1f),
                                     pagerState = pagerState,
                                     pagingItems = challengeList,
-                                    planList = if (planListState.planListLoadingState is PlanListLoadingState.Loaded) {
-                                        (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
-                                    } else {
-                                        emptyList()
-                                    },
                                     setCurrentChallenge = { challenge ->
                                         challengeStatus.value = challenge.state
                                         planListViewModel.setEvent(
@@ -185,8 +180,8 @@ fun HomeScreen(
                     onClickChangeAlarm = {
                         navController.navigate(NavRoutes.Notification.route + "?${SettingType.home}")
                     },
-                    onClickSendFeedback = { EmailManager.sendEmail(context) },
-                    onClickTerms = { /* TODO */ },
+                    onClickSendFeedback = { BrowserManager.openFeedbackPage(context) },
+                    onClickTerms = { BrowserManager.openTermsPage(context) },
                 )
             }
             if (effect is HomeEffect.ShowToast) {
@@ -203,7 +198,6 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     pagerState: PagerState,
     pagingItems: LazyPagingItems<ChallengeModel>,
-    planList: List<PlanModel>,
     setCurrentChallenge: (ChallengeModel) -> Unit,
     onClickItem: (Int) -> Unit
 ) {
@@ -211,7 +205,7 @@ fun HomeContent(
     var title by remember { mutableStateOf("") }
     var dday by remember { mutableStateOf<Int?>(null) }
     var subTitle by remember { mutableStateOf("") }
-    val planList = remember { mutableStateOf(planList) }
+    val planList = remember { mutableStateOf(listOf<PlanModel>()) }
     val challengeStatus = remember { mutableStateOf(ChallengeStatus.OPENED) }
     val goalAmount = remember { mutableStateOf(0) }
     val remainAmount = remember { mutableStateOf(0) }
@@ -316,8 +310,6 @@ fun WeekPager(
     val paddingValue = (LocalConfiguration.current.screenWidthDp - 90) / 2
     HorizontalPager(
         modifier = Modifier.padding(bottom = 28.dp, top = 8.dp),
-        pageCount = pagingItems.itemCount,
-        pageSize = PageSize.Fixed(90.dp),
         pageSpacing = 8.dp,
         reverseLayout = true,
         contentPadding = PaddingValues(horizontal = paddingValue.dp),

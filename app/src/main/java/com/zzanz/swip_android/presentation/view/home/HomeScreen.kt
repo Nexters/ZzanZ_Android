@@ -54,7 +54,7 @@ import com.zzanz.swip_android.common.navigation.SettingType
 import com.zzanz.swip_android.common.ui.theme.ZzanZColorPalette
 import com.zzanz.swip_android.common.ui.theme.ZzanZDimen
 import com.zzanz.swip_android.common.ui.theme.ZzanZTypo
-import com.zzanz.swip_android.common.util.EmailManager
+import com.zzanz.swip_android.common.util.BrowserManager
 import com.zzanz.swip_android.domain.model.Category
 import com.zzanz.swip_android.domain.model.ChallengeModel
 import com.zzanz.swip_android.domain.model.ChallengeStatus
@@ -180,8 +180,8 @@ fun HomeScreen(
                     onClickChangeAlarm = {
                         navController.navigate(NavRoutes.Notification.route + "?${SettingType.home}")
                     },
-                    onClickSendFeedback = { EmailManager.sendEmail(context) },
-                    onClickTerms = { /* TODO */ },
+                    onClickSendFeedback = { BrowserManager.openFeedbackPage(context) },
+                    onClickTerms = { BrowserManager.openTermsPage(context) },
                 )
             }
             if (effect is HomeEffect.ShowToast) {

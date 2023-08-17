@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
@@ -47,6 +46,7 @@ import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.zzanz.swip_android.R
 import com.zzanz.swip_android.common.navigation.NavRoutes
 import com.zzanz.swip_android.common.navigation.SettingNavRoutes
@@ -95,6 +95,9 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState()
 
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setStatusBarColor(ZzanZColorPalette.current.Gray01)
+
     Scaffold(
         modifier = Modifier,
         topBar = {
@@ -118,11 +121,10 @@ fun HomeScreen(
                 }
 
                 is ChallengeListState.Success -> {
-                    val pagerState = rememberPagerState()
                     val challengeList =
                         (challengeListState.challengeList as ChallengeListState.Success).data.collectAsLazyPagingItems()
                     val challengeStatus = remember { mutableStateOf(ChallengeStatus.CLOSED) }
-
+                    val pagerState = rememberPagerState { challengeList.itemCount }
                     when (challengeList.loadState.refresh) {
                         is LoadState.Loading -> {
                             CircularProgressIndicator(
@@ -316,8 +318,6 @@ fun WeekPager(
     val paddingValue = (LocalConfiguration.current.screenWidthDp - 90) / 2
     HorizontalPager(
         modifier = Modifier.padding(bottom = 28.dp, top = 8.dp),
-        pageCount = pagingItems.itemCount,
-        pageSize = PageSize.Fixed(90.dp),
         pageSpacing = 8.dp,
         reverseLayout = true,
         contentPadding = PaddingValues(horizontal = paddingValue.dp),

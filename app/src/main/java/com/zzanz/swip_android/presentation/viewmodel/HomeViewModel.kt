@@ -8,7 +8,8 @@ import com.zzanz.swip_android.domain.model.ChallengeModel
 import com.zzanz.swip_android.domain.usecase.home.GetChallengeListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,22 +35,17 @@ class HomeViewModel @Inject constructor(
 
     private fun fetchChallengeList() {
         viewModelScope.launch {
-            getChallengeListUseCase().collect { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        setState(
-                            currentState.copy(
-                                challengeList = ChallengeListState.Success(flow { emit(result.data) }.cachedIn(viewModelScope) )
-                            )
-                        )
-                    }
-                    else -> {}
-                }
-            }
+            setState(
+                currentState.copy(
+                    challengeList = ChallengeListState.Success(
+                        data = getChallengeListUseCase().filter { it is Resource.Success }.map { (it as Resource.Success).data }.cachedIn(viewModelScope)
+                    )
+                )
+            )
         }
     }
 
-    fun setEffectToShowToast(){
+    fun setEffectToShowToast() {
         setEffect(HomeEffect.ShowToast("error"))
     }
 
@@ -60,7 +56,7 @@ sealed class HomeUiEvent : UiEvent {
 }
 
 sealed class HomeEffect : UiEffect {
-    data class ShowToast(val message: String): HomeEffect()
+    data class ShowToast(val message: String) : HomeEffect()
 }
 
 data class HomeState(

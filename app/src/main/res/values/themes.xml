@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.ZzanZ_Android" parent="android:Theme.Material.Light.NoActionBar" >
-        <item name="windowSplashScreenAnimatedIcon">@drawable/icon_splash_img</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/icon_splash</item>
         <item name="windowSplashScreenAnimationDuration">1000</item>
         <item name="windowSplashScreenIconBackgroundColor">@color/white</item>
     </style>

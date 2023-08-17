@@ -148,27 +148,30 @@ fun ExplainRemainingBudget(
             (totalBudget.toInt() * -1).toString()
         } else totalBudget
     }
+    val backgroundColor =
+        if (isRemainingBudgetMinus) ZzanZColorPalette.current.Red01 else ZzanZColorPalette.current.Gray01
+    val warningColor =
+        if (isRemainingBudgetMinus) ZzanZColorPalette.current.Red04 else ZzanZColorPalette.current.Gray08
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(0.dp)
             .background(
-                color = ZzanZColorPalette.current.Gray01, shape = RectangleShape
+                color = backgroundColor, shape = RectangleShape
             )
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        InfoIcon(color = ZzanZColorPalette.current.Gray08)
+        InfoIcon(color = warningColor)
         Spacer(modifier = Modifier.width(7.dp))
         Text(
             text = if (isRemainingBudgetEmpty) stringResource(id = R.string.week_budget_complete_title)
             else {
                 if (isRemainingBudgetMinus) stringResource(
-                    id = R.string.over_budget_title,
-                    budgetTitle
+                    id = R.string.over_budget_title, budgetTitle
                 )
                 else stringResource(id = R.string.remaining_budget_title, budgetTitle)
-            }, style = ZzanZTypo.current.Body03, color = ZzanZColorPalette.current.Gray08
+            }, style = ZzanZTypo.current.Body03, color = warningColor
         )
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -43,6 +44,7 @@ import com.zzanz.swip_android.presentation.view.component.GreenRoundButton
 import com.zzanz.swip_android.presentation.view.component.TitleText
 import com.zzanz.swip_android.presentation.view.component.contract.NotificationContract
 import com.zzanz.swip_android.presentation.viewmodel.NotificationViewModel
+import timber.log.Timber
 
 @Composable
 fun NotificationSetting(
@@ -86,8 +88,8 @@ fun NotificationSetting(
             .padding(horizontal = ZzanZDimen.current.defaultHorizontal)
     ) {
         AppBarWithBackNavigation(
-            appbarColor = ZzanZColorPalette.current.White,
-            isBackIconVisible = false)
+            appbarColor = ZzanZColorPalette.current.White, isBackIconVisible = false
+        )
         Spacer(modifier = Modifier.height(8.dp))
         TitleText(
             modifier = Modifier, text = stringResource(titleRes)
@@ -147,7 +149,7 @@ fun CircularNumber(
     val hourOffset = if (hourSize == maxSize) 1 else 0
     val expandedSize = hourSize * 10_000_000
     val initialListPoint = expandedSize / 2
-    val targetIndex = initialListPoint + initialHour - 1
+    val targetIndex = initialListPoint + initialHour - 1 * numberPadding
 
     val scrollState = rememberLazyListState(targetIndex)
     val hour by remember { derivedStateOf { (scrollState.firstVisibleItemIndex + 1) % hourSize } }
@@ -170,7 +172,7 @@ fun CircularNumber(
     Box(
         modifier = Modifier
             .height(height)
-            .width(46.dp),
+            .defaultMinSize(minWidth = 46.dp)
     ) {
         LazyColumn(
             modifier = Modifier.wrapContentWidth(),
@@ -181,18 +183,30 @@ fun CircularNumber(
                 // if 12hr format, move 1 hour so instead of displaying 00 -> 11
                 // it will display 01 to 12
                 val num = (it % hourSize) + hourOffset
-                val isFocusedNum = (scrollState.firstVisibleItemIndex + 1) == it
-                Box(
-                    modifier = Modifier
-                        .height(cellSize)
-                        .width(46.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = if (isHour) num.toString() else String.format("%02d", num),
-                        style = ZzanZTypo.current.Heading.copy(fontSize = if (isFocusedNum) 36.sp else 28.sp),
-                        color = if (isFocusedNum) ZzanZColorPalette.current.Gray09 else ZzanZColorPalette.current.Gray04
-                    )
+                var visible = true
+                if (!isHour) {
+                    if (num % numberPadding != 0) visible = false
+                }
+                val isFocusedNum = (scrollState.firstVisibleItemIndex + 1*numberPadding) == it
+
+                if (visible) {
+                    Timber.e("num - $num")
+                    Timber.e("it - $it")
+                    Timber.e("isFocusedNum - $isFocusedNum")
+                    Timber.e("firstVisibleItemIndex - ${scrollState.firstVisibleItemIndex}")
+
+                    Box(
+                        modifier = Modifier
+                            .height(cellSize)
+                            .defaultMinSize(minWidth = 46.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (isHour) num.toString() else String.format("%02d", num),
+                            style = ZzanZTypo.current.Heading.copy(fontSize = if (isFocusedNum) 36.sp else 28.sp),
+                            color = if (isFocusedNum) ZzanZColorPalette.current.Gray09 else ZzanZColorPalette.current.Gray04
+                        )
+                    }
                 }
             })
         }

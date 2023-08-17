@@ -16,7 +16,7 @@
     <string name="budget_by_category_title">카테고리별 예산을 입력해주세요</string>
     <string name="week_budget_complete_title">이번주 예산을 모두 분배했어요.</string>
     <string name="remaining_budget_title">분배할 수 있는 예산이 %s원 남았어요</string>
-    <string name="over_budget_title">분배할 수 있는 예산보다 %s원 더 분배했어요</string>
+    <string name="over_budget_title">계획한 예산을 %s원 넘쳤어요</string>
     <string name="budget_save_money_title_1">남은 "</string>
     <string name="budget_save_money_title_2">은 비상금에 쏙! 넣어드릴게요."</string>
     <string name="budget_by_category_write_btn_title">%1$s/%2$s 입력했어요</string>

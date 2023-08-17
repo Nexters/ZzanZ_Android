@@ -71,7 +71,6 @@ import com.zzanz.swip_android.presentation.view.component.ProgressIndicator
 import com.zzanz.swip_android.presentation.viewmodel.ChallengeListState
 import com.zzanz.swip_android.presentation.viewmodel.HomeEffect
 import com.zzanz.swip_android.presentation.viewmodel.HomeViewModel
-import com.zzanz.swip_android.presentation.viewmodel.PlanListLoadingState
 import com.zzanz.swip_android.presentation.viewmodel.PlanListUiEvent
 import com.zzanz.swip_android.presentation.viewmodel.PlanListViewModel
 import kotlinx.coroutines.launch
@@ -89,7 +88,6 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val challengeListState by homeViewModel.uiState.collectAsState()
-    val planListState by planListViewModel.uiState.collectAsState()
     val effect by homeViewModel.effect.collectAsState(initial = null)
 
     val scope = rememberCoroutineScope()
@@ -143,11 +141,6 @@ fun HomeScreen(
                                     modifier = Modifier.weight(1f),
                                     pagerState = pagerState,
                                     pagingItems = challengeList,
-                                    planList = if (planListState.planListLoadingState is PlanListLoadingState.Loaded) {
-                                        (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
-                                    } else {
-                                        emptyList()
-                                    },
                                     setCurrentChallenge = { challenge ->
                                         challengeStatus.value = challenge.state
                                         planListViewModel.setEvent(
@@ -205,7 +198,6 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     pagerState: PagerState,
     pagingItems: LazyPagingItems<ChallengeModel>,
-    planList: List<PlanModel>,
     setCurrentChallenge: (ChallengeModel) -> Unit,
     onClickItem: (Int) -> Unit
 ) {
@@ -213,7 +205,7 @@ fun HomeContent(
     var title by remember { mutableStateOf("") }
     var dday by remember { mutableStateOf<Int?>(null) }
     var subTitle by remember { mutableStateOf("") }
-    val planList = remember { mutableStateOf(planList) }
+    val planList = remember { mutableStateOf(listOf<PlanModel>()) }
     val challengeStatus = remember { mutableStateOf(ChallengeStatus.OPENED) }
     val goalAmount = remember { mutableStateOf(0) }
     val remainAmount = remember { mutableStateOf(0) }

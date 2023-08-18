@@ -395,8 +395,9 @@ fun CategoryList(
     onClickItem: (Int) -> Unit
 ) {
     val horizontalSpace = 16.dp
+    // TODO : 추후 개선 사항 ( 스크롤 영역에 따라서 그리드로 변경 )
     val itemWidth =
-        (LocalConfiguration.current.screenWidthDp.dp - (ZzanZDimen.current.defaultHorizontal * 2) - horizontalSpace) / 2
+        (LocalConfiguration.current.screenWidthDp.dp - (ZzanZDimen.current.defaultHorizontal * 2) - horizontalSpace - 10.dp) / 2
     FlowRow(
         modifier = Modifier
             .fillMaxSize()

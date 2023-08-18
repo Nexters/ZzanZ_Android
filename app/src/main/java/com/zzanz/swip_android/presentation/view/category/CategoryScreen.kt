@@ -29,7 +29,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.zzanz.swip_android.R
 import com.zzanz.swip_android.common.navigation.NavRoutes
 import com.zzanz.swip_android.common.ui.theme.ZzanZColorPalette
@@ -51,9 +50,6 @@ fun CategoryScreen(
     navController: NavController, viewModel: CategoryViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-
-    val systemUiController = rememberSystemUiController()
-    systemUiController.setStatusBarColor(ZzanZColorPalette.current.White)
 
     val categoryState by viewModel.uiState.collectAsState()
     val effect by viewModel.effect.collectAsState(null)

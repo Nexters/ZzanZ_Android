@@ -46,7 +46,6 @@ import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.zzanz.swip_android.R
 import com.zzanz.swip_android.common.navigation.NavRoutes
 import com.zzanz.swip_android.common.navigation.SettingNavRoutes
@@ -93,9 +92,6 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState()
 
-    val systemUiController = rememberSystemUiController()
-    systemUiController.setStatusBarColor(ZzanZColorPalette.current.Gray01)
-
     Scaffold(
         modifier = Modifier,
         topBar = {
@@ -122,7 +118,7 @@ fun HomeScreen(
                     val challengeList =
                         (challengeListState.challengeList as ChallengeListState.Success).data.collectAsLazyPagingItems()
                     val challengeStatus = remember { mutableStateOf(ChallengeStatus.CLOSED) }
-                    val pagerState = rememberPagerState { challengeList.itemCount }
+                    val pagerState = rememberPagerState()
                     when (challengeList.loadState.refresh) {
                         is LoadState.Loading -> {
                             CircularProgressIndicator(
@@ -313,8 +309,9 @@ fun WeekPager(
         pageSpacing = 8.dp,
         reverseLayout = true,
         contentPadding = PaddingValues(horizontal = paddingValue.dp),
-        state = pagerState
-    ) {
+        state = pagerState,
+        pageCount = pagingItems.itemCount
+        ) {
         setCurrentPage(it)
         val challenge = remember { pagingItems[it] }
         val title = challenge?.let { challenge ->

@@ -1,8 +1,10 @@
 package com.zzanz.swip_android
 
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.window.SplashScreen
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -59,8 +61,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        setupSplashScreen()
+        val splashScreen = installSplashScreen()
+        setupSplashScreen(splashScreen)
 
         setContent {
             askNotificationPermission()
@@ -108,7 +110,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun setupSplashScreen() {
+    private fun setupSplashScreen(splashScreen: androidx.core.splashscreen.SplashScreen) {
         var keepSplashScreenOn = true
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -119,7 +121,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        installSplashScreen().setKeepOnScreenCondition {
+        splashScreen.setKeepOnScreenCondition {
             keepSplashScreenOn
         }
     }

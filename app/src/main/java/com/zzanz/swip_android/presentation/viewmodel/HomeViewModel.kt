@@ -38,7 +38,7 @@ class HomeViewModel @Inject constructor(
             setState(
                 currentState.copy(
                     challengeList = ChallengeListState.Success(
-                        data = getChallengeListUseCase().filter { it is Resource.Success }.map { (it as Resource.Success).data }.cachedIn(viewModelScope)
+                        data = getChallengeListUseCase().filter { it is Resource.Success }.map { (it as Resource.Success).data }
                     )
                 )
             )

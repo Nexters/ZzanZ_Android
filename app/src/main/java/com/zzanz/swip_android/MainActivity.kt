@@ -67,7 +67,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             askNotificationPermission()
             mainViewModel.setEvent(GlobalContract.Event.GetLastRoute)
-            val isKeyboardOpen by keyboardAsState()
             var toastState by remember { mutableStateOf("") }
             var job: Job? = null
             val scope = rememberCoroutineScope()
@@ -102,9 +101,6 @@ class MainActivity : ComponentActivity() {
                         message = toastState,
                         isVisible = toastState.isNotEmpty(),
                     )
-                    if (isKeyboardOpen) {
-                        Spacer(modifier = Modifier.padding(WindowInsets.ime.getBottom(LocalDensity.current).dp))
-                    }
                 }
             }
         }

@@ -30,6 +30,7 @@ import com.zzanz.swip_android.common.navigation.SettingType
 import com.zzanz.swip_android.common.ui.theme.ZzanZColorPalette
 import com.zzanz.swip_android.common.ui.theme.ZzanZDimen
 import com.zzanz.swip_android.common.ui.util.keyboardAsState
+import com.zzanz.swip_android.domain.model.BudgetCategoryModel
 import com.zzanz.swip_android.domain.model.Category
 import com.zzanz.swip_android.domain.model.PlanModel
 import com.zzanz.swip_android.presentation.view.component.AppBarWithBackNavigation
@@ -58,10 +59,15 @@ fun Setting(
 
     LaunchedEffect(key1 = true, block = {
         budgetViewModel.setEvent(BudgetContract.Event.GetSettingUiData(route, settingType))
-        var planList: List<PlanModel>? = null
-        if (planListState.planListLoadingState is PlanListLoadingState.Loaded) {
-            planList = (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
-            budgetViewModel.setEvent(BudgetContract.Event.SetBudgetCategoryList(planList))
+        if (route == SettingNavRoutes.Budget.route) {
+            if (planListState.planListLoadingState is PlanListLoadingState.Loaded) {
+                val planList =
+                    (planListState.planListLoadingState as PlanListLoadingState.Loaded).planList
+                budgetViewModel.setEvent(BudgetContract.Event.SetBudgetCategoryList(planList))
+            }
+        }
+        if (route == SettingNavRoutes.BudgetByCategory.route) {
+            budgetViewModel.setEvent(BudgetContract.Event.OnFetchNestEggItem)
         }
     })
 
@@ -259,9 +265,7 @@ fun Setting(
 @Composable
 fun TopBar(navController: NavHostController, route: String, modifier: Modifier) {
     AppBarWithBackNavigation(
-        modifier = modifier,
-        appbarColor = ZzanZColorPalette.current.White,
-        onBackButtonAction = {
+        modifier = modifier, appbarColor = ZzanZColorPalette.current.White, onBackButtonAction = {
             navController.popBackStack()
         }, isBackIconVisible = route != SettingNavRoutes.Budget.route
     )

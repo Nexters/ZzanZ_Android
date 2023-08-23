@@ -54,10 +54,12 @@ class BudgetViewModel @Inject constructor(
 
             is BudgetContract.Event.SetBudgetCategoryList -> {
                 clearBudgetByCategoryList()
+                var totalBudget = 0
                 _budgetData.value.category.value = _budgetData.value.category.value.map { budget ->
                     event.category.forEach { plan ->
                         if (plan.category == budget.categoryId.toString()) {
                             budget.isChecked = true
+                            totalBudget += plan.goalAmount
                             budget.budget = plan.goalAmount.toString()
                             return@map budget
                         }
@@ -65,15 +67,8 @@ class BudgetViewModel @Inject constructor(
                     return@map budget
                 }
 
-                _budgetData.value.category.value = _budgetData.value.category.value.map {
-                    if (it.categoryId == Category.NESTEGG) {
-                        return@map it.copy(
-                            isChecked = true,
-                            budget = getRemainingBudget().toString()
-                        )
-                    }
-                    return@map it
-                }
+                setNestEggBudget()
+                _budgetData.value.totalBudget.value = totalBudget.toString()
             }
 
             is BudgetContract.Event.SetScreenState -> {
@@ -104,8 +99,25 @@ class BudgetViewModel @Inject constructor(
                 clearBudgetByCategoryList()
             }
 
+            is BudgetContract.Event.OnFetchNestEggItem -> {
+                setNestEggBudget()
+            }
+
         }
     }
+
+    private fun setNestEggBudget() {
+        _budgetData.value.category.value = _budgetData.value.category.value.map {
+            if (it.categoryId == Category.NESTEGG) {
+                return@map it.copy(
+                    isChecked = true,
+                    budget = getRemainingBudget().toString()
+                )
+            }
+            return@map it
+        }
+    }
+
 
     private fun clearBudgetByCategoryList() {
         _budgetData.value.category.value = _budgetData.value.category.value.map {

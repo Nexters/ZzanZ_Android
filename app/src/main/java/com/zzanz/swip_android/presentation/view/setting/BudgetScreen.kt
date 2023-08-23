@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,6 +43,7 @@ fun SetBudget(
         FocusRequester()
     }
     val budget = budgetViewModel.budgetData.collectAsState().value.totalBudget.value
+    val buttonState = budgetViewModel.uiState.collectAsState().value.buttonState.value
     val settingType = budgetViewModel.settingType.collectAsState().value
 
     Column(
@@ -70,12 +72,11 @@ fun SetBudget(
                 .focusRequester(focusRequester),
             text = TextFieldValue(budget, selection = TextRange(budget.length)),
             onClickAction = {
-                budgetViewModel.setEvent(
-                    BudgetContract.Event.OnFetchBudget(budget)
-                )
-                budgetViewModel.setEvent(
-                    BudgetContract.Event.OnNextButtonClicked
-                )
+                if (buttonState) {
+                    budgetViewModel.setEvent(
+                        BudgetContract.Event.OnNextButtonClicked
+                    )
+                }
             },
             onTextChanged = { text: TextFieldValue ->
                 budgetViewModel.setEvent(

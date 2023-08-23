@@ -146,13 +146,13 @@ fun CircularNumber(
     val height = 160.dp
     val cellSize = height / 3
 
-    val hourOffset = if (hourSize == maxSize) 1 else 0
+    val hourOffset = if (hourSize == maxSize) numberPadding else 0
     val expandedSize = hourSize * 10_000_000
     val initialListPoint = expandedSize / 2
-    val targetIndex = initialListPoint + initialHour - 1 * numberPadding
+    val targetIndex = initialListPoint + initialHour - numberPadding
 
     val scrollState = rememberLazyListState(targetIndex)
-    val hour by remember { derivedStateOf { (scrollState.firstVisibleItemIndex + 1) % hourSize } }
+    val hour by remember { derivedStateOf { (scrollState.firstVisibleItemIndex + numberPadding) % hourSize } }
 
     if (!scrollState.isScrollInProgress) {
         notificationViewModel.setEvent(
@@ -172,10 +172,12 @@ fun CircularNumber(
     Box(
         modifier = Modifier
             .height(height)
-            .defaultMinSize(minWidth = 46.dp)
+            .defaultMinSize(minWidth = 46.dp, minHeight = height)
     ) {
         LazyColumn(
-            modifier = Modifier.wrapContentWidth(),
+            modifier = Modifier
+                .wrapContentWidth()
+                .height(height),
             state = scrollState,
             flingBehavior = rememberSnapFlingBehavior(lazyListState = scrollState)
         ) {
@@ -183,30 +185,28 @@ fun CircularNumber(
                 // if 12hr format, move 1 hour so instead of displaying 00 -> 11
                 // it will display 01 to 12
                 val num = (it % hourSize) + hourOffset
-                var visible = true
                 if (!isHour) {
-                    if (num % numberPadding != 0) visible = false
-                }
-                val isFocusedNum = (scrollState.firstVisibleItemIndex + 1*numberPadding) == it
-
-                if (visible) {
-                    Timber.e("num - $num")
-                    Timber.e("it - $it")
-                    Timber.e("isFocusedNum - $isFocusedNum")
-                    Timber.e("firstVisibleItemIndex - ${scrollState.firstVisibleItemIndex}")
-
-                    Box(
-                        modifier = Modifier
-                            .height(cellSize)
-                            .defaultMinSize(minWidth = 46.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = if (isHour) num.toString() else String.format("%02d", num),
-                            style = ZzanZTypo.current.Heading.copy(fontSize = if (isFocusedNum) 36.sp else 28.sp),
-                            color = if (isFocusedNum) ZzanZColorPalette.current.Gray09 else ZzanZColorPalette.current.Gray04
-                        )
+                    if (num % numberPadding != 0) {
+                        return@items
                     }
+                }
+                val isFocusedNum = (scrollState.firstVisibleItemIndex + numberPadding) == it
+                Timber.e("num - $num")
+                Timber.e("it - $it")
+                Timber.e("isFocusedNum - $isFocusedNum")
+                Timber.e("firstVisibleItemIndex - ${scrollState.firstVisibleItemIndex}")
+
+                Box(
+                    modifier = Modifier
+                        .height(cellSize)
+                        .defaultMinSize(minWidth = 46.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = if (isHour) num.toString() else String.format("%02d", num),
+                        style = ZzanZTypo.current.Heading.copy(fontSize = if (isFocusedNum) 36.sp else 28.sp),
+                        color = if (isFocusedNum) ZzanZColorPalette.current.Gray09 else ZzanZColorPalette.current.Gray04
+                    )
                 }
             })
         }

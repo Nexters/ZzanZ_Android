@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.Key
@@ -60,6 +59,7 @@ import com.zzanz.swip_android.presentation.view.component.PlusIcon
 import com.zzanz.swip_android.presentation.view.component.TitleText
 import com.zzanz.swip_android.presentation.view.component.contract.BudgetContract
 import com.zzanz.swip_android.presentation.viewmodel.BudgetViewModel
+import timber.log.Timber
 
 @Composable
 fun BudgetByCategory(
@@ -83,8 +83,6 @@ fun BudgetByCategory(
     val remainingBudget = budgetCategoryState.remainingBudget
     val budgetCategoryData = budgetViewModel.budgetData.collectAsState().value.category
 
-    var focusEnabled = true
-
     Column(
         modifier = modifier
     ) {
@@ -103,16 +101,11 @@ fun BudgetByCategory(
             }
             items(budgetCategoryData.value.size) { idx ->
                 val item = budgetCategoryData.value[idx]
-                val itemModifier = Modifier
                 if (item.isChecked && item.categoryId != Category.NESTEGG) {
-                    if (focusEnabled) {
-                        itemModifier.focusRequester(focusRequester)
-                        focusEnabled = false
-                    }
                     BudgetByCategoryItem(
                         budgetViewModel = budgetViewModel,
                         budgetCategoryItem = item,
-                        modifier = itemModifier,
+                        modifier = Modifier,
                         keyboardAction = keyboardAction,
                         keyboardOptions = keyboardOptions,
                         focusManager = focusManager
@@ -122,7 +115,7 @@ fun BudgetByCategory(
                     BudgetByCategoryItem(
                         budgetViewModel = budgetViewModel,
                         budgetCategoryItem = item,
-                        modifier = itemModifier,
+                        modifier = Modifier,
                         focusManager = focusManager,
                         keyboardOptions = keyboardOptions,
                         keyboardAction = keyboardAction
